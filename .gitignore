@@ -128,6 +128,10 @@ ehthumbs.db
 Thumbs.db
 Desktop.ini
 
+# Windows Zone Identifier files
+*:Zone.Identifier
+*.Zone.Identifier
+
 # ============================================
 # DEPLOYMENT
 # ============================================
@@ -195,6 +199,16 @@ sentry.properties
 .~*
 ~*
 
+# Backup archives
+*.tar.gz
+*.zip
+*.rar
+*.7z
+*-backup.*
+*backup.tar.gz
+backup-*
+backups/
+
 # ============================================
 # UPLOADED FILES & USER CONTENT
 # ============================================
@@ -219,6 +233,23 @@ scratch/
 TODO.md
 NOTES.md
 .vscode-test/
+drafts/
+.drafts/
+experiments/
+playground/
+sandbox/
+
+# Storybook
+storybook-static/
+.storybook-out/
+
+# Turborepo
+.turbo/
+
+# Development notes & instructions
+claude_code_instructions.md
+dev-notes.md
+architecture-notes.md
 
 # ============================================
 # SECURITY SCANS
@@ -232,6 +263,64 @@ trivy-*.json
 # ============================================
 .github/workflows/*.yml.bak
 .gitlab-ci.local.yml
+
+# ============================================
+# PAYMENT GATEWAY TESTING
+# ============================================
+# Stripe test data
+stripe-test-*.json
+test-webhooks/
+webhook-logs/
+
+# Razorpay test data
+razorpay-test-*.json
+
+# Generic payment testing
+payment-test-data/
+test-transactions/
+mock-payments/
+
+# ============================================
+# API TESTING & DOCUMENTATION
+# ============================================
+# Postman
+*.postman_collection.json
+*.postman_environment.json
+postman-tests/
+
+# Insomnia
+.insomnia/
+
+# Swagger/OpenAPI generated
+api-docs-generated/
+
+# ============================================
+# PERFORMANCE & PROFILING
+# ============================================
+*.cpuprofile
+*.heapprofile
+*.heapsnapshot
+.clinic/
+profile-*
+lighthouse-reports/
+*.lighthouse.html
+
+# ============================================
+# LOCAL CONFIGURATION OVERRIDES
+# ============================================
+config.local.js
+config.local.json
+*.local.json
+local-config/
+
+# ============================================
+# SAMPLE & TEST DATA
+# ============================================
+sample-data/
+test-data/
+mock-data/
+fixtures-local/
+seed-data-local/
 
 # ============================================
 # KEEP THESE FILES (Examples)

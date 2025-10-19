@@ -641,43 +641,58 @@ export default function Home() {
                 </div>
                 <span className="text-xl font-bold text-white">DevopsInterview.Cloud</span>
               </div>
-              <p className="text-muted-foreground mb-4 max-w-md">
+              <p className="text-white mb-4 max-w-md">
                 Master DevOps and Cloud technologies with expert-curated ebooks, comprehensive interview preparation guides,
                 and practical tutorials. Advance your career with the most trusted DevOps learning platform.
               </p>
-              <p className="text-muted-foreground">
+              <p className="text-white mb-6">
                 ⭐ Trusted by 15,000+ professionals worldwide
               </p>
+
+              {/* Business Contact Information - Required for Payment Gateway Approval */}
+              <div className="mt-6 pt-4 border-t border-slate-800 text-sm space-y-1">
+                <p className="font-semibold text-white mb-2">Contact Information</p>
+                <p className="text-white">
+                  <a href="mailto:support@devopsinterview.cloud" className="hover:text-blue-400 transition-colors">
+                    Email: support@devopsinterview.cloud
+                  </a>
+                </p>
+                <p className="text-white">Phone: Available upon request via email</p>
+                <p className="text-white mt-2">34, Padmavathy Nagar, MMC</p>
+                <p className="text-white">Chennai, Tamil Nadu 600051</p>
+                <p className="text-white">India</p>
+                <p className="text-white mt-2 text-xs">Hours: Monday - Friday, 9 AM - 6 PM IST</p>
+              </div>
             </div>
             
             <div>
               <h4 className="font-semibold text-white mb-4">Quick Links</h4>
               <ul className="space-y-2">
-                <li><a href="#ebooks" className="hover:text-white transition-colors">Featured Ebooks</a></li>
-                <li><a href="#categories" className="hover:text-white transition-colors">Browse Categories</a></li>
-                <li><a href="#interview-prep" className="hover:text-white transition-colors">Interview Prep</a></li>
-                <li><a href="#youtube" className="hover:text-white transition-colors">YouTube Channel</a></li>
+                <li><a href="#ebooks" className="text-white hover:text-blue-400 transition-colors">Featured Ebooks</a></li>
+                <li><a href="#categories" className="text-white hover:text-blue-400 transition-colors">Browse Categories</a></li>
+                <li><a href="#interview-prep" className="text-white hover:text-blue-400 transition-colors">Interview Prep</a></li>
+                <li><a href="#youtube" className="text-white hover:text-blue-400 transition-colors">YouTube Channel</a></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold text-white mb-4">Support</h4>
               <ul className="space-y-2">
-                <li><a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="/terms" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="/contact" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="/refunds" className="hover:text-white transition-colors">Refund Policy</a></li>
+                <li><a href="/privacy" className="text-white hover:text-blue-400 transition-colors">Privacy Policy</a></li>
+                <li><a href="/terms" className="text-white hover:text-blue-400 transition-colors">Terms of Service</a></li>
+                <li><a href="/contact" className="text-white hover:text-blue-400 transition-colors">Contact Us</a></li>
+                <li><a href="/refunds" className="text-white hover:text-blue-400 transition-colors">Refund Policy</a></li>
               </ul>
             </div>
           </div>
 
           <div className="border-t border-slate-800 pt-8 mt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-muted-foreground">
+              <p className="text-white">
                 © 2025 DevopsInterview.Cloud. All rights reserved.
               </p>
               <div className="flex items-center gap-2 mt-4 md:mt-0">
-                <span className="text-muted-foreground">Made with ❤️ for the DevOps community</span>
+                <span className="text-white">Made with ❤️ for the DevOps community</span>
               </div>
             </div>
           </div>
