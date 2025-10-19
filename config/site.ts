@@ -1,0 +1,118 @@
+export const siteConfig = {
+  name: "DevopsInterview.Cloud",
+  description: "Master DevOps and Cloud interview questions and answers with expert-curated interview preparation guides. Ace AWS Azure GCP cloud interviews, DevOps technical interviews, cloud architecture interviews, Kubernetes Docker containerization interviews, Terraform IaC interviews, CI/CD pipeline interviews, and advance your DevOps and Cloud career with comprehensive interview prep resources.",
+  url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  ogImage: "/og-image.jpg",
+  creator: {
+    name: "DevopsInterview.Cloud",
+    url: "https://devopsinterview.cloud",
+  },
+  keywords: [
+    "devops and cloud interview questions",
+    "devops interview questions and answers",
+    "cloud computing interview prep",
+    "cloud interview questions and answers",
+    "aws solutions architect interview questions",
+    "azure devops interview preparation",
+    "gcp cloud engineer interview guide",
+    "kubernetes interview questions",
+    "docker containerization interview prep",
+    "terraform interview questions",
+    "ci/cd pipeline interview scenarios",
+    "devops interview questions",
+    "system design interview questions",
+    "site reliability engineering interview prep",
+    "monitoring observability interview questions",
+    "microservices architecture interview prep",
+    "automation scripting interview questions",
+    "linux system administration interview prep",
+    "cloud migration interview scenarios",
+    "security devops interview questions",
+    "devops career advancement",
+    "technical interview preparation",
+    "cloud certification exam prep",
+    "devops troubleshooting interview questions",
+    "jenkins interview questions",
+    "gitlab ci interview prep",
+    "ansible interview questions",
+    "prometheus grafana interview prep",
+    "elasticsearch interview questions",
+    "devops behavioral interview prep",
+    "infrastructure automation interview questions",
+    "containerization interview scenarios",
+    "cloud architecture interview questions",
+    "devops coding challenges",
+    "sre interview preparation",
+    "platform engineering interview prep",
+    "devops system design interview",
+    "cloud native interview questions"
+  ],
+  authors: [
+    {
+      name: "DevopsInterview.Cloud Team",
+      url: "https://devopsinterview.cloud",
+    },
+  ],
+  mainNav: [
+    {
+      title: "Home",
+      href: "/",
+    },
+    {
+      title: "Ebooks",
+      href: "/#ebooks",
+    },
+    {
+      title: "Categories",
+      href: "/#categories",
+    },
+    {
+      title: "Interview Prep",
+      href: "/#interview-prep",
+    },
+    {
+      title: "Certifications",
+      href: "/#certifications",
+    },
+    {
+      title: "FAQ",
+      href: "/#faq",
+    },
+    {
+      title: "YouTube",
+      href: "https://youtube.com/@devopsinterviewcloud",
+    },
+    {
+      title: "Podcast",
+      href: "https://devopsinterview.cloud/podcast",
+    },
+  ],
+  socialLinks: {
+    twitter: "https://twitter.com/devopsinterviewcloud",
+    linkedin: "https://linkedin.com/company/devopsinterviewcloud",
+    github: "https://github.com/devopsinterviewcloud",
+    youtube: "https://youtube.com/@devopsinterviewcloud",
+  },
+  support: {
+    email: "devopsinterview.cloud@gmail.com",
+    phone: "+1 (555) 123-4567",
+  },
+  legal: {
+    privacy: "/privacy",
+    terms: "/terms",
+    refunds: "/refunds",
+  },
+  features: [
+    "Instant digital delivery",
+    "Multiple formats (PDF, EPUB, MOBI)",
+    "Lifetime access & updates",
+    "Mobile-optimized reading",
+    "Expert-curated DevOps content",
+    "Interview question banks",
+    "Hands-on lab exercises",
+    "Certification roadmaps",
+    "24/7 technical support",
+  ],
+}
+
+export type SiteConfig = typeof siteConfig
