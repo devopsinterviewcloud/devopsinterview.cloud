@@ -1,45 +1,156 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# ============================================
+# DEPENDENCIES
+# ============================================
 /node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
 
-# testing
+# ============================================
+# TESTING
+# ============================================
 /coverage
+/.nyc_output
+/test-results
+/playwright-report
 
-# next.js
+# ============================================
+# NEXT.JS
+# ============================================
 /.next/
 /out/
+.next
+next-env.d.ts
 
-# production
+# ============================================
+# PRODUCTION BUILD
+# ============================================
 /build
+/dist
+*.local
 
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# local env files
+# ============================================
+# ENVIRONMENT VARIABLES (CRITICAL!)
+# ============================================
+.env
 .env*.local
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+.env.development
+.env.test
 
-# vercel
+# ============================================
+# SECRETS & CREDENTIALS (CRITICAL!)
+# ============================================
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+secrets.json
+credentials.json
+serviceAccount.json
+firebase-adminsdk.json
+
+# Stripe
+stripe-cli-*
+
+# AWS
+.aws/
+
+# ============================================
+# DATABASE
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+/prisma/dev.db
+/prisma/migrations/**/migration.sql.bak
+prisma/.env
+
+# ============================================
+# LOGS & DEBUG
+# ============================================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ============================================
+# MISC FILES
+# ============================================
+.DS_Store
+*.pem
+*.swp
+*.swo
+*~
+*.bak
+*.tmp
+*.temp
+
+# ============================================
+# EDITOR DIRECTORIES & FILES
+# ============================================
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# ============================================
+# OS FILES
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ============================================
+# DEPLOYMENT
+# ============================================
 .vercel
+.netlify
+.railway
+.render
+.cyclic
 
-# typescript
+# Docker
+.dockerignore.bak
+docker-compose.override.yml
+
+# ============================================
+# TYPESCRIPT
+# ============================================
 *.tsbuildinfo
 next-env.d.ts
+tsconfig.tsbuildinfo
 
-# PWA files
+# ============================================
+# PWA FILES
+# ============================================
 **/public/sw.js
 **/public/workbox-*.js
 **/public/worker-*.js
@@ -47,23 +158,84 @@ next-env.d.ts
 **/public/workbox-*.js.map
 **/public/worker-*.js.map
 
-# Editor directories and files
-.idea
-.vscode
+# ============================================
+# BUNDLE ANALYZER
+# ============================================
+.next/analyze/
+/analyze
+
+# ============================================
+# SENTRY
+# ============================================
+.sentryclirc
+sentry.properties
+
+# ============================================
+# CACHE DIRECTORIES
+# ============================================
+.cache
+.parcel-cache
+.eslintcache
+.stylelintcache
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# ============================================
+# TEMPORARY & BACKUP FILES
+# ============================================
+*.tmp
+*.temp
+*.bak
 *.swp
 *.swo
 *~
+.~*
+~*
 
-# OS files
-Thumbs.db
+# ============================================
+# UPLOADED FILES & USER CONTENT
+# ============================================
+/public/uploads/*
+!/public/uploads/.gitkeep
+/public/user-content/*
+!/public/user-content/.gitkeep
 
-# Database
-*.db
-*.sqlite
+# ============================================
+# EBOOK FILES (if storing locally)
+# ============================================
+/ebooks/*
+!/ebooks/.gitkeep
+/downloads/*
+!/downloads/.gitkeep
 
-# Logs
-logs
-*.log
+# ============================================
+# DEVELOPMENT ONLY
+# ============================================
+.test/
+scratch/
+TODO.md
+NOTES.md
+.vscode-test/
 
-# Bundle analyzer
-.next/analyze/
+# ============================================
+# SECURITY SCANS
+# ============================================
+.snyk
+snyk-*.json
+trivy-*.json
+
+# ============================================
+# CI/CD
+# ============================================
+.github/workflows/*.yml.bak
+.gitlab-ci.local.yml
+
+# ============================================
+# KEEP THESE FILES (Examples)
+# ============================================
+# !.env.example
+# !.env.template
+# !public/uploads/.gitkeep
