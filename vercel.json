@@ -1,13 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "prisma generate && next build",
-  "framework": "nextjs",
-  "functions": {
-    "api/**/*.ts": {
-      "maxDuration": 10
-    },
-    "api/stripe-webhook.ts": {
-      "maxDuration": 30
-    }
-  }
+  "framework": "nextjs"
 }
