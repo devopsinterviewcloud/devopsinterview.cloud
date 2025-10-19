@@ -38,7 +38,8 @@ export class ErrorBoundary extends Component<Props, State> {
         })
       }
     }
-    
+
+    // eslint-disable-next-line no-console
     console.error('ErrorBoundary caught an error:', error, errorInfo)
   }
 
@@ -110,6 +111,7 @@ export class ErrorBoundary extends Component<Props, State> {
 // Hook version for functional components
 export function useErrorHandler() {
   const handleError = (error: Error, errorInfo?: ErrorInfo) => {
+    // eslint-disable-next-line no-console
     console.error('Error caught by useErrorHandler:', error, errorInfo)
 
     if (typeof window !== 'undefined') {

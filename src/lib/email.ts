@@ -53,12 +53,14 @@ export async function sendDownloadEmail({
     })
 
     if (error) {
+      // eslint-disable-next-line no-console
       console.error('Email sending error:', error)
       throw error
     }
 
     return data
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error sending download email:', error)
     throw error
   }

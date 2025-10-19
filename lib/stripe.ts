@@ -43,6 +43,7 @@ export async function createCheckoutSession({
 
     return session
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error creating checkout session:', error)
     throw error
   }
@@ -61,6 +62,7 @@ export async function constructWebhookEvent(
   try {
     return stripe.webhooks.constructEvent(payload, signature, webhookSecret)
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error constructing webhook event:', error)
     throw error
   }

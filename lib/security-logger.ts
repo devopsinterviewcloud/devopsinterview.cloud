@@ -30,7 +30,8 @@ class SecurityLogger {
     // Console logging with appropriate level
     const logLevel = this.getLogLevel(event.severity)
     const message = `[SECURITY] ${event.type.toUpperCase()}: ${JSON.stringify(securityEvent)}`
-    
+
+    // eslint-disable-next-line no-console
     console[logLevel](message)
 
     // In production, you would send to external monitoring service
@@ -49,6 +50,7 @@ class SecurityLogger {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async sendToMonitoringService(_event: SecurityEvent) {
     // Placeholder for external monitoring service integration
     // Examples: DataDog, New Relic, Sentry, CloudWatch, etc.
@@ -60,6 +62,7 @@ class SecurityLogger {
       //   body: JSON.stringify(_event)
       // })
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to send security event to monitoring service:', error)
     }
   }

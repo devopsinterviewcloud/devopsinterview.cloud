@@ -52,8 +52,11 @@ class RateLimiterRedis {
 
   constructor() {
     if (!this.useRedis) {
+      // eslint-disable-next-line no-console
       console.warn('⚠️  Rate Limiter: Running in-memory mode (development only)')
+      // eslint-disable-next-line no-console
       console.warn('⚠️  For production on Vercel, configure Upstash Redis:')
+      // eslint-disable-next-line no-console
       console.warn('⚠️  UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN')
 
       // Clean up in-memory store every 5 minutes
@@ -61,6 +64,7 @@ class RateLimiterRedis {
         this.cleanupInMemory()
       }, 5 * 60 * 1000)
     } else {
+      // eslint-disable-next-line no-console
       console.log('✅ Rate Limiter: Using Redis (production mode)')
     }
   }
@@ -91,6 +95,7 @@ class RateLimiterRedis {
         return this.checkInMemory(key, config, now)
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Rate limiter error:', error)
       // Fail open - allow request if rate limiter fails
       return {
@@ -310,6 +315,7 @@ class RateLimiterRedis {
         }
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error getting rate limit status:', error)
       return {
         limit: config.maxRequests,
