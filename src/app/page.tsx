@@ -131,7 +131,7 @@ export default function Home() {
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Get Your First Ebook - Starting at $18.99
+                Get Your First Ebook - Starting at ₹1499 ($18.99)
               </a>
               <a href="#ebooks" className="bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-50 text-lg px-10 py-4 rounded-xl font-semibold transition-all inline-flex items-center justify-center">
                 View All 6 Ebooks
@@ -251,11 +251,19 @@ export default function Home() {
                 </div>
 
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-foreground">${ebook.price}</span>
-                    {ebook.originalPrice && (
-                      <span className="text-sm text-muted-foreground line-through">${ebook.originalPrice}</span>
-                    )}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold text-foreground">₹{ebook.priceINR}</span>
+                      {ebook.originalPriceINR && (
+                        <span className="text-sm text-muted-foreground line-through">₹{ebook.originalPriceINR}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">${ebook.price} USD</span>
+                      {ebook.originalPrice && (
+                        <span className="text-xs text-muted-foreground line-through">${ebook.originalPrice}</span>
+                      )}
+                    </div>
                   </div>
                   <span className="text-sm text-muted-foreground">{ebook.pageCount} pages</span>
                 </div>
@@ -284,7 +292,7 @@ export default function Home() {
                 🚀 Limited Time: Save Up to 30% on All Ebooks
               </button>
               <p className="text-sm text-muted-foreground">
-                ⏰ Prices starting at just $18.99 • All formats included (PDF, EPUB, MOBI)
+                ⏰ Prices starting at just ₹1499 ($18.99) • All formats included (PDF, EPUB, MOBI)
               </p>
             </div>
           </div>
@@ -616,7 +624,7 @@ export default function Home() {
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              Start Learning Now - $18.99
+              Start Learning Now - ₹1499
             </a>
             <a href="/contact" className="bg-purple-600 text-white hover:bg-purple-700 px-8 py-4 text-lg font-semibold rounded-xl transition-all inline-flex items-center justify-center">
               Team Pricing Available
