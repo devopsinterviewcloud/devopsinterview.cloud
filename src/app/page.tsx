@@ -682,6 +682,7 @@ export default function Home() {
                 <li><a href="/terms" className="text-white hover:text-blue-400 transition-colors">Terms of Service</a></li>
                 <li><a href="/contact" className="text-white hover:text-blue-400 transition-colors">Contact Us</a></li>
                 <li><a href="/refunds" className="text-white hover:text-blue-400 transition-colors">Refund Policy</a></li>
+                <li><a href="/shipping" className="text-white hover:text-blue-400 transition-colors">Shipping &amp; Delivery</a></li>
               </ul>
             </div>
           </div>
