@@ -150,8 +150,8 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">Instant Access</h3>
-              <p className="text-muted-foreground">Download immediately after purchase</p>
+              <h3 className="text-xl font-bold text-foreground mb-2">Digital Delivery</h3>
+              <p className="text-muted-foreground">Delivered within 12-24 hours</p>
             </div>
 
             <div className="text-center animate-fade-in-up" style={{animationDelay: '0.1s'}}>
@@ -160,8 +160,8 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">All Formats</h3>
-              <p className="text-muted-foreground">PDF, EPUB, MOBI included</p>
+              <h3 className="text-xl font-bold text-foreground mb-2">PDF Format</h3>
+              <p className="text-muted-foreground">PDF format included</p>
             </div>
 
             <div className="text-center animate-fade-in-up" style={{animationDelay: '0.2s'}}>
@@ -276,7 +276,7 @@ export default function Home() {
                   ))}
                 </div>
 
-                <a href={`/checkout?ebook=${ebook.id}`} className="btn-primary w-full">
+                <a href={`/checkout?ebook=${ebook.id}`} className="btn-primary w-full inline-flex items-center justify-center">
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
@@ -292,7 +292,7 @@ export default function Home() {
                 🚀 Limited Time: Save Up to 30% on All Ebooks
               </button>
               <p className="text-sm text-muted-foreground">
-                ⏰ Prices starting at just ₹1499 ($18.99) • All formats included (PDF, EPUB, MOBI)
+                ⏰ Prices starting at just ₹1499 ($18.99) • PDF format included
               </p>
             </div>
           </div>

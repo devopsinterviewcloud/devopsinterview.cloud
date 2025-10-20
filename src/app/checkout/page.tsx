@@ -32,7 +32,7 @@ function CheckoutContent() {
                   <h3 className="font-semibold text-foreground">Selected Ebook</h3>
                   <p className="text-sm text-muted-foreground">Ebook ID: {ebookId || 'Not selected'}</p>
                   <p className="text-sm text-muted-foreground mt-2">
-                    Formats: PDF, EPUB, MOBI
+                    Format: PDF
                   </p>
                 </div>
               </div>
@@ -62,9 +62,9 @@ function CheckoutContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
-                  <h4 className="font-semibold text-blue-900 mb-1">Instant Delivery</h4>
+                  <h4 className="font-semibold text-blue-900 mb-1">Digital Delivery</h4>
                   <p className="text-sm text-blue-800">
-                    You'll receive download links via email within 5-10 minutes after payment
+                    You'll receive download links via email within 12-24 hours after payment confirmation
                   </p>
                 </div>
               </div>
@@ -203,9 +203,9 @@ function CheckoutContent() {
             </div>
             <div>
               <div className="text-3xl mb-2">📧</div>
-              <h3 className="font-semibold text-foreground mb-1">Instant Delivery</h3>
+              <h3 className="font-semibold text-foreground mb-1">Digital Delivery</h3>
               <p className="text-sm text-muted-foreground">
-                Email delivery within 10 minutes
+                Email delivery within 12-24 hours
               </p>
             </div>
           </div>
