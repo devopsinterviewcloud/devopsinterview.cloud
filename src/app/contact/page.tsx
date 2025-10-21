@@ -106,8 +106,9 @@ export default function ContactUs() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">Our Office</h3>
-                  <p className="text-muted-foreground text-sm">DevOpsInterview.Cloud</p>
-                  <p className="text-muted-foreground text-sm">34, Padmavathy Nagar, MMC</p>
+                  <p className="text-muted-foreground text-sm font-semibold">PROSPERA ENTERPRISES</p>
+                  <p className="text-muted-foreground text-sm text-xs italic">(DBA: DevOpsInterview.Cloud)</p>
+                  <p className="text-muted-foreground text-sm mt-2">34, Padmavathy Nagar, MMC</p>
                   <p className="text-muted-foreground text-sm">Chennai, Tamil Nadu 600051</p>
                   <p className="text-muted-foreground text-sm">India</p>
                 </div>

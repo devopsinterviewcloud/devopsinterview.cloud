@@ -667,7 +667,9 @@ export default function Home() {
 
               {/* Business Contact Information - Required for Payment Gateway Approval */}
               <div className="mt-6 pt-4 border-t border-slate-800 text-sm space-y-1">
-                <p className="font-semibold text-white mb-2">Contact Information</p>
+                <p className="font-semibold text-white mb-2">Business Information</p>
+                <p className="text-white font-semibold">PROSPERA ENTERPRISES</p>
+                <p className="text-white text-xs italic mb-2">DBA: DevOpsInterview.Cloud</p>
                 <p className="text-white">
                   <a href="mailto:support@devopsinterview.cloud" className="hover:text-blue-400 transition-colors">
                     Email: support@devopsinterview.cloud
@@ -706,7 +708,7 @@ export default function Home() {
           <div className="border-t border-slate-800 pt-8 mt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-white">
-                © 2025 DevopsInterview.Cloud. All rights reserved.
+                © 2025 PROSPERA ENTERPRISES (DevopsInterview.Cloud). All rights reserved.
               </p>
               <div className="flex items-center gap-2 mt-4 md:mt-0">
                 <span className="text-white">Made with ❤️ for the DevOps community</span>

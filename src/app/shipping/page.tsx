@@ -166,7 +166,8 @@ export default function ShippingPage() {
                 Contact Information
               </h2>
               <div className="bg-slate-50 p-6 rounded-lg">
-                <p className="font-semibold text-foreground mb-3">DevOpsInterview.Cloud</p>
+                <p className="font-semibold text-foreground mb-1">PROSPERA ENTERPRISES</p>
+                <p className="text-sm text-muted-foreground italic mb-3">(DBA: DevOpsInterview.Cloud)</p>
                 <p>34, Padmavathy Nagar, MMC</p>
                 <p>Chennai, Tamil Nadu 600051</p>
                 <p>India</p>
