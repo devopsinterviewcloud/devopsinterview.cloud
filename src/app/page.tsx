@@ -92,7 +92,7 @@ export default function Home() {
               <a href="#categories" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Categories</a>
               <a href="#interview-prep" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Interview Prep</a>
               <a href="#youtube" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">YouTube</a>
-              <button className="btn-primary">Get Started</button>
+              <a href="#ebooks" className="btn-primary">Get Started</a>
             </div>
           </div>
         </div>
