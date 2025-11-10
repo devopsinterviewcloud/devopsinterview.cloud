@@ -59,19 +59,8 @@ export default function ContactUs() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">Email Support</h3>
-                  <p className="text-muted-foreground">support@devopsinterview.cloud</p>
+                  <p className="text-muted-foreground">devopsinterview.cloud@gmail.com</p>
                   <p className="text-sm text-muted-foreground">Response within 24 hours</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="bg-green-100 p-3 rounded-lg">
-                  <MessageSquare className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Live Chat</h3>
-                  <p className="text-muted-foreground">Available Monday - Friday</p>
-                  <p className="text-sm text-muted-foreground">9 AM - 6 PM EST</p>
                 </div>
               </div>
 
@@ -81,7 +70,7 @@ export default function ContactUs() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">Business Inquiries</h3>
-                  <p className="text-muted-foreground">business@devopsinterview.cloud</p>
+                  <p className="text-muted-foreground">devopsinterview.cloud@gmail.com</p>
                   <p className="text-sm text-muted-foreground">Partnerships & collaboration</p>
                 </div>
               </div>
@@ -93,7 +82,7 @@ export default function ContactUs() {
                 <div>
                   <h3 className="font-semibold text-foreground">Phone Support</h3>
                   <p className="text-muted-foreground">Available upon request</p>
-                  <p className="text-sm text-muted-foreground">Email us for phone callback: support@devopsinterview.cloud</p>
+                  <p className="text-sm text-muted-foreground">Email us for phone callback: devopsinterview.cloud@gmail.com</p>
                 </div>
               </div>
 
@@ -132,7 +121,7 @@ export default function ContactUs() {
                     What formats are the ebooks available in?
                   </summary>
                   <p className="mt-2 text-sm text-muted-foreground pl-4">
-                    All ebooks come in PDF, EPUB, and MOBI formats for maximum compatibility 
+                    All ebooks are available in PDF format for maximum compatibility
                     with your devices.
                   </p>
                 </details>
@@ -141,7 +130,7 @@ export default function ContactUs() {
                     Do you offer bulk discounts for teams?
                   </summary>
                   <p className="mt-2 text-sm text-muted-foreground pl-4">
-                    Yes! Contact us at business@devopsinterview.cloud for team pricing 
+                    Yes! Contact us at devopsinterview.cloud@gmail.com for team pricing
                     and volume discounts.
                   </p>
                 </details>
