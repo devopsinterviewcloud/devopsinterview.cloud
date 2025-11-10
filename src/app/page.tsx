@@ -320,42 +320,36 @@ export default function Home() {
                 title: "Cloud Certifications",
                 description: "Complete certification guides for AWS Solutions Architect, Azure DevOps Engineer, and GCP Cloud Architect with practice exams and hands-on labs.",
                 icon: "☁️",
-                count: "12 ebooks",
                 color: "bg-blue-100 text-blue-700"
               },
               {
-                title: "Container Orchestration", 
+                title: "Container Orchestration",
                 description: "Master Kubernetes, Docker Swarm, and container management. Covers microservices architecture, service mesh, networking, and production deployment strategies.",
                 icon: "📦",
-                count: "8 ebooks",
                 color: "bg-green-100 text-green-700"
               },
               {
                 title: "Infrastructure as Code",
                 description: "Automate infrastructure with Terraform, Ansible, CloudFormation, and other IaC tools. Learn provisioning, configuration management, and deployment best practices.",
                 icon: "🏗️",
-                count: "10 ebooks", 
                 color: "bg-orange-100 text-orange-700"
               },
               {
                 title: "CI/CD Pipelines",
                 description: "Build robust deployment pipelines with Jenkins, GitLab CI, GitHub Actions, and Azure DevOps. Covers automated testing, code quality, and release management.",
                 icon: "🔄",
-                count: "9 ebooks",
                 color: "bg-purple-100 text-purple-700"
               },
               {
                 title: "Monitoring & Observability",
                 description: "Implement comprehensive monitoring with Prometheus, Grafana, ELK Stack, and distributed tracing. Master alerting, logging, and observability strategies.",
                 icon: "📊",
-                count: "7 ebooks",
                 color: "bg-red-100 text-red-700"
               },
               {
                 title: "Interview Preparation",
                 description: "Comprehensive interview prep covering technical questions, system design, behavioral interviews, salary negotiation, and career advancement strategies.",
                 icon: "💼",
-                count: "15 ebooks",
                 color: "bg-indigo-100 text-indigo-700"
               }
             ].map((category, index) => (
@@ -363,10 +357,7 @@ export default function Home() {
                 <div className="p-6">
                   <div className="text-4xl mb-4">{category.icon}</div>
                   <h3 className="text-xl font-semibold mb-2 text-foreground">{category.title}</h3>
-                  <p className="text-muted-foreground mb-4">{category.description}</p>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${category.color}`}>
-                    {category.count}
-                  </span>
+                  <p className="text-muted-foreground">{category.description}</p>
                 </div>
               </div>
             ))}
