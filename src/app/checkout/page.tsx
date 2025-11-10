@@ -43,14 +43,10 @@ function CheckoutContent() {
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-semibold"><DynamicPriceText usdPrice={24.99} /></span>
                 </div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-muted-foreground">Discount</span>
-                  <span className="text-green-600 font-semibold">-<DynamicPriceText usdPrice={10.00} /></span>
-                </div>
                 <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2">
                   <span>Total</span>
                   <div>
-                    <div className="text-right"><DynamicPriceText usdPrice={14.99} /></div>
+                    <div className="text-right"><DynamicPriceText usdPrice={24.99} /></div>
                   </div>
                 </div>
               </div>
@@ -195,10 +191,10 @@ function CheckoutContent() {
               </p>
             </div>
             <div>
-              <div className="text-3xl mb-2">↩️</div>
-              <h3 className="font-semibold text-foreground mb-1">7-Day Refund</h3>
+              <div className="text-3xl mb-2">📄</div>
+              <h3 className="font-semibold text-foreground mb-1">All Sales Final</h3>
               <p className="text-sm text-muted-foreground">
-                100% money-back guarantee
+                Digital products - No refunds
               </p>
             </div>
             <div>
