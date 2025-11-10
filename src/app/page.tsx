@@ -1,6 +1,8 @@
 import Image from "next/image";
 import ebooksData from "@/data/ebooks.json";
 import Script from "next/script";
+import EbookPrice from "@/components/EbookPrice";
+import { DynamicPriceText } from "@/components/DynamicPriceText";
 
 export default function Home() {
   // Generate structured data for products
@@ -131,10 +133,10 @@ export default function Home() {
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Get Your First Ebook - Starting at ₹1499 ($18.99)
+                Get Your First Ebook - Starting at{' '}<DynamicPriceText usdPrice={24.99} />
               </a>
               <a href="#ebooks" className="bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-50 text-lg px-10 py-4 rounded-xl font-semibold transition-all inline-flex items-center justify-center">
-                View All 6 Ebooks
+                View All Ebooks
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -202,7 +204,14 @@ export default function Home() {
           {/* Enhanced Ebook Cards */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {ebooksData.map((ebook, index) => (
-              <div key={index} className="card group animate-fade-in-up" style={{animationDelay: `${index * 0.1}s`}}>
+              <div key={index} className={`card group animate-fade-in-up ${ebook.isBundle ? 'ring-4 ring-yellow-400 shadow-2xl relative' : ''}`} style={{animationDelay: `${index * 0.1}s`}}>
+                {ebook.isBundle && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                    <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                      ⭐ BEST VALUE - SAVE 50% ⭐
+                    </span>
+                  </div>
+                )}
                 <div className="relative aspect-[3/4] rounded-lg mb-6 overflow-hidden bg-gray-100">
                   <Image
                     src={ebook.coverUrl}
@@ -251,20 +260,10 @@ export default function Home() {
                 </div>
 
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-foreground">₹{ebook.priceINR}</span>
-                      {ebook.originalPriceINR && (
-                        <span className="text-sm text-muted-foreground line-through">₹{ebook.originalPriceINR}</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">${ebook.price} USD</span>
-                      {ebook.originalPrice && (
-                        <span className="text-xs text-muted-foreground line-through">${ebook.originalPrice}</span>
-                      )}
-                    </div>
-                  </div>
+                  <EbookPrice
+                    usdPrice={ebook.price}
+                    originalUsdPrice={ebook.originalPrice}
+                  />
                   <span className="text-sm text-muted-foreground">{ebook.pageCount} pages</span>
                 </div>
 
@@ -289,10 +288,10 @@ export default function Home() {
           <div className="text-center">
             <div className="inline-flex flex-col items-center gap-4">
               <button className="btn-primary px-12 py-4 text-lg">
-                🚀 Limited Time: Save Up to 30% on All Ebooks
+                🎁 Special Bundle Offer: Buy All 5 Books & Save 50%!
               </button>
               <p className="text-sm text-muted-foreground">
-                ⏰ Prices starting at just ₹1499 ($18.99) • PDF format included
+                💎 Individual books <DynamicPriceText usdPrice={24.99} /> each • Complete Bundle <DynamicPriceText usdPrice={62.99} /> • PDF format • Prices auto-convert to your currency
               </p>
             </div>
           </div>
@@ -321,42 +320,36 @@ export default function Home() {
                 title: "Cloud Certifications",
                 description: "Complete certification guides for AWS Solutions Architect, Azure DevOps Engineer, and GCP Cloud Architect with practice exams and hands-on labs.",
                 icon: "☁️",
-                count: "12 ebooks",
                 color: "bg-blue-100 text-blue-700"
               },
               {
-                title: "Container Orchestration", 
+                title: "Container Orchestration",
                 description: "Master Kubernetes, Docker Swarm, and container management. Covers microservices architecture, service mesh, networking, and production deployment strategies.",
                 icon: "📦",
-                count: "8 ebooks",
                 color: "bg-green-100 text-green-700"
               },
               {
                 title: "Infrastructure as Code",
                 description: "Automate infrastructure with Terraform, Ansible, CloudFormation, and other IaC tools. Learn provisioning, configuration management, and deployment best practices.",
                 icon: "🏗️",
-                count: "10 ebooks", 
                 color: "bg-orange-100 text-orange-700"
               },
               {
                 title: "CI/CD Pipelines",
                 description: "Build robust deployment pipelines with Jenkins, GitLab CI, GitHub Actions, and Azure DevOps. Covers automated testing, code quality, and release management.",
                 icon: "🔄",
-                count: "9 ebooks",
                 color: "bg-purple-100 text-purple-700"
               },
               {
                 title: "Monitoring & Observability",
                 description: "Implement comprehensive monitoring with Prometheus, Grafana, ELK Stack, and distributed tracing. Master alerting, logging, and observability strategies.",
                 icon: "📊",
-                count: "7 ebooks",
                 color: "bg-red-100 text-red-700"
               },
               {
                 title: "Interview Preparation",
                 description: "Comprehensive interview prep covering technical questions, system design, behavioral interviews, salary negotiation, and career advancement strategies.",
                 icon: "💼",
-                count: "15 ebooks",
                 color: "bg-indigo-100 text-indigo-700"
               }
             ].map((category, index) => (
@@ -364,10 +357,7 @@ export default function Home() {
                 <div className="p-6">
                   <div className="text-4xl mb-4">{category.icon}</div>
                   <h3 className="text-xl font-semibold mb-2 text-foreground">{category.title}</h3>
-                  <p className="text-muted-foreground mb-4">{category.description}</p>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${category.color}`}>
-                    {category.count}
-                  </span>
+                  <p className="text-muted-foreground">{category.description}</p>
                 </div>
               </div>
             ))}
@@ -404,7 +394,7 @@ export default function Home() {
                   <li>✅ Linux System Administration & Troubleshooting</li>
                   <li>✅ Prometheus, Grafana Monitoring & Observability</li>
                 </ul>
-                <button className="btn-primary w-full opacity-60 cursor-not-allowed" disabled>Coming Soon</button>
+                <button className="w-full px-8 py-3 bg-gray-400 text-white rounded-lg font-semibold cursor-not-allowed" disabled>Coming Soon</button>
               </div>
             </div>
 
@@ -419,7 +409,7 @@ export default function Home() {
                   <li>✅ Cloud Architecture: AWS, Azure, GCP Multi-Cloud</li>
                   <li>✅ DevOps Security: DevSecOps, SAST, DAST, Compliance</li>
                 </ul>
-                <button className="btn-secondary w-full opacity-60 cursor-not-allowed" disabled>Coming Soon</button>
+                <button className="w-full px-8 py-3 bg-gray-400 text-white rounded-lg font-semibold cursor-not-allowed" disabled>Coming Soon</button>
               </div>
             </div>
           </div>
@@ -576,7 +566,7 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20">
+      <section id="faq" className="py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="inline-flex items-center px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-sm font-semibold mb-6">
@@ -590,20 +580,36 @@ export default function Home() {
           <div className="space-y-6">
             {[
               {
-                question: "What ebook formats do you offer?",
-                answer: "All our ebooks come in PDF, EPUB, and MOBI formats optimized for technical reading with code syntax highlighting and diagrams. Perfect for Kindle, iPad, iPhone, and Android devices."
+                question: "What formats are the ebooks available in?",
+                answer: "All ebooks are delivered in PDF format, professionally designed for technical reading with code syntax highlighting, diagrams, and easy navigation. Compatible with all devices including computers, tablets, and smartphones."
+              },
+              {
+                question: "How long does delivery take?",
+                answer: "Digital delivery via email within 12-24 hours after payment confirmation. You'll receive download links directly to your registered email address. No physical shipping involved."
+              },
+              {
+                question: "Do you offer bundle discounts?",
+                answer: "Yes! Purchase all 5 comprehensive ebooks as a bundle and save 50%. Individual books are available separately, or get the complete DevOps Mastery Bundle at a significantly discounted price."
+              },
+              {
+                question: "What currencies do you accept?",
+                answer: "We support multiple currencies including INR (₹), USD ($), EUR (€), GBP (£), AUD, CAD, and SGD. Prices automatically convert based on your location for a seamless shopping experience."
               },
               {
                 question: "Are the ebooks suitable for beginners?",
-                answer: "Yes! Our ebooks range from beginner-friendly guides to advanced topics. Each book clearly indicates the skill level required, from junior to senior engineer level with comprehensive explanations."
+                answer: "Yes! Our ebooks cover everything from fundamentals to advanced topics. Each book includes step-by-step explanations, real-world examples, hands-on labs, and interview questions suitable for junior to senior engineer levels."
               },
               {
-                question: "Do I get updates when you add new content?",
-                answer: "Yes! All purchases include lifetime updates. When we add new interview questions, update existing materials, or release new editions, you receive the updated versions for free."
+                question: "Do I get free updates?",
+                answer: "Absolutely! All purchases include lifetime updates. When we add new content, update existing materials, or release new editions, you'll receive the updated versions completely free of charge."
               },
               {
                 question: "What is your refund policy?",
-                answer: "All sales are final due to the instant download nature of digital products. Please review the content description and preview materials carefully before purchase to ensure the ebook meets your learning needs."
+                answer: "All sales are final due to the digital nature of our products. Once you receive the download links, the content cannot be returned. Please review the book descriptions and topics carefully before purchasing."
+              },
+              {
+                question: "Can I purchase for my team?",
+                answer: "Yes! We offer team pricing and volume discounts for organizations. Contact us at support@devopsinterview.cloud with the number of licenses needed, and we'll provide a custom quote."
               }
             ].map((faq, index) => (
               <div key={index} className="card">
@@ -632,7 +638,7 @@ export default function Home() {
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              Start Learning Now - ₹1499
+              Start Learning Now -{' '}<DynamicPriceText usdPrice={24.99} />
             </a>
             <a href="/contact" className="bg-purple-600 text-white hover:bg-purple-700 px-8 py-4 text-lg font-semibold rounded-xl transition-all inline-flex items-center justify-center">
               Team Pricing Available

@@ -3,6 +3,7 @@
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import Link from 'next/link'
+import { DynamicPriceText } from '@/components/DynamicPriceText'
 
 function CheckoutContent() {
   const searchParams = useSearchParams()
@@ -40,17 +41,16 @@ function CheckoutContent() {
               <div className="border-t pt-4">
                 <div className="flex justify-between mb-2">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-semibold">₹1,999</span>
+                  <span className="font-semibold"><DynamicPriceText usdPrice={24.99} /></span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span className="text-muted-foreground">Discount</span>
-                  <span className="text-green-600 font-semibold">-₹800</span>
+                  <span className="text-green-600 font-semibold">-<DynamicPriceText usdPrice={10.00} /></span>
                 </div>
                 <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2">
                   <span>Total</span>
                   <div>
-                    <div className="text-right">₹1,199</div>
-                    <div className="text-sm text-muted-foreground font-normal">($14.99 USD)</div>
+                    <div className="text-right"><DynamicPriceText usdPrice={14.99} /></div>
                   </div>
                 </div>
               </div>
