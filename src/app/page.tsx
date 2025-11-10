@@ -207,7 +207,7 @@ export default function Home() {
               <div key={index} className={`card group animate-fade-in-up ${ebook.isBundle ? 'ring-4 ring-yellow-400 shadow-2xl relative' : ''}`} style={{animationDelay: `${index * 0.1}s`}}>
                 {ebook.isBundle && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                    <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                    <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg whitespace-nowrap">
                       ⭐ BEST VALUE - SAVE 50% ⭐
                     </span>
                   </div>
