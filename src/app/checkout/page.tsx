@@ -4,13 +4,16 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { DynamicPriceText } from '@/components/DynamicPriceText'
+import ebooksData from '@/data/ebooks.json'
 
 function CheckoutContent() {
   const searchParams = useSearchParams()
   const ebookId = searchParams.get('ebook')
 
-  // This would normally fetch ebook details from your data
-  // For now, we'll show a placeholder checkout page
+  // Find the ebook by ID
+  const ebook = ebooksData.find(e => e.id === ebookId)
+  const ebookPrice = ebook?.price || 24.99
+  const ebookTitle = ebook?.title || 'Selected Ebook'
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12 px-4 sm:px-6 lg:px-8">
@@ -30,27 +33,27 @@ function CheckoutContent() {
             <div className="space-y-4 mb-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-semibold text-foreground">Selected Ebook</h3>
-                  <p className="text-sm text-muted-foreground">Ebook ID: {ebookId || 'Not selected'}</p>
+                  <h3 className="font-semibold text-foreground">{ebookTitle}</h3>
                   <p className="text-sm text-muted-foreground mt-2">
                     Format: PDF
                   </p>
+                  {ebook?.isBundle && (
+                    <p className="text-sm text-green-600 font-semibold mt-1">
+                      ⭐ Bundle includes all 5 comprehensive ebooks
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="border-t pt-4">
                 <div className="flex justify-between mb-2">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-semibold"><DynamicPriceText usdPrice={24.99} /></span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-muted-foreground">Discount</span>
-                  <span className="text-green-600 font-semibold">-<DynamicPriceText usdPrice={10.00} /></span>
+                  <span className="font-semibold"><DynamicPriceText usdPrice={ebookPrice} /></span>
                 </div>
                 <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2">
                   <span>Total</span>
                   <div>
-                    <div className="text-right"><DynamicPriceText usdPrice={14.99} /></div>
+                    <div className="text-right"><DynamicPriceText usdPrice={ebookPrice} /></div>
                   </div>
                 </div>
               </div>
@@ -195,10 +198,10 @@ function CheckoutContent() {
               </p>
             </div>
             <div>
-              <div className="text-3xl mb-2">↩️</div>
-              <h3 className="font-semibold text-foreground mb-1">7-Day Refund</h3>
+              <div className="text-3xl mb-2">📄</div>
+              <h3 className="font-semibold text-foreground mb-1">All Sales Final</h3>
               <p className="text-sm text-muted-foreground">
-                100% money-back guarantee
+                Digital products - No refunds
               </p>
             </div>
             <div>
