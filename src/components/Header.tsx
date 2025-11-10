@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Cloud, Menu, X, Sparkles } from "lucide-react"
+import CurrencySelector from "@/components/CurrencySelector"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -50,6 +51,7 @@ export function Header() {
 
           {/* Enhanced Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            <CurrencySelector />
             <Button size="lg" className="btn-premium group relative overflow-hidden px-6 py-3 font-bold">
               <span className="relative z-10 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />

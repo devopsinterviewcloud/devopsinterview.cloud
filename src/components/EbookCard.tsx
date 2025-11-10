@@ -1,9 +1,10 @@
+'use client'
+
 import Image from "next/image"
 import { CardContent, CardFooter } from "./ui/card"
 import { Button } from "./ui/button"
 import { Star, Download, BookOpen, Clock } from "lucide-react"
-// Simple price formatting
-const formatPrice = (price: number) => `$${price.toFixed(2)}`
+import { useCurrency } from "@/hooks/useCurrency"
 
 interface EbookCardProps {
   ebook: {
@@ -25,7 +26,15 @@ interface EbookCardProps {
 }
 
 export function EbookCard({ ebook, onPurchase, isLoading = false }: EbookCardProps) {
+  const { formatFromUSD, isLoading: currencyLoading } = useCurrency()
   const hasDiscount = ebook.originalPrice && ebook.originalPrice > ebook.price
+
+  const currentPrice = currencyLoading ? `$${ebook.price.toFixed(2)}` : formatFromUSD(ebook.price)
+  const originalPriceFormatted = ebook.originalPrice && !currencyLoading
+    ? formatFromUSD(ebook.originalPrice)
+    : ebook.originalPrice
+    ? `$${ebook.originalPrice.toFixed(2)}`
+    : null
 
   return (
     <div className="card-premium group hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 animate-scale-in">
@@ -130,15 +139,12 @@ export function EbookCard({ ebook, onPurchase, isLoading = false }: EbookCardPro
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="font-black text-2xl text-slate-900">
-                {formatPrice(ebook.price)}
+                {currencyLoading ? '...' : currentPrice}
               </span>
-              {hasDiscount && (
+              {hasDiscount && originalPriceFormatted && (
                 <div className="flex flex-col">
                   <span className="text-sm text-slate-500  line-through">
-                    {formatPrice(ebook.originalPrice!)}
-                  </span>
-                  <span className="text-xs text-red-600  font-semibold">
-                    Save ${(ebook.originalPrice! - ebook.price).toFixed(2)}
+                    {originalPriceFormatted}
                   </span>
                 </div>
               )}
