@@ -29,13 +29,15 @@ const securityHeaders = {
   ].join('; ')
 }
 
-// API routes that require rate limiting
-// Rate-limit user-facing endpoints. NOT the gateway webhooks (they must be able
-// to retry). NOTE: this uses the in-memory limiter — swap to the Upstash/Redis
-// limiter (lib/rate-limiter-redis.ts) before relying on it on Vercel serverless.
+// API routes that require rate limiting. Enforced here with the Redis-backed
+// limiter (lib/rate-limiter-redis.ts), which is effective across serverless
+// instances when UPSTASH_REDIS_REST_* are set (it falls back to per-instance
+// in-memory otherwise). NOT the gateway webhooks (they must be able to retry).
 const rateLimitedPaths = [
   '/api/checkout',
   '/api/download',
+  '/api/subscribe',
+  '/api/contact',
 ]
 
 // Paths that should be protected

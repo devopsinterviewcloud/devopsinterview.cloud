@@ -26,8 +26,14 @@ function getEbook(slug: string) {
   return ebooks.find((e) => e.slug === slug);
 }
 
+// The Interview-Day Playbook is a free bonus, not a browsable product: keep it out
+// of the prebuilt routes and 404 anything we don't prebuild.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
-  return ebooks.map((e) => ({ slug: e.slug }));
+  return ebooks
+    .filter((e) => e.slug !== "interview-day-playbook")
+    .map((e) => ({ slug: e.slug }));
 }
 
 export async function generateMetadata({

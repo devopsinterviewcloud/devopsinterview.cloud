@@ -16,7 +16,7 @@ export default function PrivacyPolicy() {
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">Privacy Policy</h1>
-          <p className="text-lg text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</p>
+          <p className="text-lg text-muted-foreground">Last updated: June 15, 2026</p>
         </div>
 
         <div className="prose prose-lg max-w-none text-foreground">

@@ -16,7 +16,7 @@ export default function RefundPolicy() {
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">Refund Policy</h1>
-          <p className="text-lg text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</p>
+          <p className="text-lg text-muted-foreground">Last updated: June 15, 2026</p>
         </div>
 
         <div className="prose prose-lg max-w-none text-foreground">
@@ -44,6 +44,16 @@ export default function RefundPolicy() {
               <li>The content significantly differs from what was described on the product page</li>
               <li>The ebook contains critical errors that make it unusable</li>
             </ul>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Order Cancellation</h2>
+            <p className="mb-4">
+              Because delivery is automatic and instant, an order cannot be cancelled once payment is
+              confirmed and the download links have been issued. If your payment is still pending or you
+              have not yet received your download, email devopsinterview.cloud@gmail.com and we will
+              cancel the order and reverse any amount that was captured.
+            </p>
           </section>
 
           <section className="mb-8">
