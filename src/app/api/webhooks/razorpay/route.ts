@@ -5,6 +5,11 @@ import { fulfillByGatewayOrderId } from '@/lib/fulfillment'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+interface RazorpayWebhookEvent {
+  event?: string
+  payload?: { payment?: { entity?: { order_id?: string; id?: string; amount?: number; currency?: string } } }
+}
+
 export async function POST(req: NextRequest) {
   // Razorpay signs the RAW body — read it as text, do not parse first.
   const raw = await req.text()
@@ -13,7 +18,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid signature' }, { status: 400 })
   }
 
-  let event: any
+  let event: RazorpayWebhookEvent
   try { event = JSON.parse(raw) } catch { return NextResponse.json({ error: 'bad json' }, { status: 400 }) }
 
   if (event?.event === 'payment.captured' || event?.event === 'order.paid') {

@@ -5,9 +5,18 @@ import { fulfillByGatewayOrderId } from '@/lib/fulfillment'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+interface PayPalWebhookEvent {
+  event_type?: string
+  resource?: {
+    id?: string
+    amount?: { value: string; currency_code: string }
+    supplementary_data?: { related_ids?: { order_id?: string } }
+  }
+}
+
 export async function POST(req: NextRequest) {
   const raw = await req.text()
-  let event: any
+  let event: PayPalWebhookEvent
   try { event = JSON.parse(raw) } catch { return NextResponse.json({ error: 'bad json' }, { status: 400 }) }
 
   const ok = await verifyPayPalWebhook(req.headers, event)
