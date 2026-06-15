@@ -42,7 +42,9 @@ export async function GET() {
     dbStatus = 'up'
   } catch (error) {
     dbStatus = 'down'
-    dbError = error instanceof Error ? error.message : 'Unknown database error'
+    // Log the real error server-side; never expose raw DB error strings publicly.
+    console.error('health: database check failed', error)
+    dbError = 'unavailable'
     overallStatus = 'unhealthy'
   }
 

@@ -1,20 +1,22 @@
 import Image from "next/image";
+import Link from "next/link";
 import ebooksData from "@/data/ebooks.json";
 import Script from "next/script";
 import EbookPrice from "@/components/EbookPrice";
 import { DynamicPriceText } from "@/components/DynamicPriceText";
+import SampleSignup from "@/components/SampleSignup";
 
 export default function Home() {
   // Generate structured data for products
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "DevopsInterview.Cloud",
+    "name": "DevOpsInterview.Cloud",
     "url": "https://devopsinterview.cloud",
     "description": "Master DevOps and Cloud technologies with expert-curated ebooks covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, and CI/CD.",
     "publisher": {
       "@type": "Organization",
-      "name": "DevopsInterview.Cloud",
+      "name": "DevOpsInterview.Cloud",
       "logo": {
         "@type": "ImageObject",
         "url": "https://devopsinterview.cloud/logo.png"
@@ -45,20 +47,13 @@ export default function Home() {
           "url": `https://devopsinterview.cloud/ebooks/${ebook.slug}`,
           "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
         },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": ebook.rating,
-          "reviewCount": ebook.reviews,
-          "bestRating": "5",
-          "worstRating": "1"
-        },
         "author": {
           "@type": "Organization",
-          "name": "DevopsInterview.Cloud"
+          "name": "DevOpsInterview.Cloud"
         },
         "publisher": {
           "@type": "Organization",
-          "name": "DevopsInterview.Cloud"
+          "name": "DevOpsInterview.Cloud"
         }
       }
     }))
@@ -87,7 +82,7 @@ export default function Home() {
                   <path d="M13 10V3L4 14h5v7l9-11h-5z"/>
                 </svg>
               </div>
-              <span className="text-xl font-bold text-foreground">DevopsInterview.Cloud</span>
+              <span className="text-xl font-bold text-foreground">DevOpsInterview.Cloud</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <a href="#ebooks" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Ebooks</a>
@@ -376,43 +371,61 @@ export default function Home() {
               Ace Your DevOps &amp; Cloud Interviews
             </h2>
             <p className="text-xl max-w-3xl mx-auto text-muted-foreground">
-              Comprehensive interview preparation with 1000+ curated questions, hands-on scenarios, and practical examples.
-              Covering system design, troubleshooting, behavioral questions, and salary negotiation strategies to help you land
-              senior DevOps, SRE, and cloud architect roles.
+              Comprehensive interview preparation with 250+ senior-level questions across five books, hands-on scenarios,
+              and real interview answers. Covering system design, troubleshooting, behavioral questions, and salary
+              negotiation strategies to help you land senior DevOps, SRE, and cloud architect roles.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             <div className="card">
               <div className="p-8">
-                <h3 className="text-2xl font-bold mb-4 text-foreground">500+ Technical Interview Questions</h3>
+                <h3 className="text-2xl font-bold mb-4 text-foreground">The Complete Question Bank</h3>
                 <ul className="space-y-3 text-muted-foreground mb-6">
                   <li>✅ Docker & Kubernetes Container Orchestration</li>
                   <li>✅ CI/CD Jenkins, GitLab, GitHub Actions Pipeline Design</li>
                   <li>✅ AWS, Azure, GCP Cloud Architecture Solutions</li>
-                  <li>✅ Terraform, Ansible Infrastructure as Code (IaC)</li>
-                  <li>✅ Linux System Administration & Troubleshooting</li>
-                  <li>✅ Prometheus, Grafana Monitoring & Observability</li>
+                  <li>✅ Terraform & OpenTofu Infrastructure as Code (IaC)</li>
+                  <li>✅ Observability, SRE, SLOs & Incident Response</li>
+                  <li>✅ Supply-chain Security, DevSecOps & Zero Trust</li>
                 </ul>
-                <button className="w-full px-8 py-3 bg-gray-400 text-white rounded-lg font-semibold cursor-not-allowed" disabled>Coming Soon</button>
+                <Link href="/#ebooks" className="block text-center w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">Browse all 5 books</Link>
               </div>
             </div>
 
             <div className="card">
               <div className="p-8">
-                <h3 className="text-2xl font-bold mb-4 text-foreground">DevOps Pipeline Mastery</h3>
+                <h3 className="text-2xl font-bold mb-4 text-foreground">Get the Complete Bundle</h3>
                 <ul className="space-y-3 text-muted-foreground mb-6">
-                  <li>✅ CI/CD Pipeline Design: Jenkins, GitLab, GitHub Actions</li>
-                  <li>✅ Infrastructure as Code: Terraform, Ansible, CloudFormation</li>
-                  <li>✅ Container Orchestration: Kubernetes, Docker Swarm, ECS</li>
-                  <li>✅ Monitoring & Observability: Prometheus, Grafana, ELK</li>
-                  <li>✅ Cloud Architecture: AWS, Azure, GCP Multi-Cloud</li>
-                  <li>✅ DevOps Security: DevSecOps, SAST, DAST, Compliance</li>
+                  <li>✅ All 5 books: 250+ senior-level interview questions</li>
+                  <li>✅ Cloud (AWS, Azure, GCP) + Containers & Kubernetes</li>
+                  <li>✅ Infrastructure as Code: Terraform & OpenTofu</li>
+                  <li>✅ Modern CI/CD & GitOps with Argo CD</li>
+                  <li>✅ Senior DevOps & SRE: observability and reliability</li>
+                  <li>✅ One download, lifetime access, best value</li>
                 </ul>
-                <button className="w-full px-8 py-3 bg-gray-400 text-white rounded-lg font-semibold cursor-not-allowed" disabled>Coming Soon</button>
+                <Link href="/ebooks/complete-devops-mastery-bundle" className="block text-center w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">View the bundle</Link>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Free Sample / Lead Magnet Section */}
+      <section id="free-sample" className="py-20 bg-gradient-to-br from-slate-900 to-blue-950 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm font-semibold mb-6">
+            Free Sample
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black mb-6">
+            Try 8 questions free, before you buy
+          </h2>
+          <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
+            Get a polished PDF with one real interview question from every chapter of
+            Cloud Interview Mastery, answered the way a senior engineer actually would.
+            Straight to your inbox.
+          </p>
+          <SampleSignup source="home-free-sample" />
         </div>
       </section>
 
@@ -499,71 +512,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold mb-6">
-              Success Stories
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-6 text-foreground">
-              Trusted by DevOps &amp; Cloud Professionals Worldwide
-            </h2>
-            <p className="text-xl max-w-3xl mx-auto text-muted-foreground">
-              Join over 15,000 DevOps engineers, cloud architects, and SRE professionals who have advanced their careers,
-              landed senior roles, and passed major cloud certifications with our expert-curated guides and interview preparation resources.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                name: "Sarah Chen",
-                role: "Senior DevOps Engineer",
-                content: "The AWS Solutions Architect interview questions guide helped me pass my certification and ace my DevOps interview on the first try! The hands-on labs, real-world scenarios, and cloud architecture interview prep were invaluable. Highly recommended for anyone serious about AWS interview preparation.",
-                rating: 5,
-                avatar: "SC"
-              },
-              {
-                name: "Marcus Williams", 
-                role: "Platform Engineering Lead",
-                content: "The Kubernetes interview questions and mastery ebook is incredibly comprehensive. It covers everything from basic Kubernetes interview prep to advanced container orchestration interview questions like service mesh, GitOps, and Kubernetes troubleshooting scenarios. Saved me months of scattered research.",
-                rating: 5,
-                avatar: "MW"
-              },
-              {
-                name: "Elena Rodriguez",
-                role: "Site Reliability Engineer", 
-                content: "The DevOps interview questions and answers collection is a goldmine! I got promoted to Senior SRE after acing my technical interviews, system design questions, and DevOps troubleshooting scenarios. The detailed explanations, practical examples, and real-world DevOps interview prep made all the difference.",
-                rating: 5,
-                avatar: "ER"
-              }
-            ].map((testimonial, index) => (
-              <div key={index} className="card">
-                <div className="p-6">
-                  <div className="flex items-center gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground mb-6">"{testimonial.content}"</p>
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold mr-3">
-                      {testimonial.avatar}
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">{testimonial.name}</h4>
-                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Testimonials section removed: it contained fabricated named testimonials
+          (invented people + quotes), an FTC/Google-policy risk on a store with no
+          real customers yet. Reinstate with verified, attributable reviews once real
+          customers exist. */}
 
       {/* FAQ Section */}
       <section id="faq" className="py-20">
@@ -609,7 +561,7 @@ export default function Home() {
               },
               {
                 question: "Can I purchase for my team?",
-                answer: "Yes! We offer team pricing and volume discounts for organizations. Contact us at support@devopsinterview.cloud with the number of licenses needed, and we'll provide a custom quote."
+                answer: "Yes! We offer team pricing and volume discounts for organizations. Contact us at devopsinterview.cloud@gmail.com with the number of licenses needed, and we'll provide a custom quote."
               }
             ].map((faq, index) => (
               <div key={index} className="card">
@@ -661,7 +613,7 @@ export default function Home() {
                     <path d="M13 10V3L4 14h5v7l9-11h-5z"/>
                   </svg>
                 </div>
-                <span className="text-xl font-bold text-white">DevopsInterview.Cloud</span>
+                <span className="text-xl font-bold text-white">DevOpsInterview.Cloud</span>
               </div>
               <p className="text-white mb-4 max-w-md">
                 Master DevOps and Cloud technologies with expert-curated ebooks, comprehensive interview preparation guides,
@@ -677,15 +629,14 @@ export default function Home() {
                 <p className="text-white font-semibold">PROSPERA ENTERPRISES</p>
                 <p className="text-white text-xs italic mb-2">DBA: DevOpsInterview.Cloud</p>
                 <p className="text-white">
-                  <a href="mailto:support@devopsinterview.cloud" className="hover:text-blue-400 transition-colors">
-                    Email: support@devopsinterview.cloud
+                  <a href="mailto:devopsinterview.cloud@gmail.com" className="hover:text-blue-400 transition-colors">
+                    Email: devopsinterview.cloud@gmail.com
                   </a>
                 </p>
                 <p className="text-white">Phone: Available upon request via email</p>
                 <p className="text-white mt-2">34, Padmavathy Nagar, MMC</p>
                 <p className="text-white">Chennai, Tamil Nadu 600051</p>
                 <p className="text-white">India</p>
-                <p className="text-white mt-2 text-xs">Hours: Monday - Friday, 9 AM - 6 PM IST</p>
               </div>
             </div>
             
@@ -714,7 +665,7 @@ export default function Home() {
           <div className="border-t border-slate-800 pt-8 mt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-white">
-                © 2025 PROSPERA ENTERPRISES (DevopsInterview.Cloud). All rights reserved.
+                © 2026 PROSPERA ENTERPRISES (DevOpsInterview.Cloud). All rights reserved.
               </p>
               <div className="flex items-center gap-2 mt-4 md:mt-0">
                 <span className="text-white">Made with ❤️ for the DevOps community</span>

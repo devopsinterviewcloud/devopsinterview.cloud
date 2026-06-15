@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ComingSoonBanner } from "@/components/ComingSoonBanner";
-import { Analytics } from "@vercel/analytics/react";
+import CookieConsent from "@/components/CookieConsent";
+import ConsentedAnalytics from "@/components/ConsentedAnalytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,12 +16,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DevopsInterview.Cloud - Master DevOps & Cloud Interview Success",
+  title: "DevOpsInterview.Cloud - Master DevOps & Cloud Interview Success",
   description: "Expert-curated DevOps and Cloud ebooks covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD. Ace interviews, pass certifications, advance your career with 15,000+ professionals.",
   keywords: "devops interview questions, cloud computing, aws certification, kubernetes tutorial, docker guide, terraform iac, cicd pipelines, devops ebooks, cloud architect, sre interview prep",
-  authors: [{ name: "DevopsInterview.Cloud" }],
-  creator: "DevopsInterview.Cloud",
-  publisher: "DevopsInterview.Cloud",
+  authors: [{ name: "DevOpsInterview.Cloud" }],
+  creator: "DevOpsInterview.Cloud",
+  publisher: "DevOpsInterview.Cloud",
   metadataBase: new URL('https://devopsinterview.cloud'),
   alternates: {
     canonical: '/',
@@ -29,15 +30,15 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://devopsinterview.cloud',
-    siteName: 'DevopsInterview.Cloud',
-    title: 'DevopsInterview.Cloud - Master DevOps & Cloud Interview Success',
+    siteName: 'DevOpsInterview.Cloud',
+    title: 'DevOpsInterview.Cloud - Master DevOps & Cloud Interview Success',
     description: 'Expert-curated DevOps and Cloud ebooks covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD. Ace interviews, pass certifications, advance your career.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'DevopsInterview.Cloud - Master DevOps & Cloud Technologies',
+        alt: 'DevOpsInterview.Cloud - Master DevOps & Cloud Technologies',
       },
     ],
   },
@@ -45,7 +46,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@devopsinterviewcloud',
     creator: '@devopsinterviewcloud',
-    title: 'DevopsInterview.Cloud - Master DevOps & Cloud Interview Success',
+    title: 'DevOpsInterview.Cloud - Master DevOps & Cloud Interview Success',
     description: 'Expert-curated DevOps and Cloud ebooks covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD.',
     images: ['/og-image.jpg'],
   },
@@ -78,7 +79,8 @@ export default function RootLayout({
       >
         <ComingSoonBanner />
         {children}
-        <Analytics />
+        <CookieConsent />
+        <ConsentedAnalytics />
       </body>
     </html>
   );

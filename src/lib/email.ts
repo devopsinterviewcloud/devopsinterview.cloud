@@ -45,7 +45,10 @@ export async function sendDownloadEmail({
     })
 
     const { data, error } = await resend.emails.send({
-      from: 'DevOpsInterview.Cloud <noreply@devopsinterview.cloud>',
+      // Must be an address on a Resend-verified domain (NOT a @gmail address).
+      from: process.env.EMAIL_FROM || 'DevOpsInterview.Cloud <noreply@devopsinterview.cloud>',
+      // Replies go to the real inbox.
+      replyTo: process.env.EMAIL_REPLY_TO || 'devopsinterview.cloud@gmail.com',
       to: [email],
       subject: 'Your DevOpsInterview.Cloud Download Links',
       html,
@@ -121,13 +124,13 @@ function generateDownloadEmailHtml({
   <div style="text-align: center; padding: 24px 0; border-top: 1px solid #e5e7eb;">
     <p style="margin: 0 0 8px 0;">Need help? Contact our support team:</p>
     <p style="margin: 0;">
-      <a href="mailto:support@devopsinterview.cloud" style="color: #3b82f6;">support@devopsinterview.cloud</a>
+      <a href="mailto:devopsinterview.cloud@gmail.com" style="color: #3b82f6;">devopsinterview.cloud@gmail.com</a>
     </p>
   </div>
 
   <div style="text-align: center; font-size: 12px; color: #9ca3af; margin-top: 24px;">
     <p>Order ID: ${orderId}</p>
-    <p>&copy; 2024 DevOpsInterview.Cloud. All rights reserved.</p>
+    <p>&copy; 2026 DevOpsInterview.Cloud. All rights reserved.</p>
   </div>
 </body>
 </html>
@@ -163,10 +166,76 @@ IMPORTANT NOTES:
 - You can download each file multiple times within this period
 - Save the files to your device for permanent access
 
-Need help? Contact our support team at support@devopsinterview.cloud
+Need help? Contact our support team at devopsinterview.cloud@gmail.com
 
 Order ID: ${orderId}
 
-© 2024 DevOpsInterview.Cloud. All rights reserved.
+© 2026 DevOpsInterview.Cloud. All rights reserved.
   `
+}
+
+/**
+ * Lead-magnet delivery: emails the free Cloud Interview Mastery sample (8 real
+ * questions, one per chapter) to a new subscriber. The sample is served as a
+ * static asset from /samples so this works even before Supabase storage is wired.
+ */
+export async function sendSampleEmail({ email }: { email: string }) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const sampleUrl = `${appUrl}/samples/cloud-interview-mastery-sample.pdf`
+  const bundleUrl = `${appUrl}/ebooks/complete-devops-mastery-bundle`
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Your free DevOps interview sample</title></head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 28px;">
+    <h1 style="color: #1f2937; margin-bottom: 8px;">Your free sample is ready</h1>
+    <p style="color: #6b7280; margin: 0;">8 real interview questions, one from every chapter of Cloud Interview Mastery</p>
+  </div>
+  <div style="text-align: center; margin-bottom: 28px;">
+    <a href="${sampleUrl}" style="display: inline-block; background-color: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Download the free sample (PDF)</a>
+  </div>
+  <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+    <p style="margin: 0 0 8px 0;">Each question is answered the way a senior engineer actually would: the full answer, the tradeoffs, the follow-up an interviewer will probe, and a recall hook.</p>
+    <p style="margin: 0;">This is 8 of the 50 questions in the full book. The complete edition runs 188 pages, and the <a href="${bundleUrl}" style="color: #3b82f6;">5-book bundle</a> covers 250+ senior-level questions across the whole path from cloud to production reliability.</p>
+  </div>
+  <div style="text-align: center; padding: 20px 0; border-top: 1px solid #e5e7eb;">
+    <p style="margin: 0 0 8px 0;">Questions? Just reply to this email.</p>
+    <p style="margin: 0;"><a href="mailto:devopsinterview.cloud@gmail.com" style="color: #3b82f6;">devopsinterview.cloud@gmail.com</a></p>
+  </div>
+  <div style="text-align: center; font-size: 12px; color: #9ca3af; margin-top: 24px;">
+    <p>You are receiving this because you requested the free sample at devopsinterview.cloud.</p>
+    <p>&copy; 2026 DevOpsInterview.Cloud. All rights reserved.</p>
+  </div>
+</body>
+</html>`
+
+  const text = `Your free sample is ready
+
+8 real interview questions, one from every chapter of Cloud Interview Mastery.
+
+Download (PDF): ${sampleUrl}
+
+Each question is answered the way a senior engineer actually would: the full answer, the tradeoffs, the follow-up an interviewer will probe, and a recall hook. This is 8 of the 50 questions in the full book (188 pages). The 5-book bundle covers 250+ senior-level questions: ${bundleUrl}
+
+Questions? Just reply to this email, or write to devopsinterview.cloud@gmail.com
+
+You are receiving this because you requested the free sample at devopsinterview.cloud.
+© 2026 DevOpsInterview.Cloud. All rights reserved.`
+
+  const { data, error } = await resend.emails.send({
+    from: process.env.EMAIL_FROM || 'DevOpsInterview.Cloud <noreply@devopsinterview.cloud>',
+    replyTo: process.env.EMAIL_REPLY_TO || 'devopsinterview.cloud@gmail.com',
+    to: [email],
+    subject: 'Your free DevOps interview sample (8 questions)',
+    html,
+    text,
+  })
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error('Sample email error:', error)
+    throw error
+  }
+  return data
 }

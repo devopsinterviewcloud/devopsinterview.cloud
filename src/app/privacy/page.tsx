@@ -1,11 +1,11 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy - DevopsInterview.Cloud',
-  description: 'Learn how DevopsInterview.Cloud collects, uses, and protects your personal information. Read our comprehensive privacy policy for DevOps and Cloud ebook purchases.',
+  title: 'Privacy Policy - DevOpsInterview.Cloud',
+  description: 'Learn how DevOpsInterview.Cloud collects, uses, and protects your personal information. Read our comprehensive privacy policy for DevOps and Cloud ebook purchases.',
   openGraph: {
-    title: 'Privacy Policy - DevopsInterview.Cloud',
-    description: 'Learn how DevopsInterview.Cloud collects, uses, and protects your personal information.',
+    title: 'Privacy Policy - DevOpsInterview.Cloud',
+    description: 'Learn how DevOpsInterview.Cloud collects, uses, and protects your personal information.',
     url: 'https://devopsinterview.cloud/privacy',
   },
 }
@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Information We Collect</h2>
             <p className="mb-4">
-              At DevopsInterview.Cloud, we collect information you provide directly to us, such as when you:
+              At DevOpsInterview.Cloud, we collect information you provide directly to us, such as when you:
             </p>
             <ul className="list-disc pl-6 mb-4">
               <li>Purchase our DevOps and Cloud ebooks</li>
@@ -96,7 +96,7 @@ export default function PrivacyPolicy() {
             <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
             <p>
               If you have any questions about this Privacy Policy or our data practices, 
-              please contact us at privacy@devopsinterview.cloud or through our contact page.
+              please contact us at devopsinterview.cloud@gmail.com or through our contact page.
             </p>
           </section>
 

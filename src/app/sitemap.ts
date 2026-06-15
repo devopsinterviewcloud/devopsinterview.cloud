@@ -42,12 +42,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.3,
     },
-    {
-      url: `${baseUrl}/checkout`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.7,
-    },
+    // /checkout is a transactional page; intentionally NOT in the sitemap (and noindex on the page).
   ]
 
   // Ebook pages (for future individual ebook pages)
