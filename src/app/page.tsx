@@ -128,7 +128,7 @@ export default function Home() {
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Get Your First Ebook - Starting at{' '}<DynamicPriceText usdPrice={24.99} />
+                Get Your First Ebook - Starting at{' '}<DynamicPriceText usdPrice={9.99} />
               </a>
               <a href="#ebooks" className="bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-50 text-lg px-10 py-4 rounded-xl font-semibold transition-all inline-flex items-center justify-center">
                 View All Ebooks
@@ -148,7 +148,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold text-foreground mb-2">Digital Delivery</h3>
-              <p className="text-muted-foreground">Delivered within 12-24 hours</p>
+              <p className="text-muted-foreground">Instant delivery to your email</p>
             </div>
 
             <div className="text-center animate-fade-in-up" style={{animationDelay: '0.1s'}}>
@@ -203,7 +203,7 @@ export default function Home() {
                 {ebook.isBundle && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
                     <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg whitespace-nowrap">
-                      ⭐ BEST VALUE - SAVE 50% ⭐
+                      ⭐ BEST VALUE - SAVE 33% ⭐
                     </span>
                   </div>
                 )}
@@ -283,10 +283,10 @@ export default function Home() {
           <div className="text-center">
             <div className="inline-flex flex-col items-center gap-4">
               <button className="btn-primary px-12 py-4 text-lg">
-                🎁 Special Bundle Offer: Buy All 5 Books & Save 50%!
+                🎁 Special Bundle Offer: Buy All 5 Books & Save 33%!
               </button>
               <p className="text-sm text-muted-foreground">
-                💎 Individual books <DynamicPriceText usdPrice={24.99} /> each • Complete Bundle <DynamicPriceText usdPrice={62.99} /> • PDF format • Prices auto-convert to your currency
+                💎 Individual books <DynamicPriceText usdPrice={9.99} /> each • Complete Bundle <DynamicPriceText usdPrice={31.99} /> • PDF format • Prices auto-convert to your currency
               </p>
             </div>
           </div>
@@ -537,11 +537,11 @@ export default function Home() {
               },
               {
                 question: "How long does delivery take?",
-                answer: "Digital delivery via email within 12-24 hours after payment confirmation. You'll receive download links directly to your registered email address. No physical shipping involved."
+                answer: "Instant digital delivery: within minutes of your payment being confirmed, you'll receive download links directly at your registered email address. No physical shipping involved."
               },
               {
                 question: "Do you offer bundle discounts?",
-                answer: "Yes! Purchase all 5 comprehensive ebooks as a bundle and save 50%. Individual books are available separately, or get the complete DevOps Mastery Bundle at a significantly discounted price."
+                answer: "Yes! Purchase all 5 comprehensive ebooks as a bundle and save 33% versus buying them separately. Individual books are available separately, or get the complete DevOps Mastery Bundle at a significantly discounted price. Every purchase also includes the Interview-Day Playbook free."
               },
               {
                 question: "What currencies do you accept?",
@@ -616,8 +616,8 @@ export default function Home() {
                 <span className="text-xl font-bold text-white">DevOpsInterview.Cloud</span>
               </div>
               <p className="text-white mb-4 max-w-md">
-                Master DevOps and Cloud technologies with expert-curated ebooks, comprehensive interview preparation guides,
-                and practical tutorials. Advance your career with the most trusted DevOps learning platform.
+                Master DevOps and Cloud technologies with expert-curated ebooks and comprehensive, senior-level
+                interview preparation guides covering AWS, Azure, GCP, Kubernetes, Terraform, CI/CD, and SRE.
               </p>
               <p className="text-white mb-6">
                 ⭐ 250+ senior-level interview questions across five books

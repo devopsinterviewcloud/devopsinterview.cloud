@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail, MessageSquare, Phone, Send, CheckCircle } from 'lucide-react'
+import { Mail, MessageSquare, Send, CheckCircle } from 'lucide-react'
 
 export default function ContactUs() {
   const [formData, setFormData] = useState({
@@ -79,17 +79,6 @@ export default function ContactUs() {
                   <h3 className="font-semibold text-foreground">Business Inquiries</h3>
                   <p className="text-muted-foreground">devopsinterview.cloud@gmail.com</p>
                   <p className="text-sm text-muted-foreground">Partnerships & collaboration</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="bg-orange-100 p-3 rounded-lg">
-                  <Phone className="h-6 w-6 text-orange-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Phone Support</h3>
-                  <p className="text-muted-foreground">Available upon request</p>
-                  <p className="text-sm text-muted-foreground">Email us for phone callback: devopsinterview.cloud@gmail.com</p>
                 </div>
               </div>
             </div>

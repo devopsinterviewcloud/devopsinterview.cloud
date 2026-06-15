@@ -45,8 +45,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // /checkout is a transactional page; intentionally NOT in the sitemap (and noindex on the page).
   ]
 
-  // Ebook pages (for future individual ebook pages)
-  const ebookPages = ebooksData.map((ebook) => ({
+  // Ebook pages. The Interview-Day Playbook is a free bonus, not a listed product,
+  // so it is excluded here to match the storefront and structured data.
+  const ebookPages = ebooksData
+    .filter((ebook) => ebook.slug !== 'interview-day-playbook')
+    .map((ebook) => ({
     url: `${baseUrl}/ebooks/${ebook.slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
