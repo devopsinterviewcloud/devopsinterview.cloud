@@ -81,9 +81,12 @@ async function sendPurchaseEmail(email: string, orderId: string, slug: string) {
       <h2>Thanks for your purchase!</h2>
       <p>Your DevOpsInterview.Cloud download is ready. The link is valid for 3 days; you can
       re-request it any time by replying to this email.</p>
+      <p style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 16px;margin:20px 0">
+        🎁 <strong>Bonus included:</strong> The Interview-Day Playbook is on your download page, free with your purchase.
+      </p>
       <p style="margin:28px 0">
         <a href="${link}" style="background:#2563eb;color:#fff;text-decoration:none;
-           padding:14px 28px;border-radius:8px;font-weight:600;display:inline-block">Download your ebook</a>
+           padding:14px 28px;border-radius:8px;font-weight:600;display:inline-block">Download your ebook + bonus</a>
       </p>
       <p style="color:#64748b;font-size:13px">If the button doesn't work, copy this link:<br>${link}</p>
       <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0">

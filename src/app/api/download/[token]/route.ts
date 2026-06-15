@@ -36,8 +36,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
   if (files.length === 1) {
     return NextResponse.redirect(files[0].url, 302)
   }
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  const prettyName = (name: string) =>
+    name.replace(/\.pdf$/i, '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
   const list = files
-    .map((f) => `<li style="margin:10px 0"><a href="${f.url}">${f.name}</a></li>`)
+    .map((f) => {
+      const isBonus = f.name === 'interview-day-playbook.pdf'
+      const label = isBonus
+        ? '🎁 Bonus &mdash; The Interview-Day Playbook (free with your purchase)'
+        : esc(prettyName(f.name))
+      return `<li style="margin:10px 0"><a href="${esc(f.url)}">${label}</a></li>`
+    })
     .join('')
   return new NextResponse(
     `<!doctype html><html><head><meta charset="utf-8"><title>Your downloads</title></head>

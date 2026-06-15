@@ -37,8 +37,16 @@ const FILE_MAP: Record<string, string[]> = {
   'complete-devops-mastery-bundle': ['cloud-platforms.pdf', 'containers-orchestration.pdf', 'infrastructure-as-code.pdf', 'cicd-gitops.pdf', 'advanced-devops.pdf'],
 }
 
+// The Interview-Day Playbook ships FREE with every purchase as a bonus, so it is
+// appended to every deliverable product below (not sold on its own).
+const BONUS_PLAYBOOK = 'interview-day-playbook.pdf'
+
 export function filesForSlug(slug: string): string[] {
-  return FILE_MAP[slug] ?? []
+  const base = FILE_MAP[slug] ?? []
+  if (base.length === 0) return []
+  // Don't double-add the bonus to its own (bonus-only) entry.
+  if (slug === 'interview-day-playbook') return base
+  return base.includes(BONUS_PLAYBOOK) ? base : [...base, BONUS_PLAYBOOK]
 }
 
 export function storageConfigured(): boolean {

@@ -11,7 +11,7 @@ export const CURRENCIES: Record<string, CurrencyConfig> = {
   INR: {
     code: 'INR',
     symbol: '₹',
-    rate: 80, // Approximate rate: 1 USD = 80 INR
+    rate: 95, // Approximate rate: 1 USD = 95 INR (keeps display in sync with priceINR, e.g. $9.99 -> ₹899)
     locale: 'en-IN'
   },
   USD: {

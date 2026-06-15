@@ -23,7 +23,7 @@ function CheckoutContent() {
   const searchParams = useSearchParams()
   const ebookId = searchParams.get('ebook')
   const ebook = ebooksData.find((e) => e.id === ebookId)
-  const ebookPrice = ebook?.price || 24.99
+  const ebookPrice = ebook?.price || 9.99
   const ebookTitle = ebook?.title || 'Selected Ebook'
 
   const [email, setEmail] = useState('')

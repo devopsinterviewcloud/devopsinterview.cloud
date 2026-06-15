@@ -13,7 +13,7 @@ export function DynamicPriceText({ usdPrice, prefix = '', suffix = '' }: Dynamic
 
   if (isLoading) {
     // Show INR as default during loading for better UX
-    const inrPrice = Math.round(usdPrice * 80 / 100) * 100 - 1
+    const inrPrice = Math.round(usdPrice * 95 / 100) * 100 - 1
     return <span>₹{inrPrice.toLocaleString('en-IN')}</span>
   }
 

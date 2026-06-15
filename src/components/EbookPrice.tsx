@@ -12,8 +12,8 @@ export default function EbookPrice({ usdPrice, originalUsdPrice }: EbookPricePro
 
   // Show INR as default during loading for better UX in primary market
   if (isLoading) {
-    const inrPrice = Math.round(usdPrice * 80 / 100) * 100 - 1
-    const originalInrPrice = originalUsdPrice ? Math.round(originalUsdPrice * 80 / 100) * 100 - 1 : null
+    const inrPrice = Math.round(usdPrice * 95 / 100) * 100 - 1
+    const originalInrPrice = originalUsdPrice ? Math.round(originalUsdPrice * 95 / 100) * 100 - 1 : null
 
     return (
       <div className="flex flex-col gap-1">
