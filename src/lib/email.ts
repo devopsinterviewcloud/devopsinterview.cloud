@@ -175,6 +175,61 @@ Order ID: ${orderId}
 }
 
 /**
+ * Contact-form delivery: forwards a website enquiry to the support inbox.
+ * `from` must be the Resend-verified domain; the sender's address goes in
+ * replyTo so you can reply to the customer directly from your inbox.
+ */
+export async function sendContactEmail({
+  name,
+  email,
+  subject,
+  message,
+}: {
+  name: string
+  email: string
+  subject: string
+  message: string
+}) {
+  const to = process.env.EMAIL_REPLY_TO || 'devopsinterview.cloud@gmail.com'
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <h2 style="margin: 0 0 16px 0;">New contact-form message</h2>
+  <p style="margin: 4px 0;"><strong>Name:</strong> ${esc(name)}</p>
+  <p style="margin: 4px 0;"><strong>Email:</strong> ${esc(email)}</p>
+  <p style="margin: 4px 0;"><strong>Subject:</strong> ${esc(subject)}</p>
+  <div style="margin-top: 16px; padding: 16px; background:#f9fafb; border-radius: 8px; white-space: pre-wrap;">${esc(message)}</div>
+</body>
+</html>`
+  const text = `New contact-form message
+
+Name: ${name}
+Email: ${email}
+Subject: ${subject}
+
+${message}`
+
+  const { data, error } = await resend.emails.send({
+    from: process.env.EMAIL_FROM || 'DevOpsInterview.Cloud <noreply@devopsinterview.cloud>',
+    replyTo: email,
+    to: [to],
+    subject: `[Contact] ${subject} — from ${name}`,
+    html,
+    text,
+  })
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error('Contact email error:', error)
+    throw error
+  }
+  return data
+}
+
+/**
  * Lead-magnet delivery: emails the free Cloud Interview Mastery sample (8 real
  * questions, one per chapter) to a new subscriber. The sample is served as a
  * static asset from /samples so this works even before Supabase storage is wired.
