@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ComingSoonBanner } from "@/components/ComingSoonBanner";
 import CookieConsent from "@/components/CookieConsent";
 import ConsentedAnalytics from "@/components/ConsentedAnalytics";
 
@@ -17,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "DevOpsInterview.Cloud - Master DevOps & Cloud Interview Success",
-  description: "Expert-curated DevOps and Cloud ebooks covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD. Ace interviews, pass certifications, advance your career with 15,000+ professionals.",
+  description: "Expert-curated DevOps and Cloud ebooks covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD. Ace interviews, pass certifications, and advance your career with 250+ senior-level interview questions across five books.",
   keywords: "devops interview questions, cloud computing, aws certification, kubernetes tutorial, docker guide, terraform iac, cicd pipelines, devops ebooks, cloud architect, sre interview prep",
   authors: [{ name: "DevOpsInterview.Cloud" }],
   creator: "DevOpsInterview.Cloud",
@@ -77,7 +76,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ComingSoonBanner />
         {children}
         <CookieConsent />
         <ConsentedAnalytics />

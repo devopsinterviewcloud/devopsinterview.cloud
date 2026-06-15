@@ -27,7 +27,7 @@ export default function Home() {
   const productsData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": ebooksData.map((ebook, index) => ({
+    "itemListElement": ebooksData.filter((e) => e.slug !== "interview-day-playbook").map((ebook, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "item": {
@@ -104,7 +104,7 @@ export default function Home() {
               <svg className="w-4 h-4 mr-2 text-yellow-500 fill-current" viewBox="0 0 24 24">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
-              Trusted by 15,000+ DevOps professionals worldwide
+              250+ senior-level interview questions across five books
             </div>
             
             {/* Main Headline */}
@@ -198,7 +198,7 @@ export default function Home() {
 
           {/* Enhanced Ebook Cards */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {ebooksData.map((ebook, index) => (
+            {ebooksData.filter((e) => e.slug !== "interview-day-playbook").map((ebook, index) => (
               <div key={index} className={`card group animate-fade-in-up ${ebook.isBundle ? 'ring-4 ring-yellow-400 shadow-2xl relative' : ''}`} style={{animationDelay: `${index * 0.1}s`}}>
                 {ebook.isBundle && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
@@ -582,22 +582,22 @@ export default function Home() {
             Ready to Advance Your DevOps &amp; Cloud Career?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join 15,000+ professionals mastering cloud technologies, acing technical interviews, and advancing their careers
-            with comprehensive guides covering AWS, Azure, GCP, Kubernetes, Terraform, and more.
+            Master cloud technologies, ace technical interviews, and advance your career with
+            comprehensive, senior-level guides covering AWS, Azure, GCP, Kubernetes, Terraform, and more.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a href="#ebooks" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-xl transition-all inline-flex items-center justify-center">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              Start Learning Now -{' '}<DynamicPriceText usdPrice={24.99} />
+              Start Learning Now
             </a>
-            <a href="/contact" className="bg-purple-600 text-white hover:bg-purple-700 px-8 py-4 text-lg font-semibold rounded-xl transition-all inline-flex items-center justify-center">
-              Team Pricing Available
+            <Link href="/ebooks/complete-devops-mastery-bundle" className="bg-purple-600 text-white hover:bg-purple-700 px-8 py-4 text-lg font-semibold rounded-xl transition-all inline-flex items-center justify-center">
+              View the Bundle
               <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -620,23 +620,15 @@ export default function Home() {
                 and practical tutorials. Advance your career with the most trusted DevOps learning platform.
               </p>
               <p className="text-white mb-6">
-                ⭐ Trusted by 15,000+ professionals worldwide
+                ⭐ 250+ senior-level interview questions across five books
               </p>
 
-              {/* Business Contact Information - Required for Payment Gateway Approval */}
-              <div className="mt-6 pt-4 border-t border-slate-800 text-sm space-y-1">
-                <p className="font-semibold text-white mb-2">Business Information</p>
-                <p className="text-white font-semibold">PROSPERA ENTERPRISES</p>
-                <p className="text-white text-xs italic mb-2">DBA: DevOpsInterview.Cloud</p>
+              <div className="mt-6 pt-4 border-t border-slate-800 text-sm">
                 <p className="text-white">
                   <a href="mailto:devopsinterview.cloud@gmail.com" className="hover:text-blue-400 transition-colors">
                     Email: devopsinterview.cloud@gmail.com
                   </a>
                 </p>
-                <p className="text-white">Phone: Available upon request via email</p>
-                <p className="text-white mt-2">34, Padmavathy Nagar, MMC</p>
-                <p className="text-white">Chennai, Tamil Nadu 600051</p>
-                <p className="text-white">India</p>
               </div>
             </div>
             
@@ -665,7 +657,7 @@ export default function Home() {
           <div className="border-t border-slate-800 pt-8 mt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-white">
-                © 2026 PROSPERA ENTERPRISES (DevOpsInterview.Cloud). All rights reserved.
+                © 2026 DevOpsInterview.Cloud. All rights reserved.
               </p>
               <div className="flex items-center gap-2 mt-4 md:mt-0">
                 <span className="text-white">Made with ❤️ for the DevOps community</span>

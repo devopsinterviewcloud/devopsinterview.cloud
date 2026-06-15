@@ -163,16 +163,8 @@ export default function ShippingPage() {
                 Contact Information
               </h2>
               <div className="bg-slate-50 p-6 rounded-lg">
-                <p className="font-semibold text-foreground mb-1">PROSPERA ENTERPRISES</p>
-                <p className="text-sm text-muted-foreground italic mb-3">(DBA: DevOpsInterview.Cloud)</p>
-                <p>34, Padmavathy Nagar, MMC</p>
-                <p>Chennai, Tamil Nadu 600051</p>
-                <p>India</p>
-                <p className="mt-4">
-                  <strong>Email:</strong> <a href="mailto:devopsinterview.cloud@gmail.com" className="text-blue-600 hover:underline">devopsinterview.cloud@gmail.com</a>
-                </p>
                 <p>
-                  <strong>Phone:</strong> Available upon request via email
+                  <strong>Email:</strong> <a href="mailto:devopsinterview.cloud@gmail.com" className="text-blue-600 hover:underline">devopsinterview.cloud@gmail.com</a>
                 </p>
               </div>
             </section>
