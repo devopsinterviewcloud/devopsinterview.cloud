@@ -21,7 +21,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
 
   let files
   try {
-    files = await signedUrlsForSlug(payload.slug)
+    // 30 min: the bundle hands out several links the buyer clicks in turn, and the
+    // PDFs are large, so give a generous window. The token itself stays valid 3 days.
+    files = await signedUrlsForSlug(payload.slug, 1800)
   } catch (e) {
     console.error('download: signed url error', e)
     return new NextResponse('Download temporarily unavailable. Please try again shortly.', { status: 503 })
@@ -40,7 +42,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
   return new NextResponse(
     `<!doctype html><html><head><meta charset="utf-8"><title>Your downloads</title></head>
      <body style="font-family:Arial,sans-serif;max-width:560px;margin:60px auto;color:#0f172a">
-     <h2>Your downloads</h2><p>These links expire in a few minutes; refresh the page from your email to regenerate.</p>
+     <h2>Your downloads</h2><p>These links expire in 30 minutes; reopen the link from your email any time in the next 3 days to regenerate them.</p>
      <ul>${list}</ul></body></html>`,
     { status: 200, headers: { 'Content-Type': 'text/html' } },
   )
