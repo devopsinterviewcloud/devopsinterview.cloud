@@ -7,21 +7,53 @@ import { DynamicPriceText } from "@/components/DynamicPriceText";
 import SampleSignup from "@/components/SampleSignup";
 
 export default function Home() {
-  // Generate structured data for products
-  const structuredData = {
+  // Escape "<" so the JSON-LD can never break out of the <script> tag.
+  const escapeJsonLd = (obj: unknown) => JSON.stringify(obj).replace(/</g, '\\u003c')
+
+  // Single source of truth for the on-page FAQ AND the FAQPage structured data.
+  const faqs = [
+    { question: "What formats are the ebooks available in?", answer: "All ebooks are delivered in PDF format, professionally designed for technical reading with code syntax highlighting, diagrams, and easy navigation. Compatible with all devices including computers, tablets, and smartphones." },
+    { question: "How long does delivery take?", answer: "Instant digital delivery: within minutes of your payment being confirmed, you'll receive download links directly at your registered email address. No physical shipping involved." },
+    { question: "Do you offer bundle discounts?", answer: "Yes! Purchase all 5 comprehensive ebooks as a bundle and save 33% versus buying them separately. Individual books are available separately. Every purchase also includes the Interview-Day Playbook free." },
+    { question: "What currencies do you accept?", answer: "We support multiple currencies including INR (₹), USD ($), EUR (€), GBP (£), AUD, CAD, and SGD. Prices automatically convert based on your location for a seamless shopping experience." },
+    { question: "Are the ebooks suitable for beginners?", answer: "The books target mid-to-senior interview preparation, but each topic is built up from fundamentals with step-by-step explanations and real-world examples, so motivated junior engineers can follow along too." },
+    { question: "Do I get free updates?", answer: "Yes. If we revise or correct the edition you purchased, you'll receive the updated PDF free of charge by replying to your delivery email." },
+    { question: "What is your refund policy?", answer: "All sales are final due to the digital nature of our products. Once you receive the download links, the content cannot be returned. Please review the book descriptions and topics carefully before purchasing." },
+    { question: "Can I purchase for my team?", answer: "Yes! We offer team pricing and volume discounts for organizations. Contact us at devopsinterview.cloud@gmail.com with the number of licenses needed, and we'll provide a custom quote." },
+  ]
+
+  const websiteData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "DevOpsInterview.Cloud",
     "url": "https://devopsinterview.cloud",
-    "description": "Master DevOps and Cloud technologies with expert-curated ebooks covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, and CI/CD.",
-    "publisher": {
-      "@type": "Organization",
-      "name": "DevOpsInterview.Cloud",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://devopsinterview.cloud/logo.png"
-      }
-    }
+    "description": "Senior-level DevOps and Cloud interview preparation ebooks: 250+ real interview questions across five books covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD, and SRE.",
+  };
+
+  const organizationData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "DevOpsInterview.Cloud",
+    "url": "https://devopsinterview.cloud",
+    "logo": "https://devopsinterview.cloud/logo.png",
+    "email": "devopsinterview.cloud@gmail.com",
+    "description": "Publisher of senior-level DevOps, Cloud, and SRE interview preparation ebooks.",
+    "sameAs": [
+      "https://youtube.com/@devopsinterviewcloud",
+      "https://twitter.com/devopsinterviewcloud",
+      "https://linkedin.com/company/devopsinterviewcloud",
+      "https://github.com/devopsinterviewcloud",
+    ],
+  };
+
+  const faqData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((f) => ({
+      "@type": "Question",
+      "name": f.question,
+      "acceptedAnswer": { "@type": "Answer", "text": f.answer },
+    })),
   };
 
   const productsData = {
@@ -64,12 +96,22 @@ export default function Home() {
       <Script
         id="structured-data-website"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        dangerouslySetInnerHTML={{ __html: escapeJsonLd(websiteData) }}
+      />
+      <Script
+        id="structured-data-organization"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: escapeJsonLd(organizationData) }}
       />
       <Script
         id="structured-data-products"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productsData) }}
+        dangerouslySetInnerHTML={{ __html: escapeJsonLd(productsData) }}
+      />
+      <Script
+        id="structured-data-faq"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: escapeJsonLd(faqData) }}
       />
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Navigation Header */}
@@ -270,12 +312,14 @@ export default function Home() {
                   ))}
                 </div>
 
+                <p className="text-xs text-center text-emerald-700 font-medium mb-2">🎁 Free Interview-Day Playbook included</p>
                 <a href={`/checkout?ebook=${ebook.id}`} className="btn-primary w-full inline-flex items-center justify-center">
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   Buy Now
                 </a>
+                <p className="text-xs text-center text-muted-foreground mt-2">Secure checkout · Instant email delivery</p>
               </div>
             ))}
           </div>
@@ -530,40 +574,7 @@ export default function Home() {
           </div>
 
           <div className="space-y-6">
-            {[
-              {
-                question: "What formats are the ebooks available in?",
-                answer: "All ebooks are delivered in PDF format, professionally designed for technical reading with code syntax highlighting, diagrams, and easy navigation. Compatible with all devices including computers, tablets, and smartphones."
-              },
-              {
-                question: "How long does delivery take?",
-                answer: "Instant digital delivery: within minutes of your payment being confirmed, you'll receive download links directly at your registered email address. No physical shipping involved."
-              },
-              {
-                question: "Do you offer bundle discounts?",
-                answer: "Yes! Purchase all 5 comprehensive ebooks as a bundle and save 33% versus buying them separately. Individual books are available separately, or get the complete DevOps Mastery Bundle at a significantly discounted price. Every purchase also includes the Interview-Day Playbook free."
-              },
-              {
-                question: "What currencies do you accept?",
-                answer: "We support multiple currencies including INR (₹), USD ($), EUR (€), GBP (£), AUD, CAD, and SGD. Prices automatically convert based on your location for a seamless shopping experience."
-              },
-              {
-                question: "Are the ebooks suitable for beginners?",
-                answer: "Yes! Our ebooks cover everything from fundamentals to advanced topics. Each book includes step-by-step explanations, real-world examples, hands-on labs, and interview questions suitable for junior to senior engineer levels."
-              },
-              {
-                question: "Do I get free updates?",
-                answer: "Absolutely! All purchases include lifetime updates. When we add new content, update existing materials, or release new editions, you'll receive the updated versions completely free of charge."
-              },
-              {
-                question: "What is your refund policy?",
-                answer: "All sales are final due to the digital nature of our products. Once you receive the download links, the content cannot be returned. Please review the book descriptions and topics carefully before purchasing."
-              },
-              {
-                question: "Can I purchase for my team?",
-                answer: "Yes! We offer team pricing and volume discounts for organizations. Contact us at devopsinterview.cloud@gmail.com with the number of licenses needed, and we'll provide a custom quote."
-              }
-            ].map((faq, index) => (
+            {faqs.map((faq, index) => (
               <div key={index} className="card">
                 <div className="p-6">
                   <h3 className="text-lg font-semibold text-foreground mb-3">{faq.question}</h3>
