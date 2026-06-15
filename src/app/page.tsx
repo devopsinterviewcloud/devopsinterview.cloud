@@ -5,6 +5,7 @@ import Script from "next/script";
 import EbookPrice from "@/components/EbookPrice";
 import { DynamicPriceText } from "@/components/DynamicPriceText";
 import SampleSignup from "@/components/SampleSignup";
+import CurrencySwitcher from "@/components/CurrencySwitcher";
 
 export default function Home() {
   // Escape "<" so the JSON-LD can never break out of the <script> tag.
@@ -126,12 +127,15 @@ export default function Home() {
               </div>
               <span className="text-xl font-bold text-foreground">DevOpsInterview.Cloud</span>
             </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#ebooks" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Ebooks</a>
-              <a href="#categories" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Categories</a>
-              <a href="#interview-prep" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Interview Prep</a>
-              <a href="#youtube" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">YouTube</a>
-              <a href="#ebooks" className="btn-primary">Get Started</a>
+            <div className="flex items-center gap-4 md:gap-8">
+              <div className="hidden md:flex items-center space-x-8">
+                <a href="#ebooks" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Ebooks</a>
+                <a href="#categories" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Categories</a>
+                <a href="#interview-prep" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Interview Prep</a>
+                <a href="#youtube" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">YouTube</a>
+                <a href="#ebooks" className="btn-primary">Get Started</a>
+              </div>
+              <CurrencySwitcher />
             </div>
           </div>
         </div>

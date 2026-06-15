@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { CurrencyProvider } from "@/components/CurrencyProvider";
 import CookieConsent from "@/components/CookieConsent";
 import ConsentedAnalytics from "@/components/ConsentedAnalytics";
 
@@ -76,9 +77,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <CookieConsent />
-        <ConsentedAnalytics />
+        <CurrencyProvider>
+          {children}
+          <CookieConsent />
+          <ConsentedAnalytics />
+        </CurrencyProvider>
       </body>
     </html>
   );
