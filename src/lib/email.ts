@@ -126,3 +126,40 @@ You are receiving this because you requested the free sample at devopsinterview.
   }
   return data
 }
+
+/**
+ * Adds a subscriber to the Resend Audience so they can later receive Broadcasts
+ * (newsletter, funnel). Fail-soft by design: the caller has already persisted
+ * the lead in our own DB, so a Resend hiccup (or a missing RESEND_AUDIENCE_ID)
+ * must never fail the signup. Returns true only when the contact was created.
+ */
+export async function addToAudience({
+  email,
+  name,
+}: {
+  email: string
+  name?: string
+}): Promise<boolean> {
+  const audienceId = process.env.RESEND_AUDIENCE_ID
+  if (!audienceId) return false // newsletter not configured yet; that's fine
+
+  try {
+    const firstName = name?.trim().split(/\s+/)[0]
+    const { error } = await resend.contacts.create({
+      audienceId,
+      email,
+      firstName,
+      unsubscribed: false,
+    })
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('Resend audience add failed:', error)
+      return false
+    }
+    return true
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Resend audience add threw:', err)
+    return false
+  }
+}

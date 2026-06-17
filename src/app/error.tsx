@@ -15,6 +15,7 @@ export default function Error({
 }) {
   useEffect(() => {
     // Surfaces in the browser console and Vercel logs; no PII is logged.
+    // eslint-disable-next-line no-console
     console.error('Route error:', error)
   }, [error])
 
