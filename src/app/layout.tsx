@@ -62,10 +62,15 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  // Add Google Search Console verification code when available
-  // verification: {
-  //   google: 'your-google-verification-code',
-  // },
+  // Google Search Console (and Bing) site verification via the HTML-tag method.
+  // Set GOOGLE_SITE_VERIFICATION (and optionally a Bing code) in Vercel env vars;
+  // Next omits the tag automatically when the value is unset.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    other: process.env.BING_SITE_VERIFICATION
+      ? { 'msvalidate.01': process.env.BING_SITE_VERIFICATION }
+      : {},
+  },
 };
 
 export default function RootLayout({
