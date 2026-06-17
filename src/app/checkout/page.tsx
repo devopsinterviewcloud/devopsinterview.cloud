@@ -3,7 +3,6 @@
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
-import { DynamicPriceText } from '@/components/DynamicPriceText'
 import ebooksData from '@/data/ebooks.json'
 
 const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js'
@@ -23,7 +22,6 @@ function CheckoutContent() {
   const searchParams = useSearchParams()
   const ebookId = searchParams.get('ebook')
   const ebook = ebooksData.find((e) => e.id === ebookId)
-  const ebookPrice = ebook?.price || 9.99
   const ebookTitle = ebook?.title || 'Selected Ebook'
 
   const [email, setEmail] = useState('')
@@ -33,6 +31,15 @@ function CheckoutContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState('')
+
+  // What you SEE must equal what you PAY. The charge currency/gateway is decided
+  // by country (India -> INR/Razorpay, everywhere else -> USD/PayPal), so derive
+  // the displayed price from country too -- not from the header display switcher.
+  const isIndia = country === 'IN'
+  const priceDisplay = isIndia
+    ? `₹${(ebook?.priceINR ?? 899).toLocaleString('en-IN')}`
+    : `$${(ebook?.price ?? 9.99).toFixed(2)}`
+  const gatewayName = isIndia ? 'Razorpay' : 'PayPal'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -112,14 +119,16 @@ function CheckoutContent() {
               <div className="border-t pt-4">
                 <div className="flex justify-between mb-2">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-semibold"><DynamicPriceText usdPrice={ebookPrice} /></span>
+                  <span className="font-semibold">{priceDisplay}</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2">
                   <span>Total</span>
-                  <span><DynamicPriceText usdPrice={ebookPrice} /></span>
+                  <span>{priceDisplay}</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  India: paid in INR via Razorpay (price is GST-inclusive). Elsewhere: paid in USD via PayPal.
+                  {country
+                    ? `You'll be charged ${priceDisplay} via ${gatewayName}${isIndia ? ' (GST-inclusive)' : ''}.`
+                    : 'Select your country to see the exact amount. India is billed in INR via Razorpay (GST-inclusive); elsewhere in USD via PayPal.'}
                 </p>
               </div>
             </div>
@@ -170,7 +179,7 @@ function CheckoutContent() {
               <div className="pt-2">
                 <button type="submit" disabled={loading}
                   className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white py-3 px-4 rounded-lg font-semibold">
-                  {loading ? 'Starting secure checkout…' : 'Pay & get instant access'}
+                  {loading ? 'Starting secure checkout…' : country ? `Pay ${priceDisplay} via ${gatewayName}` : 'Pay & get instant access'}
                 </button>
               </div>
             </form>
