@@ -38,6 +38,7 @@ next-env.d.ts
 # ENVIRONMENT VARIABLES (CRITICAL!)
 # ============================================
 .env
+.env.vercel
 .env*.local
 .env.local
 .env.development.local
