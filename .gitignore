@@ -328,3 +328,6 @@ seed-data-local/
 # !.env.example
 # !.env.template
 # !public/uploads/.gitkeep
+
+# local AI cover-art sources (re-render covers without re-generating)
+scripts/_bg/

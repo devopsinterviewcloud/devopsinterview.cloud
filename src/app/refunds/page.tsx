@@ -1,10 +1,10 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Refund Policy - DevopsInterview.Cloud',
+  title: 'Refund Policy - DevOpsInterview.Cloud',
   description: 'Understand our refund policy for DevOps and Cloud ebook purchases. All sales are final upon download with exceptions for technical issues and errors.',
   openGraph: {
-    title: 'Refund Policy - DevopsInterview.Cloud',
+    title: 'Refund Policy - DevOpsInterview.Cloud',
     description: 'Our refund policy for DevOps and Cloud ebook purchases. All sales are final with limited exceptions.',
     url: 'https://devopsinterview.cloud/refunds',
   },
@@ -16,14 +16,14 @@ export default function RefundPolicy() {
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">Refund Policy</h1>
-          <p className="text-lg text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</p>
+          <p className="text-lg text-muted-foreground">Last updated: June 15, 2026</p>
         </div>
 
         <div className="prose prose-lg max-w-none text-foreground">
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Digital Product Refund Policy</h2>
             <p className="mb-4">
-              At DevopsInterview.Cloud, we stand behind the quality of our DevOps and Cloud ebooks. 
+              At DevOpsInterview.Cloud, we stand behind the quality of our DevOps and Cloud ebooks. 
               We want you to be completely satisfied with your purchase. However, due to the digital 
               nature of our products, we have specific refund guidelines.
             </p>
@@ -47,10 +47,20 @@ export default function RefundPolicy() {
           </section>
 
           <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Order Cancellation</h2>
+            <p className="mb-4">
+              Because delivery is automatic and instant, an order cannot be cancelled once payment is
+              confirmed and the download links have been issued. If your payment is still pending or you
+              have not yet received your download, email devopsinterview.cloud@gmail.com and we will
+              cancel the order and reverse any amount that was captured.
+            </p>
+          </section>
+
+          <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">How to Request Support</h2>
             <p className="mb-4">If you're experiencing issues with your purchase:</p>
             <ol className="list-decimal pl-6 mb-4">
-              <li>Contact our support team at support@devopsinterview.cloud</li>
+              <li>Contact our support team at devopsinterview.cloud@gmail.com</li>
               <li>Include your order number and detailed description of the issue</li>
               <li>Provide screenshots or error messages if applicable</li>
               <li>Our team will review your request within 2 business days</li>
@@ -110,7 +120,7 @@ export default function RefundPolicy() {
               Before requesting a refund for technical issues, please contact our support team:
             </p>
             <ul className="list-disc pl-6 mb-4">
-              <li>Email: support@devopsinterview.cloud</li>
+              <li>Email: devopsinterview.cloud@gmail.com</li>
               <li>Response time: Within 24 hours</li>
               <li>We'll help resolve download, access, or formatting issues</li>
             </ul>
@@ -120,7 +130,7 @@ export default function RefundPolicy() {
             <h2 className="text-2xl font-semibold mb-4">Dispute Resolution</h2>
             <p>
               If you're not satisfied with our refund decision, you may escalate the matter 
-              to our management team at disputes@devopsinterview.cloud. We aim to resolve 
+              to our management team at devopsinterview.cloud@gmail.com. We aim to resolve 
               all disputes fairly and promptly.
             </p>
           </section>
@@ -140,9 +150,7 @@ export default function RefundPolicy() {
               For refund requests or questions about this policy:
             </p>
             <ul className="list-none">
-              <li className="mb-2"><strong>Email:</strong> refunds@devopsinterview.cloud</li>
-              <li className="mb-2"><strong>Support:</strong> support@devopsinterview.cloud</li>
-              <li className="mb-2"><strong>Response Time:</strong> Within 2 business days</li>
+              <li className="mb-2"><strong>Email:</strong> devopsinterview.cloud@gmail.com</li>
             </ul>
             <p>
               We value your satisfaction and will work with you to resolve any concerns 

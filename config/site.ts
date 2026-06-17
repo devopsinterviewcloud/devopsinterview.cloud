@@ -1,10 +1,10 @@
 export const siteConfig = {
-  name: "DevopsInterview.Cloud",
+  name: "DevOpsInterview.Cloud",
   description: "Master DevOps and Cloud interview questions and answers with expert-curated interview preparation guides. Ace AWS Azure GCP cloud interviews, DevOps technical interviews, cloud architecture interviews, Kubernetes Docker containerization interviews, Terraform IaC interviews, CI/CD pipeline interviews, and advance your DevOps and Cloud career with comprehensive interview prep resources.",
   url: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   ogImage: "/og-image.jpg",
   creator: {
-    name: "DevopsInterview.Cloud",
+    name: "DevOpsInterview.Cloud",
     url: "https://devopsinterview.cloud",
   },
   keywords: [
@@ -49,7 +49,7 @@ export const siteConfig = {
   ],
   authors: [
     {
-      name: "DevopsInterview.Cloud Team",
+      name: "DevOpsInterview.Cloud Team",
       url: "https://devopsinterview.cloud",
     },
   ],
@@ -95,7 +95,6 @@ export const siteConfig = {
   },
   support: {
     email: "devopsinterview.cloud@gmail.com",
-    phone: "+1 (555) 123-4567",
   },
   legal: {
     privacy: "/privacy",
@@ -104,14 +103,10 @@ export const siteConfig = {
   },
   features: [
     "Instant digital delivery",
-    "Multiple formats (PDF, EPUB, MOBI)",
-    "Lifetime access & updates",
-    "Mobile-optimized reading",
-    "Expert-curated DevOps content",
-    "Interview question banks",
-    "Hands-on lab exercises",
-    "Certification roadmaps",
-    "24/7 technical support",
+    "PDF format, optimized for every device",
+    "Lifetime access",
+    "Expert-curated DevOps & cloud content",
+    "Senior-level interview question banks",
   ],
 }
 

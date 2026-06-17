@@ -38,42 +38,50 @@ const envSchema = z.object({
   // Application
   NEXT_PUBLIC_APP_URL: z.string().url(),
 
-  // Stripe (required for production)
-  STRIPE_PUBLIC_KEY: z.string().startsWith('pk_'),
-  STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
-  STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
+  // Payments — Razorpay (domestic INR)
+  RAZORPAY_KEY_ID: z.string().optional(),
+  RAZORPAY_KEY_SECRET: z.string().optional(),
+  RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
 
-  // Email
+  // Payments — PayPal (international USD)
+  PAYPAL_CLIENT_ID: z.string().optional(),
+  PAYPAL_CLIENT_SECRET: z.string().optional(),
+  PAYPAL_WEBHOOK_ID: z.string().optional(),
+  PAYPAL_ENV: z.enum(['sandbox', 'live']).default('sandbox'),
+
+  // Email (Resend)
   RESEND_API_KEY: z.string().startsWith('re_'),
-  EMAIL_FROM: z.string().email(),
+  EMAIL_FROM: z.string().min(1),
+  EMAIL_REPLY_TO: z.string().email().optional(),
 
-  // Supabase (optional but recommended)
+  // Supabase Storage (private bucket holding the book PDFs)
   SUPABASE_URL: z.string().url().optional(),
-  SUPABASE_ANON_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  SUPABASE_EBOOKS_BUCKET: z.string().optional(),
 
-  // Authentication
-  NEXTAUTH_SECRET: z.string().min(32),
-  NEXTAUTH_URL: z.string().url(),
+  // Signed download links
+  DOWNLOAD_TOKEN_SECRET: z.string().min(16).optional(),
+
+  // Rate limiting (Upstash) — optional; falls back to in-memory otherwise
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 
   // Analytics (optional)
   NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().optional(),
-
-  // Redis (optional)
-  REDIS_URL: z.string().optional(),
-
-  // Sentry (optional but recommended for production)
-  SENTRY_DSN: z.string().url().optional(),
 })
 
-// Production-specific validations
+// Production-specific validations: live payments + delivery require the full set.
 const productionEnvSchema = envSchema.extend({
-  // In production, these must be set
+  RAZORPAY_KEY_ID: z.string().min(1),
+  RAZORPAY_KEY_SECRET: z.string().min(1),
+  RAZORPAY_WEBHOOK_SECRET: z.string().min(1),
+  PAYPAL_CLIENT_ID: z.string().min(1),
+  PAYPAL_CLIENT_SECRET: z.string().min(1),
+  PAYPAL_WEBHOOK_ID: z.string().min(1),
   SUPABASE_URL: z.string().url(),
-  SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  SENTRY_DSN: z.string().url(),
-  REDIS_URL: z.string(),
+  SUPABASE_EBOOKS_BUCKET: z.string().min(1),
+  DOWNLOAD_TOKEN_SECRET: z.string().min(32),
 })
 
 function validateEnvironment() {
@@ -88,16 +96,16 @@ function validateEnvironment() {
     // Check for common mistakes
     const warnings = []
 
-    // Warn if using test keys in production
+    // Warn about test/sandbox config in production
     if (isProduction) {
-      if (validatedEnv.STRIPE_SECRET_KEY.includes('test')) {
-        warnings.push('⚠️  WARNING: Using Stripe TEST key in production!')
+      if ((validatedEnv.RAZORPAY_KEY_ID || '').startsWith('rzp_test_')) {
+        warnings.push('⚠️  WARNING: Using Razorpay TEST key in production!')
+      }
+      if (validatedEnv.PAYPAL_ENV !== 'live') {
+        warnings.push('⚠️  WARNING: PAYPAL_ENV is not "live" in production!')
       }
       if (validatedEnv.NEXT_PUBLIC_APP_URL.includes('localhost')) {
         warnings.push('⚠️  WARNING: NEXT_PUBLIC_APP_URL points to localhost in production!')
-      }
-      if (validatedEnv.NEXTAUTH_SECRET.length < 64) {
-        warnings.push('⚠️  WARNING: NEXTAUTH_SECRET should be at least 64 characters for production!')
       }
     }
 
@@ -114,11 +122,12 @@ function validateEnvironment() {
     console.log(`  NODE_ENV: ${validatedEnv.NODE_ENV}`)
     console.log(`  APP_URL: ${validatedEnv.NEXT_PUBLIC_APP_URL}`)
     console.log(`  Database: ${maskConnectionString(validatedEnv.DATABASE_URL)}`)
-    console.log(`  Stripe: ${validatedEnv.STRIPE_SECRET_KEY.includes('test') ? 'Test Mode' : 'Live Mode'}`)
+    console.log(`  Razorpay: ${validatedEnv.RAZORPAY_KEY_ID ? ((validatedEnv.RAZORPAY_KEY_ID || '').startsWith('rzp_test_') ? 'Test Mode' : 'Live Mode') : 'Not configured'}`)
+    console.log(`  PayPal: ${validatedEnv.PAYPAL_CLIENT_ID ? `Configured (${validatedEnv.PAYPAL_ENV})` : 'Not configured'}`)
     console.log(`  Email Provider: Resend`)
-    console.log(`  Supabase: ${validatedEnv.SUPABASE_URL ? 'Configured' : 'Not configured'}`)
-    console.log(`  Redis: ${validatedEnv.REDIS_URL ? 'Configured' : 'Not configured'}`)
-    console.log(`  Sentry: ${validatedEnv.SENTRY_DSN ? 'Configured' : 'Not configured'}`)
+    console.log(`  Supabase Storage: ${validatedEnv.SUPABASE_URL ? 'Configured' : 'Not configured'}`)
+    console.log(`  Download token secret: ${validatedEnv.DOWNLOAD_TOKEN_SECRET ? 'Set' : 'MISSING'}`)
+    console.log(`  Rate-limit (Upstash): ${validatedEnv.UPSTASH_REDIS_REST_URL ? 'Configured' : 'In-memory fallback'}`)
     console.log(`  Analytics: ${validatedEnv.NEXT_PUBLIC_GA_MEASUREMENT_ID ? 'Configured' : 'Not configured'}`)
     console.log('')
 

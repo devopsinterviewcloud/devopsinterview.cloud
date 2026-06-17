@@ -16,7 +16,7 @@ export default function ShippingPage() {
 
           <div className="prose prose-slate max-w-none space-y-6 text-muted-foreground">
             <p className="text-lg">
-              <strong className="text-foreground">Last Updated:</strong> January 2025
+              <strong className="text-foreground">Last Updated:</strong> June 2026
             </p>
 
             {/* Digital Products - No Physical Shipping */}
@@ -78,7 +78,7 @@ export default function ShippingPage() {
                 <li><strong>Verify Email Address:</strong> Ensure you entered the correct email during checkout</li>
                 <li><strong>Check Promotions Tab:</strong> Gmail users should check the Promotions tab</li>
                 <li><strong>Whitelist Our Domain:</strong> Add noreply@devopsinterview.cloud to your contacts</li>
-                <li><strong>Contact Support:</strong> Email support@devopsinterview.cloud with your order details</li>
+                <li><strong>Contact Support:</strong> Email devopsinterview.cloud@gmail.com with your order details</li>
               </ol>
             </section>
 
@@ -87,11 +87,9 @@ export default function ShippingPage() {
               <h2 className="text-2xl font-semibold text-foreground mt-8 mb-4">
                 File Formats &amp; Compatibility
               </h2>
-              <p>Our ebooks are delivered in the following formats:</p>
+              <p>Our ebooks are delivered as:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong className="text-foreground">PDF:</strong> Compatible with all devices (Adobe Reader, browsers, mobile apps)</li>
-                <li><strong className="text-foreground">EPUB:</strong> Compatible with most e-readers (Kindle, Kobo, Apple Books)</li>
-                <li><strong className="text-foreground">MOBI:</strong> Optimized for Amazon Kindle devices</li>
+                <li><strong className="text-foreground">PDF:</strong> Compatible with all devices (Adobe Reader, browsers, and mobile apps), with a fixed, print-quality layout</li>
               </ul>
               <p className="mt-4">
                 All files are DRM-free, allowing you to read them on any device without restrictions.
@@ -123,7 +121,7 @@ export default function ShippingPage() {
               </p>
               <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
                 <p className="font-semibold text-foreground">📧 Contact Support for Redelivery</p>
-                <p className="mt-2">Email: <a href="mailto:support@devopsinterview.cloud" className="text-blue-600 hover:underline">support@devopsinterview.cloud</a></p>
+                <p className="mt-2">Email: <a href="mailto:devopsinterview.cloud@gmail.com" className="text-blue-600 hover:underline">devopsinterview.cloud@gmail.com</a></p>
                 <p className="mt-2">Provide:</p>
                 <ul className="list-disc list-inside ml-4 mt-1">
                   <li>Your order confirmation email or order ID</li>
@@ -143,8 +141,7 @@ export default function ShippingPage() {
                 If you experience any technical issues with downloading or accessing your ebooks, our support team is here to help:
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Email: <a href="mailto:support@devopsinterview.cloud" className="text-blue-600 hover:underline">support@devopsinterview.cloud</a></li>
-                <li>Response Time: Within 24 hours (Monday-Friday, 9 AM - 6 PM IST)</li>
+                <li>Email: <a href="mailto:devopsinterview.cloud@gmail.com" className="text-blue-600 hover:underline">devopsinterview.cloud@gmail.com</a></li>
               </ul>
             </section>
 
@@ -166,19 +163,8 @@ export default function ShippingPage() {
                 Contact Information
               </h2>
               <div className="bg-slate-50 p-6 rounded-lg">
-                <p className="font-semibold text-foreground mb-1">PROSPERA ENTERPRISES</p>
-                <p className="text-sm text-muted-foreground italic mb-3">(DBA: DevOpsInterview.Cloud)</p>
-                <p>34, Padmavathy Nagar, MMC</p>
-                <p>Chennai, Tamil Nadu 600051</p>
-                <p>India</p>
-                <p className="mt-4">
-                  <strong>Email:</strong> <a href="mailto:support@devopsinterview.cloud" className="text-blue-600 hover:underline">support@devopsinterview.cloud</a>
-                </p>
                 <p>
-                  <strong>Phone:</strong> Available upon request via email
-                </p>
-                <p className="mt-4 text-sm">
-                  <strong>Business Hours:</strong> Monday - Friday, 9 AM - 6 PM IST
+                  <strong>Email:</strong> <a href="mailto:devopsinterview.cloud@gmail.com" className="text-blue-600 hover:underline">devopsinterview.cloud@gmail.com</a>
                 </p>
               </div>
             </section>

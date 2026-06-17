@@ -97,12 +97,17 @@ class RateLimiterRedis {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Rate limiter error:', error)
-      // Fail open - allow request if rate limiter fails
+      // Fail CLOSED when Redis is the backend: a Redis outage must not silently
+      // disable throttling on sensitive endpoints (checkout/download/contact/subscribe).
+      // In in-memory/dev mode (no Upstash configured) fail open so local dev isn't blocked.
       return {
-        success: true,
+        success: !this.useRedis,
         limit: config.maxRequests,
-        remaining: config.maxRequests,
-        resetTime: now + config.windowMs
+        remaining: 0,
+        resetTime: now + config.windowMs,
+        error: this.useRedis
+          ? 'Service is briefly unavailable. Please try again in a moment.'
+          : undefined,
       }
     }
   }
@@ -249,6 +254,11 @@ class RateLimiterRedis {
         windowMs: 60 * 60 * 1000, // 1 hour
         maxRequests: 3, // 3 signups per hour from same IP
         message: 'Too many newsletter signup attempts. Please try again later.'
+      },
+      'subscribe': {
+        windowMs: 60 * 60 * 1000, // 1 hour
+        maxRequests: 3, // 3 sample/newsletter signups per hour from same IP
+        message: 'Too many signup attempts. Please try again later.'
       },
       'contact': {
         windowMs: 60 * 60 * 1000, // 1 hour

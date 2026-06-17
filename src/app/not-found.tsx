@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: '404 - Page Not Found | DevopsInterview.Cloud',
+  title: '404 - Page Not Found | DevOpsInterview.Cloud',
   description: 'The page you are looking for could not be found.',
 }
 

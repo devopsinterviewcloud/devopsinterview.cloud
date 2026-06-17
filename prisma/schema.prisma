@@ -128,10 +128,15 @@ model Order {
   // Payment information
   stripeSessionId   String?     @unique
   stripePaymentId   String?     @unique
+  // Active gateways: 'razorpay' (domestic INR) and 'paypal' (international USD)
+  gateway           String?
+  gatewayOrderId    String?     @unique
+  gatewayPaymentId  String?     @unique
   paymentStatus     PaymentStatus @default(PENDING)
   paymentMethod     String?
 
   // Order details
+  ebookSlug         String?     // purchased product (book slug or bundle slug)
   subtotal          Decimal     @db.Decimal(10, 2)
   tax               Decimal     @db.Decimal(10, 2) @default(0)
   total             Decimal     @db.Decimal(10, 2)
@@ -155,6 +160,7 @@ model Order {
   @@index([userId])
   @@index([customerEmail])
   @@index([orderNumber])
+  @@index([gatewayOrderId])
   @@index([stripeSessionId])
   @@index([paymentStatus])
   @@index([createdAt])

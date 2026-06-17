@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail, MessageSquare, Phone, Send, CheckCircle } from 'lucide-react'
+import { Mail, MessageSquare, Send, CheckCircle } from 'lucide-react'
 
 export default function ContactUs() {
   const [formData, setFormData] = useState({
@@ -15,12 +15,19 @@ export default function ContactUs() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus('loading')
-    
-    // Simulate form submission
-    setTimeout(() => {
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+      if (!res.ok) throw new Error('request failed')
       setStatus('success')
       setFormData({ name: '', email: '', subject: '', message: '' })
-    }, 1000)
+    } catch {
+      setStatus('error')
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -74,34 +81,6 @@ export default function ContactUs() {
                   <p className="text-sm text-muted-foreground">Partnerships & collaboration</p>
                 </div>
               </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="bg-orange-100 p-3 rounded-lg">
-                  <Phone className="h-6 w-6 text-orange-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Phone Support</h3>
-                  <p className="text-muted-foreground">Available upon request</p>
-                  <p className="text-sm text-muted-foreground">Email us for phone callback: devopsinterview.cloud@gmail.com</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="bg-indigo-100 p-3 rounded-lg">
-                  <svg className="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Our Office</h3>
-                  <p className="text-muted-foreground text-sm font-semibold">PROSPERA ENTERPRISES</p>
-                  <p className="text-muted-foreground text-sm text-xs italic">(DBA: DevOpsInterview.Cloud)</p>
-                  <p className="text-muted-foreground text-sm mt-2">34, Padmavathy Nagar, MMC</p>
-                  <p className="text-muted-foreground text-sm">Chennai, Tamil Nadu 600051</p>
-                  <p className="text-muted-foreground text-sm">India</p>
-                </div>
-              </div>
             </div>
 
             <div className="bg-slate-50 p-6 rounded-lg">
@@ -151,6 +130,14 @@ export default function ContactUs() {
             ) : (
               <>
                 <h2 className="text-2xl font-semibold text-foreground mb-6">Send us a Message</h2>
+                {status === 'error' && (
+                  <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    Something went wrong sending your message. Please try again, or email us directly at{' '}
+                    <a href="mailto:devopsinterview.cloud@gmail.com" className="font-semibold underline">
+                      devopsinterview.cloud@gmail.com
+                    </a>.
+                  </div>
+                )}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>

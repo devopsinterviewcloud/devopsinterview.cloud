@@ -118,6 +118,11 @@ class RateLimiter {
         maxRequests: 10, // 10 downloads per minute
         message: 'Too many download attempts. Please wait before trying again.'
       },
+      'contact': {
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        maxRequests: 5, // 5 messages per 15 minutes (anti-spam)
+        message: 'Too many messages. Please wait a few minutes before sending another.'
+      },
       'default': {
         windowMs: 15 * 60 * 1000, // 15 minutes
         maxRequests: 100, // 100 requests per 15 minutes
