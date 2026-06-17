@@ -265,13 +265,19 @@ export default function Home() {
                   {ebook.description}
                 </p>
 
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                {/* Honest trust signals only. Star ratings/review counts were
+                    removed: the store has no verified customers yet, so they
+                    would be fabricated (FTC/Google-policy risk). Reinstate real
+                    aggregate ratings once attributable reviews exist. */}
+                <div className="flex items-center gap-2 mb-4 text-sm">
+                  <span className="inline-flex items-center gap-1 font-medium text-emerald-700">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                  ))}
-                  <span className="text-sm text-muted-foreground ml-2">{ebook.rating} ({ebook.reviews} reviews)</span>
+                    New 2026 edition
+                  </span>
+                  <span className="text-muted-foreground" aria-hidden="true">·</span>
+                  <span className="text-muted-foreground">{ebook.format.join(" / ")}</span>
                 </div>
 
                 <div className="flex items-center justify-between mb-4">

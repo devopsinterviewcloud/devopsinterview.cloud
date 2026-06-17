@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { db } from '@/lib/db'
-import { sendSampleEmail } from '@/lib/email'
+import { sendSampleEmail, addToAudience } from '@/lib/email'
 import { checkRateLimit } from '@/lib/rate-limiter'
 
 export const runtime = 'nodejs'
@@ -39,6 +39,10 @@ export async function POST(req: NextRequest) {
     console.error('Subscriber upsert failed:', err)
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
   }
+
+  // Add to the Resend Audience for future broadcasts (newsletter/funnel).
+  // Fail-soft: the lead is already saved above, so we never block on this.
+  await addToAudience({ email, name: parsed.name })
 
   // Deliver the sample.
   try {
