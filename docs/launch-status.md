@@ -47,6 +47,26 @@ Merge each into `main` → Vercel auto-deploys.
 
 ---
 
+## Incident — Supabase free-tier auto-pause (2026-06-24)
+- **What happened:** Free-tier Supabase pauses a project after ~7 days of low
+  activity. The DB (`vgxtxtespmzfkhwqsmde`) was paused, taking checkout/downloads
+  offline. Restored manually from the Supabase dashboard.
+- **Root cause:** First week's traffic was mostly internal testing; the DB sat
+  idle. Page views on the site do **not** count as DB activity — only requests
+  that hit Supabase (Postgres/Storage) do.
+- **Mitigations:**
+  1. **External uptime pinger (primary):** UptimeRobot (free) GETs
+     `https://devopsinterview.cloud/api/health` every 5 min → continuous
+     `SELECT 1` activity, so the 7-day idle threshold is never reached. Also
+     gives downtime alerts.
+  2. **Vercel daily Cron (backstop):** `vercel.json` cron hits `/api/health`
+     daily (branch `fix/supabase-keepalive-cron`). Insufficient alone — Vercel
+     Hobby caps crons at once/day — but fine as a secondary.
+  3. **Proper fix (when revenue justifies):** Supabase Pro ($25/mo) disables
+     pausing entirely + daily backups.
+
+---
+
 ## Known issue — Razorpay cards
 - **Symptom:** card payments fail with `SERVER_ERROR`, `error_source: internal`,
   `error_step: payment_initiation` (e.g. `pay_T2lWk965fj8Pch`).
