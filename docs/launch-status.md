@@ -54,16 +54,19 @@ Merge each into `main` → Vercel auto-deploys.
 - **Root cause:** First week's traffic was mostly internal testing; the DB sat
   idle. Page views on the site do **not** count as DB activity — only requests
   that hit Supabase (Postgres/Storage) do.
-- **Mitigations:**
-  1. **External uptime pinger (primary):** UptimeRobot (free) GETs
-     `https://devopsinterview.cloud/api/health` every 5 min → continuous
-     `SELECT 1` activity, so the 7-day idle threshold is never reached. Also
-     gives downtime alerts.
-  2. **Vercel daily Cron (backstop):** `vercel.json` cron hits `/api/health`
-     daily (branch `fix/supabase-keepalive-cron`). Insufficient alone — Vercel
-     Hobby caps crons at once/day — but fine as a secondary.
+- **Mitigations (RESOLVED 2026-06-24):**
+  1. **Hourly keep-alive cron (primary, confirmed working):** the always-on
+     automation box runs `ops/db-keepalive.sh` at the top of every hour
+     (`0 * * * *`), GETting `/api/health` → real `SELECT 1`. ~168 pings per
+     7-day pause window; first unattended run verified at 16:00:01 UTC.
+     Log: `/home/ubuntu/devops-ebooks/ops/db-keepalive.log` (self-trimming).
+  2. **Vercel daily Cron (backstop, merged in PR #14):** `vercel.json` cron
+     hits `/api/health` daily. Insufficient alone (Hobby caps crons at
+     once/day — it lost the race with the first pause) but fine as a
+     secondary if the automation box is ever down.
   3. **Proper fix (when revenue justifies):** Supabase Pro ($25/mo) disables
-     pausing entirely + daily backups.
+     pausing entirely + daily backups. Note: keep-alives prevent the *next*
+     pause; nothing can auto-unpause an already-paused project.
 
 ---
 
@@ -80,11 +83,33 @@ Merge each into `main` → Vercel auto-deploys.
 
 ---
 
+## SEO / visibility status (audited 2026-07-02)
+- **Google has indexed exactly 1 page** — the homepage, under the old `www.`
+  URL. All 6 product pages are invisible to search. Zero organic traffic is
+  the direct consequence; zero sales follows from zero visitors (a store
+  converts ~1–2%, so one sale needs ~50–100 real visitors).
+- **On-page SEO is already solid:** titles, meta descriptions, canonicals,
+  `Book` JSON-LD with offers, per-book og-images + twitter cards, `llms.txt`,
+  robots.txt allowing all major AI crawlers. The gap is off-page.
+- **LLM visibility:** ChatGPT search runs on Bing's index (→ IndexNow + Bing
+  Webmaster are the lever); Claude uses Brave (crawls automatically); being
+  *mentioned* on trusted pages (Reddit, GitHub, dev.to) is what makes LLMs
+  recommend the store.
+- **IndexNow wired** (branch `feat/indexnow`): key file in `public/`, ping
+  script `ops/indexnow-ping.sh` submits all sitemap URLs to Bing — run after
+  the branch deploys, and again whenever pages change.
+
 ## Remaining to-do
-- [ ] Merge the open branches (1–4 above).
+- [ ] Merge open branches: `docs/launch-status`, `feat/indexnow`.
+- [ ] **Owner:** GSC verify (set `GOOGLE_SITE_VERIFICATION` in Vercel →
+      redeploy → verify → submit sitemap → Request indexing on all 7 pages).
+- [ ] **Owner:** Bing Webmaster — "Import from Google Search Console" (1 click).
+- [ ] **Owner:** Vercel → Domains → change `www` redirect **307 → 308
+      Permanent** so Google consolidates onto the apex.
+- [ ] Run `ops/indexnow-ping.sh` after `feat/indexnow` deploys (Claude).
+- [ ] **The real growth lever:** blog section publishing 1–2 sample questions
+      per book as long-tail articles, each linking book + free sample.
 - [ ] Razorpay card activation — confirm/raise ticket if still failing.
-- [ ] Set `GOOGLE_SITE_VERIFICATION` / `BING_SITE_VERIFICATION` in Vercel, redeploy.
-- [ ] Submit `https://devopsinterview.cloud/sitemap.xml` to Google Search Console + Bing.
 - [ ] Rotate the GitHub PAT that was exposed in the git remote.
 - [ ] (Optional) Exercise a real PayPal (USD) purchase to confirm that path too.
 
