@@ -99,14 +99,21 @@ Merge each into `main` → Vercel auto-deploys.
   script `ops/indexnow-ping.sh` submits all sitemap URLs to Bing — run after
   the branch deploys, and again whenever pages change.
 
+## Progress update (2026-07-04)
+- [x] `feat/indexnow` merged + deployed; IndexNow ping **accepted (HTTP 202)** —
+  all 12 URLs submitted to Bing (= ChatGPT search index).
+- [x] GSC verified; sitemap submitted ("Couldn't fetch" = pending first crawl,
+  expected to flip to Success within ~48h — sitemap itself verified clean).
+- [x] `www` redirect switched **307 → 308 Permanent**.
+- [x] Upstash Redis got an inactivity-archive warning (same pattern as Supabase);
+  hourly keep-alive now also sends a Redis PING — log shows `db=up redis=up`.
+
 ## Remaining to-do
-- [ ] Merge open branches: `docs/launch-status`, `feat/indexnow`.
-- [ ] **Owner:** GSC verify (set `GOOGLE_SITE_VERIFICATION` in Vercel →
-      redeploy → verify → submit sitemap → Request indexing on all 7 pages).
+- [ ] Merge open branch: `docs/launch-status` (this doc).
+- [ ] **Owner:** GSC → URL Inspection → **Request indexing** on the homepage +
+      6 ebook pages (the direct path into Google's crawl queue).
 - [ ] **Owner:** Bing Webmaster — "Import from Google Search Console" (1 click).
-- [ ] **Owner:** Vercel → Domains → change `www` redirect **307 → 308
-      Permanent** so Google consolidates onto the apex.
-- [ ] Run `ops/indexnow-ping.sh` after `feat/indexnow` deploys (Claude).
+- [ ] **Owner:** check sitemap status flips to Success in GSC (~48h).
 - [ ] **The real growth lever:** blog section publishing 1–2 sample questions
       per book as long-tail articles, each linking book + free sample.
 - [ ] Razorpay card activation — confirm/raise ticket if still failing.
