@@ -1,22 +1,35 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { track } from '@vercel/analytics'
 import ebooksData from '@/data/ebooks.json'
 
 const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js'
 
+// Single shared in-flight load: concurrent callers (mount preload + submit
+// precheck) await the same promise instead of tearing down each other's
+// <script> tag. window.Razorpay is the real readiness signal; a failed load
+// resets the loader so a later retry can attempt a fresh tag.
+let rzpLoader: Promise<boolean> | null = null
 function loadScript(src: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (document.querySelector(`script[src="${src}"]`)) return resolve(true)
+  if ((window as { Razorpay?: unknown }).Razorpay) return Promise.resolve(true)
+  if (rzpLoader) return rzpLoader
+  rzpLoader = new Promise((resolve) => {
     const s = document.createElement('script')
     s.src = src
     s.onload = () => resolve(true)
-    s.onerror = () => resolve(false)
+    s.onerror = () => { s.remove(); rzpLoader = null; resolve(false) }
     document.body.appendChild(s)
   })
+  return rzpLoader
 }
+
+const BLOCKED_MSG =
+  'Your browser blocked the payment window (usually an ad-blocker or privacy ' +
+  'extension). Please allow it for this site or try an incognito window - or ' +
+  'contact us and we will send you a direct payment link.'
 
 function CheckoutContent() {
   const searchParams = useSearchParams()
@@ -31,6 +44,17 @@ function CheckoutContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState('')
+  // 'loading' | 'ready' | 'blocked' - preloaded on mount so a blocked script is
+  // known BEFORE any order is created (blocked scripts used to mint a PENDING
+  // order per retry click with zero payment attempts behind it).
+  const [rzpScript, setRzpScript] = useState<'loading' | 'ready' | 'blocked'>('loading')
+
+  useEffect(() => {
+    loadScript(RAZORPAY_SRC).then((ok) => {
+      setRzpScript(ok ? 'ready' : 'blocked')
+      if (!ok) track('razorpay_script_blocked')
+    })
+  }, [])
 
   // What you SEE must equal what you PAY. The charge currency/gateway is decided
   // by country (India -> INR/Razorpay, everywhere else -> USD/PayPal), so derive
@@ -47,7 +71,17 @@ function CheckoutContent() {
     if (!ebook) { setError('No product selected.'); return }
     if (!agree) { setError('Please accept the Terms and Privacy Policy.'); return }
     const currency = country === 'IN' ? 'INR' : 'USD'
+    // Busy state covers the script precheck too, so slow networks can't
+    // stack repeated clicks while the script is still downloading.
     setLoading(true)
+    // For INR the Razorpay script must be loadable BEFORE we create an order,
+    // otherwise a blocked script strands a PENDING order per retry.
+    if (currency === 'INR' && rzpScript !== 'ready') {
+      const ok = await loadScript(RAZORPAY_SRC)
+      setRzpScript(ok ? 'ready' : 'blocked')
+      if (!ok) { track('razorpay_script_blocked'); setError(BLOCKED_MSG); setLoading(false); return }
+    }
+    track('checkout_submitted', { currency, product: ebook.id })
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
@@ -59,7 +93,7 @@ function CheckoutContent() {
 
       if (data.gateway === 'razorpay') {
         const ok = await loadScript(RAZORPAY_SRC)
-        if (!ok) { setError('Could not load the payment window. Please retry.'); setLoading(false); return }
+        if (!ok) { track('razorpay_script_blocked'); setError(BLOCKED_MSG); setLoading(false); return }
         const rzp = new (window as unknown as { Razorpay: new (o: unknown) => { open: () => void } }).Razorpay({
           key: data.keyId,
           order_id: data.orderId,
@@ -69,11 +103,14 @@ function CheckoutContent() {
           description: data.name,
           prefill: { email, name },
           theme: { color: '#2563eb' },
-          handler: () => setDone(email),
+          handler: () => { track('payment_window_completed'); setDone(email) },
+          modal: { ondismiss: () => track('payment_window_dismissed') },
         })
         rzp.open()
+        track('payment_window_opened')
         setLoading(false)
       } else if (data.gateway === 'paypal' && data.approvalUrl) {
+        track('paypal_redirect')
         window.location.href = data.approvalUrl
       } else {
         setError('Payment could not be started.'); setLoading(false)
@@ -166,6 +203,14 @@ function CheckoutContent() {
                   <option value="OTHER">Other</option>
                 </select>
               </div>
+              {isIndia && rzpScript === 'blocked' && (
+                <div className="bg-amber-50 border-l-4 border-amber-500 text-amber-900 text-sm p-3 rounded">
+                  Your browser is blocking the payment window (usually an ad-blocker).
+                  Please allow it for this site or use an incognito window, or{' '}
+                  <a href="/contact" className="underline font-medium">contact us</a> for a
+                  direct payment link.
+                </div>
+              )}
               <div className="flex items-start space-x-2 pt-2">
                 <input type="checkbox" id="terms" className="mt-1" checked={agree} onChange={(e) => setAgree(e.target.checked)} required />
                 <label htmlFor="terms" className="text-sm text-muted-foreground">

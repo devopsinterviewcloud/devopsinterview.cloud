@@ -4,7 +4,11 @@ import "./globals.css";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
 import SiteHeader from "@/components/SiteHeader";
 import CookieConsent from "@/components/CookieConsent";
-import ConsentedAnalytics from "@/components/ConsentedAnalytics";
+// Vercel Web Analytics is cookieless, so we run it un-gated (the consent gate
+// hid essentially all real traffic). Keep custom event payloads free of
+// personal data (no emails / order ids). The consent banner stays for any
+// future cookie-based tools, which DO need gating.
+import { Analytics } from "@vercel/analytics/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -87,7 +91,7 @@ export default function RootLayout({
           <SiteHeader />
           {children}
           <CookieConsent />
-          <ConsentedAnalytics />
+          <Analytics />
         </CurrencyProvider>
       </body>
     </html>
