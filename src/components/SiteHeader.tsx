@@ -21,6 +21,7 @@ export default function SiteHeader() {
               <Link href="/#ebooks" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Ebooks</Link>
               <Link href="/#categories" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Categories</Link>
               <Link href="/#interview-prep" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Interview Prep</Link>
+              <Link href="/blog" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Blog</Link>
               <Link href="/#youtube" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">YouTube</Link>
               <Link href="/#ebooks" className="btn-primary">Get Started</Link>
             </div>

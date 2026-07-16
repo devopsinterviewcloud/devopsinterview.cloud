@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import ebooksData from '@/data/ebooks.json'
+import { getAllPosts } from '@/lib/blog'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://devopsinterview.cloud'
@@ -56,5 +57,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }))
 
-  return [...staticPages, ...ebookPages]
+  // Blog: the index plus every post, dated from the post frontmatter so Google
+  // sees real lastModified values instead of a moving build timestamp.
+  const posts = getAllPosts()
+  const blogPages = [
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: posts.length ? new Date(posts[0].date) : new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    ...posts.map((post) => ({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: new Date(post.date),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
+  ]
+
+  return [...staticPages, ...ebookPages, ...blogPages]
 }
