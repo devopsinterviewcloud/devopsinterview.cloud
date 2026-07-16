@@ -30,9 +30,14 @@ export async function POST(req: NextRequest) {
       const paid = typeof payment?.amount === 'number'
         ? { amount: payment.amount / 100, currency: payment.currency || 'INR' }
         : undefined
-      await fulfillByGatewayOrderId(orderId, paymentId, paid)
+      const result = await fulfillByGatewayOrderId(orderId, paymentId, paid)
+      if ('emailFailed' in result && result.emailFailed) {
+        // Paid but the download email didn't go out: 503 makes Razorpay redeliver,
+        // and fulfillment retries the email (order is already claimed, so no double charge).
+        return NextResponse.json({ error: 'email pending' }, { status: 503 })
+      }
     }
   }
-  // Always 200 so Razorpay doesn't retry forever once we've accepted it.
+  // 200 = fully handled; Razorpay stops retrying.
   return NextResponse.json({ received: true })
 }

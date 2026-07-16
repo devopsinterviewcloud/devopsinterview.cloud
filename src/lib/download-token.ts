@@ -16,9 +16,14 @@ function fromB64url(s: string): Buffer {
   return Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64')
 }
 
-export function createDownloadToken(orderId: string, slug: string, ttlSeconds = 60 * 60 * 24 * 3): string {
+/**
+ * `anchor` (optional) fixes the expiry relative to a stable moment (e.g. the order's
+ * fulfilledAt) instead of "now", so retried email sends produce byte-identical
+ * tokens and Resend idempotency-key dedup keeps working.
+ */
+export function createDownloadToken(orderId: string, slug: string, ttlSeconds = 60 * 60 * 24 * 3, anchor?: Date): string {
   if (!SECRET) throw new Error('DOWNLOAD_TOKEN_SECRET is not set')
-  const payload: Payload = { orderId, slug, exp: Math.floor(Date.now() / 1000) + ttlSeconds }
+  const payload: Payload = { orderId, slug, exp: Math.floor((anchor?.getTime() ?? Date.now()) / 1000) + ttlSeconds }
   const body = b64url(Buffer.from(JSON.stringify(payload)))
   const sig = b64url(crypto.createHmac('sha256', SECRET).update(body).digest())
   return `${body}.${sig}`

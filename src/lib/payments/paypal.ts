@@ -13,7 +13,9 @@ const BASE = (process.env.PAYPAL_ENV || 'sandbox') === 'live'
   : 'https://api-m.sandbox.paypal.com'
 
 export function paypalConfigured(): boolean {
-  return Boolean(CLIENT_ID && CLIENT_SECRET)
+  // WEBHOOK_ID is required too: without it verifyPayPalWebhook() rejects every
+  // event, so buyers could pay with no fulfilment ever running. Fail fast instead.
+  return Boolean(CLIENT_ID && CLIENT_SECRET && WEBHOOK_ID)
 }
 
 async function accessToken(): Promise<string> {
@@ -43,6 +45,16 @@ export async function createPayPalOrder(amountUsd: string, sku: string, descript
   })
   if (!res.ok) throw new Error(`PayPal createOrder failed: ${res.status} ${await res.text()}`)
   return (await res.json()) as { id: string; status: string; links: { href: string; rel: string }[] }
+}
+
+/** Fetch an order's current state; used to recover the capture on webhook retries. */
+export async function getPayPalOrder(orderId: string) {
+  const token = await accessToken()
+  const res = await fetch(`${BASE}/v2/checkout/orders/${orderId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error(`PayPal getOrder failed: ${res.status} ${await res.text()}`)
+  return await res.json()
 }
 
 export async function capturePayPalOrder(orderId: string) {

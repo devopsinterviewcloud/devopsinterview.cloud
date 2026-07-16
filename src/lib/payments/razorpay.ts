@@ -14,7 +14,9 @@ const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || ''
 const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || ''
 
 export function razorpayConfigured(): boolean {
-  return Boolean(KEY_ID && KEY_SECRET)
+  // The webhook secret is required too: without it every payment.captured webhook
+  // fails verification, so we'd take money we can never fulfil. Fail fast instead.
+  return Boolean(KEY_ID && KEY_SECRET && WEBHOOK_SECRET)
 }
 
 /** Create a Razorpay order. `amountPaise` and `receipt` come from the server-side quote. */
