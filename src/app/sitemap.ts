@@ -14,6 +14,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1.0,
     },
     {
+      url: `${baseUrl}/ebooks`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/privacy`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,
@@ -51,11 +57,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const ebookPages = ebooksData
     .filter((ebook) => ebook.slug !== 'interview-day-playbook')
     .map((ebook) => ({
-    url: `${baseUrl}/ebooks/${ebook.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }))
+      url: `${baseUrl}/ebooks/${ebook.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
 
   // Blog: the index plus every post, dated from the post frontmatter so Google
   // sees real lastModified values instead of a moving build timestamp.

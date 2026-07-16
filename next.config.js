@@ -64,7 +64,12 @@ const nextConfig = {
   },
 
   async redirects() {
-    return [{ source: '/home', destination: '/', permanent: true }];
+    return [
+      { source: '/home', destination: '/', permanent: true },
+      // The Playbook stopped being a standalone product (now a free bonus); Google
+      // still has the old URL, so send it to the catalog instead of a 404.
+      { source: '/ebooks/interview-day-playbook', destination: '/ebooks', permanent: true },
+    ];
   },
 
   webpack: (config, { isServer }) => {
