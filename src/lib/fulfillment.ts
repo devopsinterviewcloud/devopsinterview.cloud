@@ -7,7 +7,9 @@ import { db } from '@/lib/db'
 import { createDownloadToken } from '@/lib/download-token'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+// Fall back to the production domain, never localhost: a missing env var must not
+// email paying customers a dead download link.
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://devopsinterview.cloud'
 
 /**
  * @param paid  the amount/currency actually captured by the gateway, in MAJOR units
@@ -25,6 +27,18 @@ export async function fulfillByGatewayOrderId(
     return { ok: false, reason: 'order-not-found' as const }
   }
   if (order.paymentStatus === 'SUCCEEDED') {
+    // Paid, but if status is still PROCESSING the download email never went out
+    // (Resend rejected or crashed after the claim). Use this redelivery to retry it.
+    if (order.status === 'PROCESSING' && order.ebookSlug && order.customerEmail) {
+      try {
+        await sendPurchaseEmail(order.customerEmail, order.id, order.ebookSlug)
+        await db.order.updateMany({ where: { id: order.id, status: 'PROCESSING' }, data: { status: 'COMPLETED' } })
+        return { ok: true, alreadyFulfilled: true as const }
+      } catch (e) {
+        console.error('fulfillment: retry of download email failed', { orderId: order.id, error: e })
+        return { ok: true, alreadyFulfilled: true as const, emailFailed: true as const }
+      }
+    }
     return { ok: true, alreadyFulfilled: true as const } // idempotent: webhooks retry
   }
 
@@ -50,11 +64,13 @@ export async function fulfillByGatewayOrderId(
   // Atomic claim: exactly one concurrent webhook delivery can flip PENDING -> SUCCEEDED.
   // This avoids the read-then-update race (double email) and the gatewayPaymentId @unique
   // P2002 that would otherwise 500 and make the gateway retry forever.
+  // status stays PROCESSING until the download email is actually delivered to
+  // Resend; a webhook redelivery retries the email for paid-but-PROCESSING orders.
   const claim = await db.order.updateMany({
     where: { id: order.id, paymentStatus: 'PENDING' },
     data: {
       paymentStatus: 'SUCCEEDED',
-      status: 'COMPLETED',
+      status: 'PROCESSING',
       gatewayPaymentId,
       fulfilledAt: new Date(),
     },
@@ -67,9 +83,15 @@ export async function fulfillByGatewayOrderId(
     try {
       await sendPurchaseEmail(order.customerEmail, order.id, order.ebookSlug)
     } catch (e) {
-      console.error('fulfillment: email send failed', e) // order is still paid; can resend
+      // Order stays paid + PROCESSING; the webhook route returns 5xx so the gateway
+      // redelivers and the retry branch above resends. Log enough to do it by hand too.
+      console.error('fulfillment: DOWNLOAD EMAIL FAILED - will retry on redelivery', {
+        orderId: order.id, email: order.customerEmail, slug: order.ebookSlug, error: e,
+      })
+      return { ok: true, alreadyFulfilled: false as const, emailFailed: true as const }
     }
   }
+  await db.order.updateMany({ where: { id: order.id }, data: { status: 'COMPLETED' } })
   return { ok: true, alreadyFulfilled: false as const }
 }
 
@@ -92,11 +114,13 @@ async function sendPurchaseEmail(email: string, orderId: string, slug: string) {
       <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0">
       <p style="color:#94a3b8;font-size:12px">DevOpsInterview.Cloud &middot; Order ${orderId}</p>
     </div>`
-  await resend.emails.send({
+  // Resend reports API rejections via { error } WITHOUT throwing; surface them.
+  const { error } = await resend.emails.send({
     from: process.env.EMAIL_FROM || 'DevOpsInterview.Cloud <noreply@devopsinterview.cloud>',
     replyTo: process.env.EMAIL_REPLY_TO || 'devopsinterview.cloud@gmail.com',
     to: [email],
     subject: 'Your DevOpsInterview.Cloud download',
     html,
   })
+  if (error) throw new Error(`Resend rejected purchase email: ${error.name ?? ''} ${error.message ?? JSON.stringify(error)}`)
 }
