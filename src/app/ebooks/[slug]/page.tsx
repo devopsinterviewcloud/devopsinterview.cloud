@@ -103,7 +103,7 @@ export default async function EbookPage({
       <nav className="text-sm text-muted-foreground mb-8" aria-label="Breadcrumb">
         <Link href="/" className="hover:underline">Home</Link>
         <span className="mx-2">/</span>
-        <Link href="/#ebooks" className="hover:underline">Ebooks</Link>
+        <Link href="/ebooks" className="hover:underline">Ebooks</Link>
         <span className="mx-2">/</span>
         <span className="text-foreground">{ebook.title}</span>
       </nav>
