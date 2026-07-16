@@ -31,26 +31,32 @@ export async function POST(req: NextRequest) {
       // only for the amount/currency PayPal reports it captured. A failed/declined
       // capture must never deliver the ebook.
       let cap: { id?: string; status?: string; amount?: { value: string; currency_code: string } } | null = null
+      let declined = false
       try {
         const capture = await capturePayPalOrder(orderId)
-        if (capture?.status === 'COMPLETED') cap = capture?.purchase_units?.[0]?.payments?.captures?.[0] ?? null
-        else console.error('paypal: capture not completed, not fulfilling', { orderId, status: capture?.status })
+        cap = capture?.purchase_units?.[0]?.payments?.captures?.[0] ?? null
+        if (capture?.status !== 'COMPLETED') {
+          console.error('paypal: capture not completed yet', { orderId, status: capture?.status })
+        }
       } catch (e) {
         // A retried delivery hits ORDER_ALREADY_CAPTURED (422); the money moved on the
         // first attempt, so recover the capture from the order and continue to fulfil.
         const msg = e instanceof Error ? e.message : String(e)
-        const declined = /capture failed: 4\d\d/.test(msg) && !msg.includes('capture failed: 429')
         if (msg.includes('ORDER_ALREADY_CAPTURED')) {
           const existing = await getPayPalOrder(orderId) // a throw here -> 500 -> PayPal retries
           cap = existing?.purchase_units?.[0]?.payments?.captures?.[0] ?? null
-        } else if (declined) {
-          // Definitive 4xx (declined / not approved): no money moved and a retry of the
-          // same capture cannot succeed, so ack 200 and never fulfil.
+        } else if (msg.includes('INSTRUMENT_DECLINED') || msg.includes('TRANSACTION_REFUSED')) {
+          // Explicitly terminal issue codes: no money moved and retrying the same
+          // capture cannot succeed, so ack 200 and never fulfil. Other 422s
+          // (PAYER_ACTION_REQUIRED, ORDER_NOT_APPROVED) need buyer action and fall
+          // through to redelivery; if the buyer completes later, either a retried
+          // capture succeeds or the PAYMENT.CAPTURE.COMPLETED backstop fulfils.
+          declined = true
           console.error('paypal capture declined, not fulfilling', e)
         } else {
-          // Unknown outcome (network error, timeout, PayPal 5xx, rate limit): money MAY
-          // have moved. 503 so PayPal redelivers; the retry either captures cleanly or
-          // hits ORDER_ALREADY_CAPTURED and recovers above.
+          // Anything else (401/403/408/409/429, network error, PayPal 5xx) is an
+          // UNKNOWN outcome: money may have moved. 503 so PayPal redelivers; the
+          // retry either captures cleanly or hits ORDER_ALREADY_CAPTURED above.
           console.error('paypal capture outcome unknown, requesting redelivery', e)
           return NextResponse.json({ error: 'capture retry' }, { status: 503 })
         }
@@ -66,6 +72,12 @@ export async function POST(req: NextRequest) {
         if ('emailFailed' in result && result.emailFailed) {
           return NextResponse.json({ error: 'email pending' }, { status: 503 }) // PayPal redelivers; email retried
         }
+      } else if (!declined && !(cap && (cap.status === 'DECLINED' || cap.status === 'FAILED'))) {
+        // Capture exists but is PENDING/unresolved (payment review), or the response
+        // had no capture object: not terminal, so keep redelivering rather than
+        // silently acking a paid-but-unfulfilled order.
+        console.error('paypal: capture unresolved, requesting redelivery', { orderId, capStatus: cap?.status })
+        return NextResponse.json({ error: 'capture unresolved' }, { status: 503 })
       }
     }
   } else if (type === 'PAYMENT.CAPTURE.COMPLETED') {
