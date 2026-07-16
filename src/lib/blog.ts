@@ -2,6 +2,12 @@
  * File-based blog: posts live in content/blog/<slug>.md with a small YAML-ish
  * frontmatter block. Everything is read at build time (SSG), so there is no
  * runtime fs access and no client-side markdown parsing.
+ *
+ * TRUST BOUNDARY: post markdown is repo-committed content authored by us and
+ * rendered without HTML sanitisation (marked passes raw HTML through). That is
+ * fine ONLY while every .md here goes through code review. If posts ever come
+ * from a CMS, user input, or any external source, add an allowlist sanitiser
+ * (e.g. sanitize-html) over the rendered output before shipping that change.
  */
 import fs from 'fs'
 import path from 'path'
