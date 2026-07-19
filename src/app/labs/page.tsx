@@ -11,11 +11,13 @@ import {
   SquareTerminal,
 } from "lucide-react";
 import SampleSignup from "@/components/SampleSignup";
+import { createPageMetadata } from "@/config/site";
 
-export const metadata: Metadata = {
-  title: "Incident Labs | DevOps Troubleshooting Practice",
-  description:
-    "Practice the DevOps troubleshooting round with interactive incident investigations, controlled experiments, and postmortem exercises in your browser.",
+export const metadata: Metadata = createPageMetadata({
+  title: "DevOps Incident Labs | Troubleshooting Interview Practice",
+  description: "Practice senior DevOps and SRE troubleshooting with interactive incident investigations, controlled experiments, and postmortem exercises in your browser.",
+  path: "/labs",
+  imageAlt: "Interactive DevOps and SRE incident troubleshooting labs",
   keywords: [
     "DevOps incident lab",
     "SRE troubleshooting practice",
@@ -23,25 +25,7 @@ export const metadata: Metadata = {
     "incident investigation",
     "postmortem practice",
   ],
-  alternates: {
-    canonical: "/labs",
-  },
-  openGraph: {
-    type: "website",
-    url: "/labs",
-    title: "Incident Labs — practice the troubleshooting round",
-    description:
-      "Interactive incident investigations built for DevOps, cloud, and SRE interview practice.",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "DevOpsInterview.Cloud Incident Labs",
-      },
-    ],
-  },
-};
+});
 
 const steps = [
   {
@@ -210,6 +194,12 @@ export default function LabsPage() {
                 <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
                   Production spend jumped, but request volume did not. Inspect the evidence,
                   isolate the change, and build a defensible explanation before the review.
+                </p>
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Build the underlying observability and incident-response theory with the{" "}
+                  <Link href="/ebooks/senior-devops-handbook" className="font-semibold text-blue-700 underline-offset-4 hover:underline">
+                    Senior DevOps &amp; SRE interview ebook
+                  </Link>.
                 </p>
               </div>
 

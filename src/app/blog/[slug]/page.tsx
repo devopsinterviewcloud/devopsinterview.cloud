@@ -2,8 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getAllPosts, getPost } from '@/lib/blog'
+import { siteConfig, truncateMetadataText } from '@/config/site'
 
-const SITE_URL = 'https://devopsinterview.cloud'
+const SITE_URL = siteConfig.url
 
 export const dynamicParams = false
 
@@ -20,20 +21,29 @@ export async function generateMetadata({
   const post = getPost(slug)
   if (!post) return { title: 'Post not found' }
   const url = `${SITE_URL}/blog/${post.slug}`
+  const title = truncateMetadataText(post.title, 60)
+  const description = truncateMetadataText(post.description)
+  const image = `${SITE_URL}${siteConfig.ogImage}`
   return {
-    title: `${post.title} | DevOpsInterview.Cloud`,
-    description: post.description.slice(0, 160),
-    keywords: post.keywords.join(', '),
-    alternates: { canonical: url },
+    title: { absolute: title },
+    description,
+    keywords: post.keywords,
+    alternates: {
+      canonical: url,
+      types: { 'application/rss+xml': `${SITE_URL}/feed.xml` },
+    },
     openGraph: {
-      title: post.title,
-      description: post.description.slice(0, 160),
+      title,
+      description,
       url,
       type: 'article',
       publishedTime: post.date,
-      siteName: 'DevOpsInterview.Cloud',
+      modifiedTime: post.date,
+      locale: siteConfig.locale,
+      siteName: siteConfig.name,
+      images: [{ url: image, width: 1200, height: 630, alt: post.title }],
     },
-    twitter: { card: 'summary', title: post.title, description: post.description.slice(0, 160) },
+    twitter: { card: 'summary_large_image', title, description, images: [image] },
   }
 }
 
@@ -55,10 +65,21 @@ export default async function BlogPostPage({
     description: post.description,
     datePublished: post.date,
     dateModified: post.date,
-    inLanguage: 'en',
+    image: `${SITE_URL}${siteConfig.ogImage}`,
+    inLanguage: siteConfig.language,
+    isAccessibleForFree: true,
     mainEntityOfPage: url,
-    author: { '@type': 'Organization', name: 'DevOpsInterview.Cloud', url: SITE_URL },
-    publisher: { '@type': 'Organization', name: 'DevOpsInterview.Cloud', url: SITE_URL },
+    author: { '@id': `${SITE_URL}/#organization` },
+    publisher: { '@id': `${SITE_URL}/#organization` },
+  }
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE_URL}/blog` },
+      { '@type': 'ListItem', position: 3, name: post.title, item: url },
+    ],
   }
 
   return (
@@ -67,6 +88,10 @@ export default async function BlogPostPage({
         type="application/ld+json"
         // JSON.stringify escaped for safe inline embedding
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
 
       <nav className="text-sm text-muted-foreground mb-8" aria-label="Breadcrumb">
@@ -98,7 +123,12 @@ export default async function BlogPostPage({
           Our five-book series covers cloud, Kubernetes, Terraform, CI/CD and SRE with 250+ real interview
           questions and worked answers. Every purchase includes the free Interview-Day Playbook.
         </p>
-        <Link href="/#ebooks" className="btn-primary inline-block">Browse the ebooks</Link>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link href="/ebooks" className="btn-primary inline-block">Browse the DevOps ebooks</Link>
+          <Link href="/labs" className="font-semibold text-blue-700 underline-offset-4 hover:underline">
+            Practice with Incident Labs
+          </Link>
+        </div>
       </aside>
     </main>
   )

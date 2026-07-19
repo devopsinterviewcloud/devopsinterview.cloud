@@ -1,22 +1,14 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getAllPosts } from '@/lib/blog'
+import { createPageMetadata } from '@/config/site'
 
-const SITE_URL = 'https://devopsinterview.cloud'
-
-export const metadata: Metadata = {
-  title: 'DevOps Interview Blog | DevOpsInterview.Cloud',
-  description:
-    'Real DevOps, Kubernetes, Terraform and cloud interview questions with worked answers, study roadmaps, and preparation strategy from DevOpsInterview.Cloud.',
-  alternates: { canonical: `${SITE_URL}/blog` },
-  openGraph: {
-    title: 'DevOps Interview Blog | DevOpsInterview.Cloud',
-    description:
-      'Real DevOps, Kubernetes, Terraform and cloud interview questions with worked answers and study roadmaps.',
-    url: `${SITE_URL}/blog`,
-    type: 'website',
-  },
-}
+export const metadata: Metadata = createPageMetadata({
+  title: 'DevOps Interview Blog | Questions, Answers & Roadmaps',
+  description: 'Study real DevOps, Kubernetes, Terraform, and cloud interview questions with worked answers, practical roadmaps, and preparation strategies for senior roles.',
+  path: '/blog',
+  imageAlt: 'DevOps interview questions, answers, and study roadmaps',
+})
 
 export default function BlogIndexPage() {
   const posts = getAllPosts()
@@ -32,6 +24,13 @@ export default function BlogIndexPage() {
       <p className="text-muted-foreground mb-10">
         Real interview questions, worked answers, and preparation strategy for DevOps, SRE and cloud roles.
       </p>
+
+      <aside className="mb-10 rounded-xl border border-blue-200 bg-blue-50 p-5 text-sm text-slate-700">
+        Want to practice investigation instead of reading another answer? Try the free{" "}
+        <Link href="/labs/token-cost/" className="font-semibold text-blue-700 underline-offset-4 hover:underline">
+          token-cost incident troubleshooting lab
+        </Link>.
+      </aside>
 
       <div className="space-y-8">
         {posts.map((post) => (

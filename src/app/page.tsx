@@ -23,30 +23,6 @@ export default function Home() {
     { question: "Can I purchase for my team?", answer: "Yes! We offer team pricing and volume discounts for organizations. Contact us at devopsinterview.cloud@gmail.com with the number of licenses needed, and we'll provide a custom quote." },
   ]
 
-  const websiteData = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "DevOpsInterview.Cloud",
-    "url": "https://devopsinterview.cloud",
-    "description": "Senior-level DevOps and Cloud interview preparation ebooks: 250+ real interview questions across five books covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD, and SRE.",
-  };
-
-  const organizationData = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "DevOpsInterview.Cloud",
-    "url": "https://devopsinterview.cloud",
-    "logo": "https://devopsinterview.cloud/logo.png",
-    "email": "devopsinterview.cloud@gmail.com",
-    "description": "Publisher of senior-level DevOps, Cloud, and SRE interview preparation ebooks.",
-    "sameAs": [
-      "https://youtube.com/@devopsinterviewcloud",
-      "https://twitter.com/devopsinterviewcloud",
-      "https://linkedin.com/company/devopsinterviewcloud",
-      "https://github.com/devopsinterviewcloud",
-    ],
-  };
-
   const faqData = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -77,8 +53,7 @@ export default function Home() {
           "price": ebook.price,
           "priceCurrency": "USD",
           "availability": "https://schema.org/InStock",
-          "url": `https://devopsinterview.cloud/ebooks/${ebook.slug}`,
-          "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
+          "url": `https://devopsinterview.cloud/ebooks/${ebook.slug}`
         },
         "author": {
           "@type": "Organization",
@@ -94,16 +69,6 @@ export default function Home() {
 
   return (
     <>
-      <Script
-        id="structured-data-website"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: escapeJsonLd(websiteData) }}
-      />
-      <Script
-        id="structured-data-organization"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: escapeJsonLd(organizationData) }}
-      />
       <Script
         id="structured-data-products"
         type="application/ld+json"
@@ -294,7 +259,7 @@ export default function Home() {
                 <div className="relative aspect-[3/4] rounded-lg mb-6 overflow-hidden bg-gray-100">
                   <Image
                     src={ebook.coverUrl}
-                    alt={`${ebook.title} - DevOps ebook cover featuring ${ebook.category} concepts and ${ebook.tags.join(', ')} technologies for ${ebook.pageCount} pages of comprehensive learning`}
+                    alt={`Cover of ${ebook.title}`}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

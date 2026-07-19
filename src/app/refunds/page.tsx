@@ -1,14 +1,11 @@
 import { Metadata } from 'next'
+import { createPageMetadata } from '@/config/site'
 
-export const metadata: Metadata = {
-  title: 'Refund Policy - DevOpsInterview.Cloud',
-  description: 'Understand our refund policy for DevOps and Cloud ebook purchases. All sales are final upon download with exceptions for technical issues and errors.',
-  openGraph: {
-    title: 'Refund Policy - DevOpsInterview.Cloud',
-    description: 'Our refund policy for DevOps and Cloud ebook purchases. All sales are final with limited exceptions.',
-    url: 'https://devopsinterview.cloud/refunds',
-  },
-}
+export const metadata: Metadata = createPageMetadata({
+  title: 'Ebook Refund Policy | DevOpsInterview.Cloud',
+  description: 'Review the refund and cancellation policy for DevOpsInterview.Cloud digital ebooks, including final-sale terms and help for duplicate or technical issues.',
+  path: '/refunds',
+})
 
 export default function RefundPolicy() {
   return (

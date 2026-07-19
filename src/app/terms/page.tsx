@@ -1,14 +1,11 @@
 import { Metadata } from 'next'
+import { createPageMetadata } from '@/config/site'
 
-export const metadata: Metadata = {
-  title: 'Terms of Service - DevOpsInterview.Cloud',
-  description: 'Read the terms and conditions for purchasing and using DevOpsInterview.Cloud ebooks. Learn about license terms, usage rights, and service policies.',
-  openGraph: {
-    title: 'Terms of Service - DevOpsInterview.Cloud',
-    description: 'Terms and conditions for purchasing and using DevOpsInterview.Cloud ebooks.',
-    url: 'https://devopsinterview.cloud/terms',
-  },
-}
+export const metadata: Metadata = createPageMetadata({
+  title: 'Terms of Service | DevOpsInterview.Cloud',
+  description: 'Read the terms for purchasing and using DevOpsInterview.Cloud ebooks, including personal license rights, payment, delivery, acceptable use, and liability.',
+  path: '/terms',
+})
 
 export default function TermsOfService() {
   return (

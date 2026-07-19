@@ -9,6 +9,7 @@ import CookieConsent from "@/components/CookieConsent";
 // personal data (no emails / order ids). The consent banner stays for any
 // future cookie-based tools, which DO need gating.
 import { Analytics } from "@vercel/analytics/react";
+import { absoluteUrl, siteConfig } from "@/config/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,23 +22,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DevOpsInterview.Cloud - Master DevOps & Cloud Interview Success",
-  description: "Expert-curated DevOps and Cloud ebooks covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD. Ace interviews, pass certifications, and advance your career with 250+ senior-level interview questions across five books.",
+  title: "DevOps Interview Ebooks & Incident Labs | Cloud Prep",
+  description: "Prepare for senior DevOps, cloud, and SRE interviews with 250+ worked questions across five practical ebooks, browser-based incident labs, and study roadmaps.",
   keywords: "devops interview questions, cloud computing, aws certification, kubernetes tutorial, docker guide, terraform iac, cicd pipelines, devops ebooks, cloud architect, sre interview prep",
   authors: [{ name: "DevOpsInterview.Cloud" }],
   creator: "DevOpsInterview.Cloud",
   publisher: "DevOpsInterview.Cloud",
-  metadataBase: new URL('https://devopsinterview.cloud'),
+  metadataBase: new URL(siteConfig.url),
   alternates: {
     canonical: '/',
+    types: {
+      'application/rss+xml': '/feed.xml',
+    },
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://devopsinterview.cloud',
-    siteName: 'DevOpsInterview.Cloud',
-    title: 'DevOpsInterview.Cloud - Master DevOps & Cloud Interview Success',
-    description: 'Expert-curated DevOps and Cloud ebooks covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD. Ace interviews, pass certifications, advance your career.',
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: 'DevOps Interview Ebooks & Incident Labs | Cloud Prep',
+    description: 'Prepare for senior DevOps, cloud, and SRE interviews with worked questions, practical ebooks, and browser-based incident labs.',
     images: [
       {
         url: '/og-image.jpg',
@@ -49,10 +53,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@devopsinterviewcloud',
-    creator: '@devopsinterviewcloud',
-    title: 'DevOpsInterview.Cloud - Master DevOps & Cloud Interview Success',
-    description: 'Expert-curated DevOps and Cloud ebooks covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD.',
+    // Add site/creator only after the owner supplies a real X handle (15 characters max).
+    title: 'DevOps Interview Ebooks & Incident Labs | Cloud Prep',
+    description: 'Prepare for senior DevOps, cloud, and SRE interviews with worked questions, ebooks, and incident labs.',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -82,11 +85,42 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const organizationData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${siteConfig.url}/#organization`,
+    name: siteConfig.name,
+    url: siteConfig.url,
+    logo: absoluteUrl("/logo.png"),
+    email: siteConfig.email,
+    description: "Publisher of senior-level DevOps, cloud, and SRE interview preparation resources.",
+  };
+  const websiteData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${siteConfig.url}/#website`,
+    name: siteConfig.name,
+    url: siteConfig.url,
+    description: "DevOps, cloud, and SRE interview preparation ebooks and interactive incident labs.",
+    publisher: { "@id": `${siteConfig.url}/#organization` },
+    inLanguage: siteConfig.language,
+  };
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <script
+          id="structured-data-organization"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData).replace(/</g, "\\u003c") }}
+        />
+        <script
+          id="structured-data-website"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteData).replace(/</g, "\\u003c") }}
+        />
         <CurrencyProvider>
           <SiteHeader />
           {children}
