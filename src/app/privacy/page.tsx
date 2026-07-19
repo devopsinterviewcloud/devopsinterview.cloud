@@ -1,14 +1,11 @@
 import { Metadata } from 'next'
+import { createPageMetadata } from '@/config/site'
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy - DevOpsInterview.Cloud',
-  description: 'Learn how DevOpsInterview.Cloud collects, uses, and protects your personal information. Read our comprehensive privacy policy for DevOps and Cloud ebook purchases.',
-  openGraph: {
-    title: 'Privacy Policy - DevOpsInterview.Cloud',
-    description: 'Learn how DevOpsInterview.Cloud collects, uses, and protects your personal information.',
-    url: 'https://devopsinterview.cloud/privacy',
-  },
-}
+export const metadata: Metadata = createPageMetadata({
+  title: 'Privacy Policy | DevOpsInterview.Cloud',
+  description: 'Learn what personal information DevOpsInterview.Cloud collects, how it is used and protected, when it is shared, and how to exercise your privacy rights.',
+  path: '/privacy',
+})
 
 export default function PrivacyPolicy() {
   return (

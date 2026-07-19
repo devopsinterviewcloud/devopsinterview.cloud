@@ -3,8 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ebooksData from "@/data/ebooks.json";
 import EbookPrice from "@/components/EbookPrice";
+import { siteConfig, truncateMetadataText } from "@/config/site";
 
-const SITE_URL = "https://devopsinterview.cloud";
+const SITE_URL = siteConfig.url;
 
 type Ebook = {
   id: string;
@@ -18,6 +19,7 @@ type Ebook = {
   pageCount: number;
   tags?: string[];
   category?: string;
+  isBundle?: boolean;
 };
 
 const ebooks = ebooksData as Ebook[];
@@ -45,20 +47,34 @@ export async function generateMetadata({
   const ebook = getEbook(slug);
   if (!ebook) return { title: "Ebook not found" };
   const url = `${SITE_URL}/ebooks/${ebook.slug}`;
-  const title = `${ebook.title} | DevOpsInterview.Cloud`;
-  const description = ebook.description.slice(0, 160);
+  const seoTitles: Record<string, string> = {
+    "cloud-interview-mastery": "Cloud Interview Ebook: AWS, Azure & GCP | DevOps Prep",
+    "container-orchestration-journey": "Docker & Kubernetes Interview Ebook | DevOps Prep",
+    "infrastructure-automation-mastery": "Terraform & OpenTofu Interview Ebook | DevOps Prep",
+    "modern-cicd-gitops": "CI/CD & GitOps Interview Ebook | DevOps Prep",
+    "senior-devops-handbook": "DevOps & SRE Interview Ebook | DevOpsInterview.Cloud",
+    "complete-devops-mastery-bundle": "Complete DevOps Interview Ebook Bundle | Cloud & SRE",
+  };
+  const title = seoTitles[ebook.slug] ?? truncateMetadataText(ebook.title, 58);
+  const description = truncateMetadataText(ebook.description);
+  const image = `${SITE_URL}${ebook.coverUrl}`;
   return {
-    title,
+    title: { absolute: title },
     description,
-    alternates: { canonical: url },
+    alternates: {
+      canonical: url,
+      types: { "application/rss+xml": `${SITE_URL}/feed.xml` },
+    },
     openGraph: {
       title,
       description,
       url,
       type: "website",
-      images: [{ url: `${SITE_URL}${ebook.coverUrl}`, width: 800, height: 1200, alt: ebook.title }],
+      locale: siteConfig.locale,
+      siteName: siteConfig.name,
+      images: [{ url: image, width: 1024, height: 1536, alt: `Cover of ${ebook.title}` }],
     },
-    twitter: { card: "summary_large_image", title, description },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
   };
 }
 
@@ -72,17 +88,20 @@ export default async function EbookPage({
   if (!ebook) notFound();
 
   const url = `${SITE_URL}/ebooks/${ebook.slug}`;
-  const jsonLd = {
+  const productJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Book",
+    "@type": ebook.isBundle ? "Product" : "Book",
     "@id": url,
     name: ebook.title,
     description: ebook.description,
-    bookFormat: "https://schema.org/EBook",
-    numberOfPages: ebook.pageCount,
     image: `${SITE_URL}${ebook.coverUrl}`,
-    inLanguage: "en",
-    publisher: { "@type": "Organization", name: "DevOpsInterview.Cloud" },
+    ...(ebook.isBundle ? {} : {
+      bookFormat: "https://schema.org/EBook",
+      numberOfPages: ebook.pageCount,
+      inLanguage: siteConfig.language,
+      author: { "@id": `${SITE_URL}/#organization` },
+      publisher: { "@id": `${SITE_URL}/#organization` },
+    }),
     offers: {
       "@type": "Offer",
       url,
@@ -91,13 +110,26 @@ export default async function EbookPage({
       availability: "https://schema.org/InStock",
     },
   };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Ebooks", item: `${SITE_URL}/ebooks` },
+      { "@type": "ListItem", position: 3, name: ebook.title, item: url },
+    ],
+  };
 
   return (
     <main id="main" className="container mx-auto px-4 py-12 max-w-5xl">
       <script
         type="application/ld+json"
         // JSON.stringify escaped for safe inline embedding
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c") }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c") }}
       />
 
       <nav className="text-sm text-muted-foreground mb-8" aria-label="Breadcrumb">

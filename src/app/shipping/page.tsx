@@ -1,9 +1,11 @@
 import { Metadata } from 'next'
+import { createPageMetadata } from '@/config/site'
 
-export const metadata: Metadata = {
-  title: 'Shipping & Delivery Policy | DevOpsInterview.Cloud',
-  description: 'Learn about our digital product delivery process. Instant access to ebooks via email after purchase.',
-}
+export const metadata: Metadata = createPageMetadata({
+  title: 'Digital Ebook Delivery Policy | DevOpsInterview.Cloud',
+  description: 'Learn how DevOpsInterview.Cloud delivers digital ebooks by email, typical delivery times, download-link availability, compatible formats, and support options.',
+  path: '/shipping',
+})
 
 export default function ShippingPage() {
   return (

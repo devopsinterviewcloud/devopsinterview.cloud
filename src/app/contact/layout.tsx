@@ -1,14 +1,11 @@
 import { Metadata } from 'next'
+import { createPageMetadata } from '@/config/site'
 
-export const metadata: Metadata = {
-  title: 'Contact Us - DevOpsInterview.Cloud',
-  description: 'Get in touch with DevOpsInterview.Cloud for support, partnership inquiries, or questions about our DevOps and Cloud ebooks. We respond within 24 hours.',
-  openGraph: {
-    title: 'Contact Us - DevOpsInterview.Cloud',
-    description: 'Get in touch with DevOpsInterview.Cloud for support and inquiries.',
-    url: 'https://devopsinterview.cloud/contact',
-  },
-}
+export const metadata: Metadata = createPageMetadata({
+  title: 'Contact DevOpsInterview.Cloud | Support & Inquiries',
+  description: 'Contact DevOpsInterview.Cloud for ebook support, download help, team pricing, partnerships, or questions about DevOps and cloud interview resources.',
+  path: '/contact',
+})
 
 export default function ContactLayout({
   children,

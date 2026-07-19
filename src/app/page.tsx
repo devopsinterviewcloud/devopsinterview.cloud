@@ -5,6 +5,7 @@ import Script from "next/script";
 import EbookPrice from "@/components/EbookPrice";
 import { DynamicPriceText } from "@/components/DynamicPriceText";
 import SampleSignup from "@/components/SampleSignup";
+import { ArrowRight, Clock3, Gift, SquareTerminal } from "lucide-react";
 
 export default function Home() {
   // Escape "<" so the JSON-LD can never break out of the <script> tag.
@@ -21,30 +22,6 @@ export default function Home() {
     { question: "What is your refund policy?", answer: "All sales are final due to the digital nature of our products. Once you receive the download links, the content cannot be returned. Please review the book descriptions and topics carefully before purchasing." },
     { question: "Can I purchase for my team?", answer: "Yes! We offer team pricing and volume discounts for organizations. Contact us at devopsinterview.cloud@gmail.com with the number of licenses needed, and we'll provide a custom quote." },
   ]
-
-  const websiteData = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "DevOpsInterview.Cloud",
-    "url": "https://devopsinterview.cloud",
-    "description": "Senior-level DevOps and Cloud interview preparation ebooks: 250+ real interview questions across five books covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD, and SRE.",
-  };
-
-  const organizationData = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "DevOpsInterview.Cloud",
-    "url": "https://devopsinterview.cloud",
-    "logo": "https://devopsinterview.cloud/logo.png",
-    "email": "devopsinterview.cloud@gmail.com",
-    "description": "Publisher of senior-level DevOps, Cloud, and SRE interview preparation ebooks.",
-    "sameAs": [
-      "https://youtube.com/@devopsinterviewcloud",
-      "https://twitter.com/devopsinterviewcloud",
-      "https://linkedin.com/company/devopsinterviewcloud",
-      "https://github.com/devopsinterviewcloud",
-    ],
-  };
 
   const faqData = {
     "@context": "https://schema.org",
@@ -76,8 +53,7 @@ export default function Home() {
           "price": ebook.price,
           "priceCurrency": "USD",
           "availability": "https://schema.org/InStock",
-          "url": `https://devopsinterview.cloud/ebooks/${ebook.slug}`,
-          "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
+          "url": `https://devopsinterview.cloud/ebooks/${ebook.slug}`
         },
         "author": {
           "@type": "Organization",
@@ -93,16 +69,6 @@ export default function Home() {
 
   return (
     <>
-      <Script
-        id="structured-data-website"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: escapeJsonLd(websiteData) }}
-      />
-      <Script
-        id="structured-data-organization"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: escapeJsonLd(organizationData) }}
-      />
       <Script
         id="structured-data-products"
         type="application/ld+json"
@@ -128,7 +94,7 @@ export default function Home() {
             </div>
             
             {/* Main Headline */}
-            <h1 className="text-6xl md:text-7xl font-black tracking-tight mb-8 text-foreground">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-8 text-foreground">
               Master DevOps &amp; Cloud
               <br />
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -200,6 +166,69 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Incident Labs Section */}
+      <section aria-labelledby="incident-labs-heading" className="px-4 pb-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 text-slate-100 shadow-2xl shadow-slate-900/15">
+          <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.72fr)]">
+            <div className="p-7 sm:p-10 lg:p-14">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-400/10 px-3 py-1.5 text-sm font-semibold text-blue-200">
+                <span className="h-2 w-2 rounded-full bg-blue-400" aria-hidden="true" />
+                NEW: Incident Labs
+              </div>
+              <h2 id="incident-labs-heading" className="mt-7 max-w-2xl text-3xl font-black tracking-tight text-slate-50 sm:text-4xl lg:text-5xl">
+                Don&apos;t just study the answer. Investigate the incident.
+              </h2>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+                Practice the troubleshooting round in an interactive browser lab. Follow
+                evidence, run controlled experiments, and defend your root-cause analysis.
+              </p>
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+                <Link
+                  href="/labs"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition-colors duration-200 hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                >
+                  Explore Incident Labs
+                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                </Link>
+                <span className="inline-flex items-center justify-center gap-2 text-sm font-medium text-slate-300 sm:justify-start">
+                  <Clock3 className="h-4 w-4 text-blue-300" aria-hidden="true" />
+                  First lab is free · ~20 min
+                </span>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-800 bg-slate-900/70 p-7 sm:p-10 lg:border-l lg:border-t-0 lg:p-12">
+              <div className="flex items-center justify-between border-b border-slate-700 pb-4 font-mono text-xs uppercase tracking-[0.16em] text-slate-400">
+                <span className="inline-flex items-center gap-2">
+                  <SquareTerminal className="h-4 w-4 text-blue-400" aria-hidden="true" />
+                  Incident 01
+                </span>
+                <span className="text-amber-300">Cost anomaly</span>
+              </div>
+              <div className="pt-6">
+                <p className="font-mono text-xs uppercase tracking-[0.16em] text-slate-400">Observed</p>
+                <div className="mt-3 flex items-end justify-between gap-4">
+                  <p className="font-mono text-3xl font-semibold tabular-nums text-slate-50">+43.8%</p>
+                  <p className="text-right text-sm text-slate-400">token cost<br />in 24 hours</p>
+                </div>
+                <div className="mt-8 grid gap-3">
+                  {[
+                    ["Traffic", "Flat"],
+                    ["Deployments", "1 change"],
+                    ["Your move", "Find the cause"],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-950/70 px-4 py-3 text-sm">
+                      <span className="text-slate-400">{label}</span>
+                      <strong className="font-mono font-medium text-slate-100">{value}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Ebooks Section */}
       <section id="ebooks" className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -230,7 +259,7 @@ export default function Home() {
                 <div className="relative aspect-[3/4] rounded-lg mb-6 overflow-hidden bg-gray-100">
                   <Image
                     src={ebook.coverUrl}
-                    alt={`${ebook.title} - DevOps ebook cover featuring ${ebook.category} concepts and ${ebook.tags.join(', ')} technologies for ${ebook.pageCount} pages of comprehensive learning`}
+                    alt={`Cover of ${ebook.title}`}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -310,9 +339,10 @@ export default function Home() {
 
           <div className="text-center">
             <div className="inline-flex flex-col items-center gap-4">
-              <button className="btn-primary px-12 py-4 text-lg">
-                🎁 Special Bundle Offer: Buy All 5 Books & Save 33%!
-              </button>
+              <Link href="/ebooks/complete-devops-mastery-bundle" className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 text-base sm:px-12 sm:text-lg">
+                <Gift className="h-5 w-5" aria-hidden="true" />
+                Special Bundle Offer: Buy All 5 Books &amp; Save 33%!
+              </Link>
               <p className="text-sm text-muted-foreground">
                 💎 Individual books <DynamicPriceText usdPrice={9.99} /> each • Complete Bundle <DynamicPriceText usdPrice={31.99} /> • PDF format • Prices auto-convert to your currency
               </p>

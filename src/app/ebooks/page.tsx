@@ -2,8 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import EbookPrice from '@/components/EbookPrice'
 import ebooksData from '@/data/ebooks.json'
+import { createPageMetadata, siteConfig } from '@/config/site'
 
-const SITE_URL = 'https://devopsinterview.cloud'
+const SITE_URL = siteConfig.url
 
 type Ebook = {
   id: string
@@ -21,19 +22,12 @@ const ebooks = (ebooksData as Ebook[]).filter(
   (ebook) => ebook.slug !== 'interview-day-playbook',
 )
 
-export const metadata: Metadata = {
-  title: 'DevOps Interview Ebooks | DevOpsInterview.Cloud',
-  description:
-    'Explore senior-level DevOps interview ebooks covering cloud platforms, Kubernetes, Terraform, CI/CD, GitOps, SRE, observability, security, and reliability.',
-  alternates: { canonical: `${SITE_URL}/ebooks` },
-  openGraph: {
-    title: 'DevOps Interview Ebooks | DevOpsInterview.Cloud',
-    description:
-      'Senior-level DevOps interview preparation covering cloud, Kubernetes, Terraform, GitOps, SRE, observability, and security.',
-    url: `${SITE_URL}/ebooks`,
-    type: 'website',
-  },
-}
+export const metadata: Metadata = createPageMetadata({
+  title: 'DevOps Interview Ebooks | Cloud, Kubernetes, SRE',
+  description: 'Explore senior DevOps interview ebooks covering AWS, Azure, GCP, Kubernetes, Terraform, CI/CD, GitOps, SRE, observability, security, and reliability.',
+  path: '/ebooks',
+  imageAlt: 'DevOps and cloud interview ebook collection',
+})
 
 export default function EbooksPage() {
   const jsonLd = {

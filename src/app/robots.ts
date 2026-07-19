@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
+import { siteConfig } from '@/config/site'
 
-const SITE = 'https://devopsinterview.cloud'
+const SITE = siteConfig.url
 
 // We WANT to be discoverable in AI answer engines (ChatGPT, Claude, Perplexity,
 // Gemini) as well as classic search, so the AI crawlers are explicitly allowed.
@@ -18,12 +19,12 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
-        disallow: ['/api/', '/admin/', '/checkout', '/_next/'],
+        allow: ['/', '/labs/', '/labs/token-cost/'],
+        disallow: ['/api/', '/admin/', '/checkout'],
       },
       {
         userAgent: aiCrawlers,
-        allow: '/',
+        allow: ['/', '/labs/', '/labs/token-cost/'],
         disallow: ['/api/', '/admin/', '/checkout'],
       },
     ],
