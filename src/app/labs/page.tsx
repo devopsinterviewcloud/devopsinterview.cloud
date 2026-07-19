@@ -85,16 +85,17 @@ export default function LabsPage() {
               id="labs-heading"
               className="max-w-4xl text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl lg:leading-[1.05]"
             >
-              Incident Labs — practice the troubleshooting round
+              Practice incident troubleshooting like it&apos;s the real interview.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
               Investigate realistic incidents directly in your browser. Follow the
               evidence, test your theory, and explain the root cause the way you
               would in a senior DevOps or SRE interview.
             </p>
+            {/* The lab is a static SPA served from public/ via a rewrite, so keep this as a plain anchor. */}
             <a
-              href="#available-labs"
-              className="mt-9 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-lg shadow-blue-600/20 transition-colors duration-200 hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              href="/labs/token-cost/"
+              className="btn-primary mt-9 inline-flex min-h-12 items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Explore the first lab
               <ArrowRight className="h-5 w-5" aria-hidden="true" />
@@ -215,7 +216,7 @@ export default function LabsPage() {
               <div className="flex items-center border-t border-border p-6 lg:border-l lg:border-t-0 lg:p-8">
                 <a
                   href="/labs/token-cost/"
-                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-colors duration-200 hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:w-auto"
+                  className="btn-primary inline-flex min-h-12 w-full items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:w-auto"
                 >
                   Start lab
                   <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
@@ -271,7 +272,18 @@ export default function LabsPage() {
           <p className="mx-auto mb-8 mt-4 max-w-2xl text-lg leading-8 text-slate-700">
             Join the list for new browser-based incident scenarios and get the free interview sample today.
           </p>
-          <SampleSignup source="labs-notifications" />
+          <SampleSignup
+            source="labs-notifications"
+            ctaLabel="Notify me about new labs"
+            helperText="New browser-based incident scenarios. No spam, unsubscribe anytime."
+            successMessage="You are on the list — new labs land in your inbox first."
+          />
+          <Link
+            href="/privacy"
+            className="mt-4 inline-block text-xs font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            Privacy policy
+          </Link>
         </div>
       </section>
 
@@ -282,7 +294,7 @@ export default function LabsPage() {
             href="/"
             className="inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            Back to interview resources
+            Browse interview resources
           </Link>
         </div>
       </div>
