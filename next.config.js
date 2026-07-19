@@ -63,6 +63,16 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
+  async rewrites() {
+    return [
+      // The Incident Lab is a static SPA under public/labs/token-cost/; Next
+      // doesn't resolve directory indexes in public/, so map the bare paths
+      // to its index.html explicitly.
+      { source: '/labs/token-cost', destination: '/labs/token-cost/index.html' },
+      { source: '/labs/token-cost/', destination: '/labs/token-cost/index.html' },
+    ];
+  },
+
   async redirects() {
     return [
       { source: '/home', destination: '/', permanent: true },
