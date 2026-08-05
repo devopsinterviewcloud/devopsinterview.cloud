@@ -20,6 +20,7 @@ export async function fulfillByGatewayOrderId(
   gatewayOrderId: string,
   gatewayPaymentId: string,
   paid?: { amount: number; currency: string },
+  retryOnLostClaim = true,
 ) {
   const order = await db.order.findUnique({ where: { gatewayOrderId } })
   if (!order) {
@@ -69,9 +70,14 @@ export async function fulfillByGatewayOrderId(
   // P2002 that would otherwise 500 and make the gateway retry forever.
   // status stays PROCESSING until the download email is actually delivered to
   // Resend; a webhook redelivery retries the email for paid-but-PROCESSING orders.
+  // When the caller supplied a capture that just RECONCILED above, that evidence is
+  // authoritative: it may also claim a FAILED row, because FAILED marks written by
+  // decline/mismatch handlers are provisional and a completed, amount-matched
+  // capture proves the money actually moved (e.g. buyer retried after a declined
+  // funding source). Without `paid` we never resurrect a FAILED row.
   const fulfilledAt = new Date()
   const claim = await db.order.updateMany({
-    where: { id: order.id, paymentStatus: 'PENDING' },
+    where: { id: order.id, paymentStatus: { in: paid ? ['PENDING', 'FAILED'] : ['PENDING'] } },
     data: {
       paymentStatus: 'SUCCEEDED',
       status: 'PROCESSING',
@@ -80,7 +86,12 @@ export async function fulfillByGatewayOrderId(
     },
   })
   if (claim.count === 0) {
-    return { ok: true, alreadyFulfilled: true as const } // another delivery won the race
+    // Another delivery won the race between our read and our claim. Its email may
+    // still have failed, so re-run ONCE against the fresh row: the SUCCEEDED +
+    // PROCESSING branch at the top retries the send (Resend's idempotency key
+    // collapses any duplicate) and the caller keeps its 503-on-emailFailed signal.
+    if (retryOnLostClaim) return fulfillByGatewayOrderId(gatewayOrderId, gatewayPaymentId, paid, false)
+    return { ok: true, alreadyFulfilled: true as const }
   }
 
   if (order.ebookSlug && order.customerEmail) {

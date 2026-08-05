@@ -18,12 +18,36 @@ function loadScript(src: string): Promise<boolean> {
   if (rzpLoader) return rzpLoader
   rzpLoader = new Promise((resolve) => {
     const s = document.createElement('script')
+    let settled = false
+    const settle = (ok: boolean) => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer)
+      if (!ok) { s.remove(); rzpLoader = null }
+      resolve(ok)
+    }
+    // A hung CDN request must not leave the Pay button stuck forever.
+    const timer = setTimeout(() => settle(false), 12000)
     s.src = src
-    s.onload = () => resolve(true)
-    s.onerror = () => { s.remove(); rzpLoader = null; resolve(false) }
+    // onload alone is not proof the checkout is usable - verify the global exists.
+    s.onload = () => settle(Boolean((window as { Razorpay?: unknown }).Razorpay))
+    s.onerror = () => settle(false)
     document.body.appendChild(s)
   })
   return rzpLoader
+}
+
+type RazorpayInstance = {
+  open: () => void
+  on: (event: 'payment.failed', cb: (resp: RazorpayFailure) => void) => void
+}
+type RazorpayFailure = {
+  error?: { code?: string; description?: string; reason?: string; step?: string }
+}
+type RazorpaySuccess = {
+  razorpay_order_id?: string
+  razorpay_payment_id?: string
+  razorpay_signature?: string
 }
 
 const BLOCKED_MSG =
@@ -34,8 +58,10 @@ const BLOCKED_MSG =
 function CheckoutContent() {
   const searchParams = useSearchParams()
   const ebookId = searchParams.get('ebook')
-  const ebook = ebooksData.find((e) => e.id === ebookId)
+  // Accept json id or slug: PayPal's cancel_url round-trips the slug.
+  const ebook = ebooksData.find((e) => e.id === ebookId || e.slug === ebookId)
   const ebookTitle = ebook?.title || 'Selected Ebook'
+  const paypalCancelled = searchParams.get('cancelled') === 'paypal'
 
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
@@ -44,6 +70,9 @@ function CheckoutContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState('')
+  // Whether the Razorpay callback signature checked out server-side; softens the
+  // success copy when we could not verify (webhook still fulfils either way).
+  const [verified, setVerified] = useState(true)
   // 'loading' | 'ready' | 'blocked' - preloaded on mount so a blocked script is
   // known BEFORE any order is created (blocked scripts used to mint a PENDING
   // order per retry click with zero payment attempts behind it).
@@ -94,7 +123,8 @@ function CheckoutContent() {
       if (data.gateway === 'razorpay') {
         const ok = await loadScript(RAZORPAY_SRC)
         if (!ok) { track('razorpay_script_blocked'); setError(BLOCKED_MSG); setLoading(false); return }
-        const rzp = new (window as unknown as { Razorpay: new (o: unknown) => { open: () => void } }).Razorpay({
+        const openedAt = Date.now()
+        const rzp = new (window as unknown as { Razorpay: new (o: unknown) => RazorpayInstance }).Razorpay({
           key: data.keyId,
           order_id: data.orderId,
           amount: data.amount,
@@ -103,12 +133,47 @@ function CheckoutContent() {
           description: data.name,
           prefill: { email, name },
           theme: { color: '#2563eb' },
-          handler: () => { track('payment_window_completed'); setDone(email) },
-          modal: { ondismiss: () => track('payment_window_dismissed') },
+          handler: async (resp: RazorpaySuccess) => {
+            track('payment_window_completed')
+            // Show a VERIFIED confirmation, not a raw client callback. Fulfilment
+            // stays webhook-driven; this only decides the success-screen copy.
+            let ok = false
+            try {
+              const vres = await fetch('/api/checkout/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(resp),
+                // A hung verify must not strand the buyer on a dead screen.
+                signal: AbortSignal.timeout(10000),
+              })
+              ok = vres.ok && (await vres.json()).valid === true
+            } catch { /* verification unreachable; keep the softer copy */ }
+            if (!ok) track('payment_signature_unverified')
+            setVerified(ok)
+            setDone(email)
+            setLoading(false)
+          },
+          modal: {
+            ondismiss: () => {
+              track('payment_window_dismissed', { elapsedMs: Date.now() - openedAt })
+              setLoading(false)
+            },
+          },
+        })
+        // A failed attempt otherwise gives zero feedback and zero telemetry; this
+        // is the only signal separating "modal broke" from "buyer walked away".
+        rzp.on('payment.failed', (resp) => {
+          track('payment_failed', {
+            code: resp?.error?.code ?? 'unknown',
+            step: resp?.error?.step ?? '',
+            reason: resp?.error?.reason ?? '',
+          })
+          setError(resp?.error?.description || 'The payment failed and you have not been charged. Please try again.')
         })
         rzp.open()
         track('payment_window_opened')
-        setLoading(false)
+        // loading stays true while the modal is up (released by handler/ondismiss),
+        // so repeat clicks cannot stack checkout windows.
       } else if (data.gateway === 'paypal' && data.approvalUrl) {
         track('paypal_redirect')
         window.location.href = data.approvalUrl
@@ -124,11 +189,16 @@ function CheckoutContent() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="max-w-md text-center bg-white rounded-lg shadow-md p-10">
-          <div className="text-4xl mb-3">✅</div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">Payment received</h1>
+          <div className="text-4xl mb-3">{verified ? '✅' : '📬'}</div>
+          <h1 className="text-2xl font-bold text-foreground mb-2">
+            {verified ? 'Payment received' : 'Payment is being confirmed'}
+          </h1>
           <p className="text-muted-foreground">
-            Your download link is on its way to <strong>{done}</strong>. It can take a moment to
-            arrive. Check your inbox (and spam).
+            {verified
+              ? <>Your download link is on its way to <strong>{done}</strong>. It can take a moment to
+                arrive. Check your inbox (and spam).</>
+              : <>Your payment went through and is being confirmed. The download link will arrive
+                at <strong>{done}</strong> shortly - check your inbox (and spam).</>}
           </p>
           <Link href="/" className="inline-block mt-6 text-blue-600 font-medium hover:underline">Back to home</Link>
         </div>
@@ -178,6 +248,11 @@ function CheckoutContent() {
           {/* Checkout Form */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-semibold text-foreground mb-6">Your details</h2>
+            {paypalCancelled && !error && (
+              <div className="bg-amber-50 border-l-4 border-amber-500 text-amber-900 text-sm p-3 rounded mb-4">
+                Your PayPal payment was cancelled - you have not been charged. You can try again below.
+              </div>
+            )}
             {error && <div className="bg-red-50 border-l-4 border-red-500 text-red-800 text-sm p-3 rounded mb-4">{error}</div>}
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
