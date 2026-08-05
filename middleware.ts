@@ -35,6 +35,7 @@ const securityHeaders = {
 // in-memory otherwise). NOT the gateway webhooks (they must be able to retry).
 const rateLimitedPaths = [
   '/api/checkout',
+  '/api/paypal',
   '/api/download',
   '/api/subscribe',
   '/api/contact',

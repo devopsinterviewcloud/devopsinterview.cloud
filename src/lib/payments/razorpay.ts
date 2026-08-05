@@ -33,6 +33,18 @@ export async function createRazorpayOrder(amountPaise: number, receipt: string, 
   return (await res.json()) as { id: string; amount: number; currency: string; receipt: string }
 }
 
+/** Fetch an order's gateway status; used to avoid reusing an order that was already paid. */
+export async function fetchRazorpayOrder(orderId: string) {
+  const auth = Buffer.from(`${KEY_ID}:${KEY_SECRET}`).toString('base64')
+  const res = await fetch(`https://api.razorpay.com/v1/orders/${orderId}`, {
+    headers: { Authorization: `Basic ${auth}` },
+  })
+  if (!res.ok) {
+    throw new Error(`Razorpay getOrder failed: ${res.status} ${await res.text()}`)
+  }
+  return (await res.json()) as { id: string; status: 'created' | 'attempted' | 'paid'; amount: number }
+}
+
 /**
  * Verify the webhook signature. Razorpay signs the RAW request body with the
  * webhook secret (HMAC-SHA256). Pass the raw text body exactly as received.

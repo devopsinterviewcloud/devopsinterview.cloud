@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/lib/db'
 import { verifyPayPalWebhook, capturePayPalOrder, getPayPalOrder } from '@/lib/payments/paypal'
 import { fulfillByGatewayOrderId } from '@/lib/fulfillment'
 
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
       // capture must never deliver the ebook.
       let cap: { id?: string; status?: string; amount?: { value: string; currency_code: string } } | null = null
       let declined = false
+      let terminalDecline = false
       try {
         const capture = await capturePayPalOrder(orderId)
         cap = capture?.purchase_units?.[0]?.payments?.captures?.[0] ?? null
@@ -46,12 +48,16 @@ export async function POST(req: NextRequest) {
           const existing = await getPayPalOrder(orderId) // a throw here -> 500 -> PayPal retries
           cap = existing?.purchase_units?.[0]?.payments?.captures?.[0] ?? null
         } else if (msg.includes('INSTRUMENT_DECLINED') || msg.includes('TRANSACTION_REFUSED')) {
-          // Explicitly terminal issue codes: no money moved and retrying the same
-          // capture cannot succeed, so ack 200 and never fulfil. Other 422s
-          // (PAYER_ACTION_REQUIRED, ORDER_NOT_APPROVED) need buyer action and fall
-          // through to redelivery; if the buyer completes later, either a retried
-          // capture succeeds or the PAYMENT.CAPTURE.COMPLETED backstop fulfils.
+          // No money moved and retrying the SAME capture cannot succeed, so ack 200
+          // and never fulfil from this delivery. INSTRUMENT_DECLINED stays PENDING
+          // locally (PayPal documents it as buyer-recoverable via another funding
+          // source); TRANSACTION_REFUSED is terminal and marks the order FAILED.
+          // Other 422s (PAYER_ACTION_REQUIRED, ORDER_NOT_APPROVED) need buyer
+          // action and fall through to redelivery; if the buyer completes later,
+          // either a retried capture succeeds or the PAYMENT.CAPTURE.COMPLETED
+          // backstop fulfils.
           declined = true
+          terminalDecline = msg.includes('TRANSACTION_REFUSED')
           console.error('paypal capture declined, not fulfilling', e)
         } else {
           // Anything else (401/403/408/409/429, network error, PayPal 5xx) is an
@@ -60,6 +66,15 @@ export async function POST(req: NextRequest) {
           console.error('paypal capture outcome unknown, requesting redelivery', e)
           return NextResponse.json({ error: 'capture retry' }, { status: 503 })
         }
+      }
+      if (terminalDecline || cap?.status === 'DECLINED' || cap?.status === 'FAILED') {
+        // Persist the terminal failure so checkout's order-reuse query stops
+        // serving this order. Guarded to PENDING rows: never overrides a success,
+        // and a later amount-reconciled capture can still resurrect the row.
+        await db.order.updateMany({
+          where: { gatewayOrderId: orderId, gateway: 'paypal', paymentStatus: 'PENDING' },
+          data: { paymentStatus: 'FAILED', status: 'FAILED' },
+        })
       }
       if (cap?.status === 'COMPLETED' && cap.amount) {
         // NOT wrapped in try/catch: if fulfilment throws (transient DB error), the
