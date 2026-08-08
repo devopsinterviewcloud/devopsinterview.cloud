@@ -20,7 +20,7 @@ const securityHeaders = {
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: https: blob:",
     "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://*.razorpay.com https://*.paypal.com https://www.google-analytics.com https://*.supabase.co https://api.resend.com",
-    "frame-src https://api.razorpay.com https://*.razorpay.com https://www.paypal.com https://*.paypal.com",
+    "frame-src https://api.razorpay.com https://*.razorpay.com https://www.paypal.com https://*.paypal.com https://www.youtube-nocookie.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
