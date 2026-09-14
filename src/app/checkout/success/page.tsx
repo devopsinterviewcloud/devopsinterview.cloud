@@ -8,7 +8,7 @@
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { track } from '@vercel/analytics'
+import { safeTrack } from '@/lib/analytics'
 
 type ConfirmState = 'confirming' | 'paid' | 'processing' | 'pending' | 'failed' | 'unknown'
 
@@ -50,7 +50,7 @@ function SuccessContent() {
         timer = setTimeout(poll, POLL_MS)
       } else {
         setState(next)
-        track('paypal_return_result', { state: next, polls: polls.current })
+        safeTrack('paypal_return_result', { state: next, polls: polls.current })
       }
     }
 

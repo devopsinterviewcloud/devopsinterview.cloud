@@ -1,9 +1,9 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { track } from '@vercel/analytics'
+import { safeTrack } from '@/lib/analytics'
 import ebooksData from '@/data/ebooks.json'
 
 const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js'
@@ -77,13 +77,20 @@ function CheckoutContent() {
   // known BEFORE any order is created (blocked scripts used to mint a PENDING
   // order per retry click with zero payment attempts behind it).
   const [rzpScript, setRzpScript] = useState<'loading' | 'ready' | 'blocked'>('loading')
+  const viewedProduct = useRef<string | null>(null)
 
   useEffect(() => {
     loadScript(RAZORPAY_SRC).then((ok) => {
       setRzpScript(ok ? 'ready' : 'blocked')
-      if (!ok) track('razorpay_script_blocked')
+      if (!ok) safeTrack('razorpay_script_blocked')
     })
   }, [])
+
+  useEffect(() => {
+    if (!ebook || viewedProduct.current === ebook.id) return
+    viewedProduct.current = ebook.id
+    safeTrack('checkout_viewed', { product: ebook.id })
+  }, [ebook])
 
   // What you SEE must equal what you PAY. The charge currency/gateway is decided
   // by country (India -> INR/Razorpay, everywhere else -> USD/PayPal), so derive
@@ -108,9 +115,9 @@ function CheckoutContent() {
     if (currency === 'INR' && rzpScript !== 'ready') {
       const ok = await loadScript(RAZORPAY_SRC)
       setRzpScript(ok ? 'ready' : 'blocked')
-      if (!ok) { track('razorpay_script_blocked'); setError(BLOCKED_MSG); setLoading(false); return }
+      if (!ok) { safeTrack('razorpay_script_blocked'); setError(BLOCKED_MSG); setLoading(false); return }
     }
-    track('checkout_submitted', { currency, product: ebook.id })
+    safeTrack('checkout_submitted', { currency, product: ebook.id })
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
@@ -118,11 +125,14 @@ function CheckoutContent() {
         body: JSON.stringify({ productId: ebook.id, currency, email, name }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error || 'Could not start checkout.'); setLoading(false); return }
+      if (!res.ok) {
+        safeTrack('checkout_api_failed', { stage: 'response', status: res.status, currency, product: ebook.id })
+        setError(data.error || 'Could not start checkout.'); setLoading(false); return
+      }
 
       if (data.gateway === 'razorpay') {
         const ok = await loadScript(RAZORPAY_SRC)
-        if (!ok) { track('razorpay_script_blocked'); setError(BLOCKED_MSG); setLoading(false); return }
+        if (!ok) { safeTrack('razorpay_script_blocked'); setError(BLOCKED_MSG); setLoading(false); return }
         const openedAt = Date.now()
         const rzp = new (window as unknown as { Razorpay: new (o: unknown) => RazorpayInstance }).Razorpay({
           key: data.keyId,
@@ -134,7 +144,7 @@ function CheckoutContent() {
           prefill: { email, name },
           theme: { color: '#2563eb' },
           handler: async (resp: RazorpaySuccess) => {
-            track('payment_window_completed')
+            safeTrack('payment_window_completed')
             // Show a VERIFIED confirmation, not a raw client callback. Fulfilment
             // stays webhook-driven; this only decides the success-screen copy.
             let ok = false
@@ -148,14 +158,14 @@ function CheckoutContent() {
               })
               ok = vres.ok && (await vres.json()).valid === true
             } catch { /* verification unreachable; keep the softer copy */ }
-            if (!ok) track('payment_signature_unverified')
+            if (!ok) safeTrack('payment_signature_unverified')
             setVerified(ok)
             setDone(email)
             setLoading(false)
           },
           modal: {
             ondismiss: () => {
-              track('payment_window_dismissed', { elapsedMs: Date.now() - openedAt })
+              safeTrack('payment_window_dismissed', { elapsedMs: Date.now() - openedAt })
               setLoading(false)
             },
           },
@@ -163,7 +173,7 @@ function CheckoutContent() {
         // A failed attempt otherwise gives zero feedback and zero telemetry; this
         // is the only signal separating "modal broke" from "buyer walked away".
         rzp.on('payment.failed', (resp) => {
-          track('payment_failed', {
+          safeTrack('payment_failed', {
             code: resp?.error?.code ?? 'unknown',
             step: resp?.error?.step ?? '',
             reason: resp?.error?.reason ?? '',
@@ -171,16 +181,17 @@ function CheckoutContent() {
           setError(resp?.error?.description || 'The payment failed and you have not been charged. Please try again.')
         })
         rzp.open()
-        track('payment_window_opened')
+        safeTrack('payment_window_opened')
         // loading stays true while the modal is up (released by handler/ondismiss),
         // so repeat clicks cannot stack checkout windows.
       } else if (data.gateway === 'paypal' && data.approvalUrl) {
-        track('paypal_redirect')
+        safeTrack('paypal_redirect')
         window.location.href = data.approvalUrl
       } else {
         setError('Payment could not be started.'); setLoading(false)
       }
     } catch {
+      safeTrack('checkout_api_failed', { stage: 'network', status: 'unavailable', currency, product: ebook.id })
       setError('Something went wrong. Please try again.'); setLoading(false)
     }
   }
@@ -263,8 +274,8 @@ function CheckoutContent() {
                 <p className="text-xs text-muted-foreground mt-1">Your download link is sent here.</p>
               </div>
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">Full Name *</label>
-                <input type="text" id="name" required value={name} onChange={(e) => setName(e.target.value)}
+                <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">Full Name <span className="font-normal text-muted-foreground">(optional)</span></label>
+                <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>

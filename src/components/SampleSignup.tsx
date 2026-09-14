@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { safeTrack } from '@/lib/analytics'
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
@@ -25,6 +26,7 @@ export default function SampleSignup({
     e.preventDefault()
     setStatus('loading')
     setMessage('')
+    safeTrack('sample_signup_requested', { source })
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
@@ -33,14 +35,17 @@ export default function SampleSignup({
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
+        safeTrack('sample_signup_failed', { source, status: res.status })
         setStatus('error')
         setMessage(data.error || 'Something went wrong. Please try again.')
         return
       }
       setStatus('success')
+      safeTrack('sample_signup_succeeded', { source })
       setMessage(successMessage)
       setEmail('')
     } catch {
+      safeTrack('sample_signup_failed', { source, status: 'network' })
       setStatus('error')
       setMessage('Network error. Please try again.')
     }

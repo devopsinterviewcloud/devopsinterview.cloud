@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getAllPosts, getPost } from '@/lib/blog'
 import { siteConfig, truncateMetadataText } from '@/config/site'
+import TrackedLink from '@/components/TrackedLink'
 
 const SITE_URL = siteConfig.url
 
@@ -124,10 +125,10 @@ export default async function BlogPostPage({
           questions and worked answers. Every purchase includes the free Interview-Day Playbook.
         </p>
         <div className="flex flex-wrap items-center gap-4">
-          <Link href="/ebooks" className="btn-primary inline-block">Browse the DevOps ebooks</Link>
-          <Link href="/labs" className="font-semibold text-blue-700 underline-offset-4 hover:underline">
+          <TrackedLink href="/ebooks" eventName="blog_cta_clicked" eventProperties={{ destination: 'ebooks', article: post.slug }} className="btn-primary inline-block">Browse the DevOps ebooks</TrackedLink>
+          <TrackedLink href="/labs" eventName="blog_cta_clicked" eventProperties={{ destination: 'labs', article: post.slug }} className="font-semibold text-blue-700 underline-offset-4 hover:underline">
             Practice with Incident Labs
-          </Link>
+          </TrackedLink>
         </div>
       </aside>
     </main>

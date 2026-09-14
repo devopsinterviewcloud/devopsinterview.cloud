@@ -13,7 +13,7 @@ export default function CurrencySwitcher({ className = '' }: { className?: strin
         value={currency}
         onChange={(e) => changeCurrency(e.target.value)}
         aria-label="Select currency"
-        className="appearance-none cursor-pointer rounded-md border border-slate-300 bg-white py-1.5 pl-3 pr-8 text-sm font-medium text-slate-700 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="appearance-none cursor-pointer rounded-md border border-slate-300 bg-white py-1.5 pl-2 pr-6 text-xs font-medium text-slate-700 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:pl-3 sm:pr-8 sm:text-sm"
       >
         {Object.values(CURRENCIES).map((c) => (
           <option key={c.code} value={c.code}>
