@@ -5,6 +5,8 @@ import ebooksData from "@/data/ebooks.json";
 import EbookPrice from "@/components/EbookPrice";
 import { siteConfig, truncateMetadataText } from "@/config/site";
 import TrackedLink from "@/components/TrackedLink";
+import BundleSavings from "@/components/BundleSavings";
+import { bundleSavings, getContents, singleBooks, totalQuestions, SAMPLE_PDF, SAMPLE_PDF_BOOK_SLUG, SAMPLE_PDF_QUESTIONS } from "@/lib/catalog";
 
 const SITE_URL = siteConfig.url;
 
@@ -14,6 +16,8 @@ type Ebook = {
   title: string;
   description: string;
   price: number;
+  priceINR: number;
+  fileSize: string;
   originalPrice?: number | null;
   coverUrl: string;
   format: string[];
@@ -29,32 +33,25 @@ function getEbook(slug: string) {
   return ebooks.find((e) => e.slug === slug);
 }
 
-const productDetails: Record<string, { forWhom: string; questions: string[] }> = {
-  "cloud-interview-mastery": {
-    forWhom: "DevOps engineers, cloud engineers, and architects preparing for interviews that compare AWS, Azure, and GCP services and design tradeoffs.",
-    questions: ["How would you design multi-region disaster recovery?", "How do you diagnose an unexpected cloud-cost increase?", "When would you choose containers over serverless?"],
-  },
-  "container-orchestration-journey": {
-    forWhom: "Engineers preparing for Docker, Kubernetes, platform engineering, and production troubleshooting rounds.",
-    questions: ["Why is a Kubernetes Pod stuck in Pending?", "How would you debug intermittent service-to-service failures?", "How do you secure a container supply chain?"],
-  },
-  "infrastructure-automation-mastery": {
-    forWhom: "Engineers interviewing for roles that use Terraform or OpenTofu to manage infrastructure safely at scale.",
-    questions: ["How do you recover from Terraform state drift?", "How would you structure modules across many accounts?", "What belongs in an infrastructure CI pipeline?"],
-  },
-  "modern-cicd-gitops": {
-    forWhom: "DevOps and platform engineers preparing to discuss pipeline design, GitOps, progressive delivery, and software supply-chain security.",
-    questions: ["How do you make a deployment pipeline both fast and safe?", "When should you use canary instead of blue-green delivery?", "How do you roll back a database migration?"],
-  },
-  "senior-devops-handbook": {
-    forWhom: "Senior DevOps and SRE candidates preparing for reliability, observability, incident response, and technical leadership interviews.",
-    questions: ["How do you choose an SLO and error budget?", "What makes an alert actionable?", "How would you lead a high-severity incident?"],
-  },
-  "complete-devops-mastery-bundle": {
-    forWhom: "Candidates who want the full five-book path across cloud, Kubernetes, infrastructure as code, delivery, SRE, and reliability.",
-    questions: ["Design a reliable multi-cloud platform from first principles.", "Trace a production failure from deployment through Kubernetes and observability.", "Explain the tradeoffs behind your architecture to an interviewer."],
-  },
+const audience: Record<string, string> = {
+  "cloud-interview-mastery": "DevOps engineers, cloud engineers, and architects preparing for interviews that compare AWS, Azure, and GCP services and design tradeoffs.",
+  "container-orchestration-journey": "Engineers preparing for Docker, Kubernetes, platform engineering, and production troubleshooting rounds.",
+  "infrastructure-automation-mastery": "Engineers interviewing for roles that use Terraform or OpenTofu to manage infrastructure safely at scale.",
+  "modern-cicd-gitops": "DevOps and platform engineers preparing to discuss pipeline design, GitOps, progressive delivery, and software supply-chain security.",
+  "senior-devops-handbook": "Senior DevOps and SRE candidates preparing for reliability, observability, incident response, and technical leadership interviews.",
+  "complete-devops-mastery-bundle": "Candidates who want the full five-book path across cloud, Kubernetes, infrastructure as code, delivery, SRE, and reliability.",
 };
+
+// Verified from the built books: every question uses the same seven-part layout.
+const answerFormat = [
+  "What the interviewer is really testing",
+  "A 30-second answer you can say out loud",
+  "A deep dive with a diagram",
+  "A decision framework for the tradeoffs",
+  "Pitfalls to avoid and signals of seniority",
+  "Three follow-up questions, each answered",
+  "A one-line recall hook",
+];
 
 // The Interview-Day Playbook is a free bonus, not a browsable product: keep it out
 // of the prebuilt routes and 404 anything we don't prebuild.
@@ -114,7 +111,10 @@ export default async function EbookPage({
   const { slug } = await params;
   const ebook = getEbook(slug);
   if (!ebook) notFound();
-  const details = productDetails[ebook.slug];
+  const forWhom = audience[ebook.slug];
+  const contents = getContents(ebook.slug);
+  const savings = ebook.isBundle ? bundleSavings() : null;
+  const bundleBooks = ebook.isBundle ? singleBooks.map((b) => ({ ...b, contents: getContents(b.slug) })) : [];
 
   const url = `${SITE_URL}/ebooks/${ebook.slug}`;
   const productJsonLd = {
@@ -196,10 +196,10 @@ export default async function EbookPage({
           </div>
 
           <ul className="text-sm text-foreground space-y-2 mb-8">
-            <li>✓ PDF format, instant digital delivery by email</li>
-            <li>{ebook.pageCount} pages</li>
+            <li>✓ PDF, {ebook.pageCount} pages{ebook.isBundle ? " across five books" : ""}</li>
+            <li>✓ {ebook.isBundle ? `${totalQuestions} questions` : contents ? `${contents.questionCount} questions in ${contents.chapters.length} chapters` : "Worked interview questions"}, each with a 30-second answer, deep dive, tradeoffs and follow-ups</li>
+            <li>✓ Delivered by email after payment is confirmed; download link valid for 3 days and re-sent on request</li>
             <li>✓ Free Interview-Day Playbook included</li>
-            <li>✓ Worked answers with tradeoffs and follow-up questions</li>
           </ul>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -211,20 +211,32 @@ export default async function EbookPage({
           >
             Buy {ebook.isBundle ? "the bundle" : "this ebook"}
           </TrackedLink>
-          <TrackedLink
-            href="/samples/cloud-interview-mastery-sample.pdf"
-            target="_blank"
-            eventName="sample_opened"
-            eventProperties={{ location: "product_page", product: ebook.id }}
-            className="inline-flex items-center justify-center px-5 py-3 font-semibold text-blue-700 hover:underline"
-          >
-            Read the free Cloud ebook sample
-          </TrackedLink>
+          {contents ? (
+            <TrackedLink
+              href={`/samples/${ebook.slug}`}
+              eventName="sample_opened"
+              eventProperties={{ location: "product_page", product: ebook.id, kind: "html" }}
+              className="inline-flex items-center justify-center px-5 py-3 font-semibold text-blue-700 hover:underline"
+            >
+              Read a full sample question
+            </TrackedLink>
+          ) : (
+            <TrackedLink
+              href={SAMPLE_PDF}
+              target="_blank"
+              eventName="sample_opened"
+              eventProperties={{ location: "product_page", product: ebook.id, kind: "pdf" }}
+              className="inline-flex items-center justify-center px-5 py-3 font-semibold text-blue-700 hover:underline"
+            >
+              Read the free {SAMPLE_PDF_QUESTIONS}-question PDF sample
+            </TrackedLink>
+          )}
           </div>
 
           <p className="mt-4 text-sm text-muted-foreground">
-            Secure checkout via Razorpay in India or PayPal elsewhere. The exact total is shown before payment.
+            India: ₹{ebook.priceINR.toLocaleString("en-IN")} via Razorpay (GST included). Elsewhere: ${ebook.price.toFixed(2)} via PayPal. The exact total is shown before payment.
           </p>
+          {savings && <p className="mt-2 text-sm font-medium text-emerald-700"><BundleSavings savings={savings} /></p>}
 
           {ebook.tags && ebook.tags.length > 0 && (
             <div className="mt-8 flex flex-wrap gap-2">
@@ -236,25 +248,80 @@ export default async function EbookPage({
         </div>
       </div>
 
-      {details && (
-        <section className="mt-14 grid gap-8 border-t border-slate-200 pt-10 md:grid-cols-2" aria-labelledby="inside-heading">
-          <div>
-            <h2 id="inside-heading" className="text-2xl font-bold text-foreground">Who this ebook is for</h2>
-            <p className="mt-3 leading-7 text-muted-foreground">{details.forWhom}</p>
-            <h3 className="mt-7 text-lg font-semibold text-foreground">Topics covered</h3>
-            <ul className="mt-3 flex flex-wrap gap-2">
-              {ebook.tags?.map((tag) => <li key={tag} className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">{tag}</li>)}
-            </ul>
-          </div>
-          <div className="rounded-xl bg-slate-50 p-6">
-            <h2 className="text-xl font-bold text-foreground">Illustrative interview prompts</h2>
-            <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-700">
-              {details.questions.map((question) => <li key={question}>• {question}</li>)}
-            </ul>
-            <p className="mt-5 text-sm text-muted-foreground">These prompts illustrate the listed themes. The free PDF is an eight-question sample from Cloud Interview Mastery and shows the worked-answer format.</p>
-          </div>
+      <section className="mt-14 grid gap-8 border-t border-slate-200 pt-10 md:grid-cols-2" aria-labelledby="audience-heading">
+        <div>
+          <h2 id="audience-heading" className="text-2xl font-bold text-foreground">Who this {ebook.isBundle ? "bundle" : "ebook"} is for</h2>
+          <p className="mt-3 leading-7 text-muted-foreground">{forWhom}</p>
+          <h3 className="mt-7 text-lg font-semibold text-foreground">Topics covered</h3>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {ebook.tags?.map((tag) => <li key={tag} className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">{tag}</li>)}
+          </ul>
+        </div>
+        <div className="rounded-xl bg-slate-50 p-6">
+          <h2 className="text-xl font-bold text-foreground">How every question is answered</h2>
+          <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6 text-slate-700">
+            {answerFormat.map((step) => <li key={step}>{step}</li>)}
+          </ol>
+          <p className="mt-5 text-sm text-muted-foreground">
+            Every question runs three pages in this layout.{" "}
+            {contents && (
+              <>
+                <TrackedLink href={`/samples/${ebook.slug}`} eventName="sample_opened" eventProperties={{ location: "product_format", product: ebook.id, kind: "html" }} className="font-semibold text-blue-700 hover:underline">Read one complete question from this book</TrackedLink>
+                {" or "}
+              </>
+            )}
+            <TrackedLink href={SAMPLE_PDF} target="_blank" eventName="sample_opened" eventProperties={{ location: "product_format", product: ebook.id, kind: "pdf" }} className="font-semibold text-blue-700 hover:underline">download the free {SAMPLE_PDF_QUESTIONS}-question PDF sample</TrackedLink>
+            {ebook.slug !== SAMPLE_PDF_BOOK_SLUG && !ebook.isBundle ? ". The PDF sample is from Cloud Interview Mastery, not from this book." : " (from Cloud Interview Mastery)."}
+          </p>
+        </div>
+      </section>
+
+      {contents && (
+        <section className="mt-12" aria-labelledby="contents-heading">
+          <h2 id="contents-heading" className="text-2xl font-bold text-foreground">Inside the book: {contents.questionCount} questions in {contents.chapters.length} chapters</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Chapter titles and question wording are taken from the book itself.</p>
+          <ol className="mt-6 grid gap-4 md:grid-cols-2">
+            {contents.chapters.map((chapter, i) => (
+              <li key={chapter.title} className="rounded-xl border border-slate-200 p-5">
+                <h3 className="font-semibold text-foreground">Chapter {i + 1}: {chapter.title} <span className="font-normal text-muted-foreground">({chapter.questions.length} questions)</span></h3>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
+                  {chapter.questions.slice(0, 3).map((q) => <li key={q}>• {q}</li>)}
+                  {chapter.questions.length > 3 && <li className="text-muted-foreground">and {chapter.questions.length - 3} more</li>}
+                </ul>
+              </li>
+            ))}
+          </ol>
         </section>
       )}
+
+      {ebook.isBundle && (
+        <section className="mt-12" aria-labelledby="bundle-heading">
+          <h2 id="bundle-heading" className="text-2xl font-bold text-foreground">The five books in this bundle</h2>
+          <ul className="mt-6 grid gap-4 md:grid-cols-2">
+            {bundleBooks.map((b) => (
+              <li key={b.slug} className="rounded-xl border border-slate-200 p-5">
+                <h3 className="font-semibold text-foreground">
+                  <Link href={`/ebooks/${b.slug}`} className="hover:text-blue-700 hover:underline">{b.title}</Link>
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {b.contents ? `${b.contents.questionCount} questions in ${b.contents.chapters.length} chapters` : ""} · {b.pageCount} pages ·{" "}
+                  <Link href={`/samples/${b.slug}`} className="text-blue-700 hover:underline">sample question</Link>
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="mt-12 rounded-xl border border-slate-200 p-6" aria-labelledby="before-heading">
+        <h2 id="before-heading" className="text-xl font-bold text-foreground">Before you pay</h2>
+        <dl className="mt-4 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
+          <div><dt className="font-semibold text-foreground">Format</dt><dd className="text-slate-700">PDF, readable on any device. {ebook.pageCount} pages, about {ebook.fileSize}.</dd></div>
+          <div><dt className="font-semibold text-foreground">Price and currency</dt><dd className="text-slate-700">₹{ebook.priceINR.toLocaleString("en-IN")} (India, Razorpay, GST included) or ${ebook.price.toFixed(2)} (elsewhere, PayPal). No other charges.</dd></div>
+          <div><dt className="font-semibold text-foreground">Delivery</dt><dd className="text-slate-700">A download link is emailed once the payment is confirmed. The link stays valid for 3 days; reply to the email to get a fresh one.</dd></div>
+          <div><dt className="font-semibold text-foreground">Support and refunds</dt><dd className="text-slate-700"><Link href="/contact" className="text-blue-700 hover:underline">Contact us</Link> for delivery problems or duplicate charges. Read the <Link href="/refunds" className="text-blue-700 hover:underline">refund policy</Link> before buying: digital downloads are final once accessed.</dd></div>
+        </dl>
+      </section>
     </main>
   );
 }

@@ -251,8 +251,12 @@ function CheckoutContent() {
               </div>
             </div>
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-              <h4 className="font-semibold text-blue-900 mb-1">Instant digital delivery</h4>
-              <p className="text-sm text-blue-800">A secure download link is emailed as soon as payment is confirmed.</p>
+              <h4 className="font-semibold text-blue-900 mb-1">What happens after you pay</h4>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>A download link is emailed as soon as the payment is confirmed (PDF plus the free Interview-Day Playbook).</li>
+                <li>The link stays valid for 3 days; reply to the email to get a fresh one.</li>
+                <li>Problems or a duplicate charge? <Link href="/contact" className="underline">Contact us</Link>. Digital downloads are final once accessed; see the <Link href="/refunds" className="underline">refund policy</Link>.</li>
+              </ul>
             </div>
           </div>
 

@@ -43,3 +43,27 @@ existing YouTube channel with a direct link to the relevant article or free samp
 Measure impressions, clicks, landing-page engagement, sample opens, and fulfilled
 orders over a fixed period before changing price or adding paid acquisition. Avoid
 invented reviews, urgency, ranking promises, or career-outcome guarantees.
+
+## Buyer decision content (verified source material)
+
+`src/data/book-contents.json` is generated from the built ebooks and holds every
+chapter title, every question title and one complete excerpt per book. Product
+pages render the contents overview and the seven-part answer format from it;
+`/samples/<book-slug>` publishes the excerpt as an indexable HTML sample with a
+canonical URL. The downloadable PDF sample stays what it is: eight complete
+questions from Cloud Interview Mastery, labelled as such on every other book's
+page. Do not add prompts or excerpts to the site that are not in the built books.
+
+Prices shown are the catalog prices that are charged (INR via Razorpay in India,
+USD via PayPal elsewhere). Crossed-out "original" prices were removed because the
+books were never sold at those prices; the bundle comparison is computed from the
+five catalog prices in each currency and labelled as "bought separately".
+
+## Topic map (article to product to sample to checkout)
+
+`articleProducts` in `src/lib/catalog.ts` maps each article to the ebook its
+reader is most likely preparing for. The article CTA then links to that product
+page and to the matching sample route, with `blog_cta_clicked` events carrying
+`destination` (`product`, `sample`, `ebooks`, `labs`) and the article slug.
+Homepage topic cards do the same with `topic_card_clicked`. Sample opens carry
+`kind` (`html` or `pdf`) and `location`.

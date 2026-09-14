@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { getAllPosts, getPost } from '@/lib/blog'
 import { siteConfig, truncateMetadataText } from '@/config/site'
 import TrackedLink from '@/components/TrackedLink'
+import { getContents, productForArticle, sampleHrefFor, totalQuestions, BUNDLE_SLUG } from '@/lib/catalog'
 
 const SITE_URL = siteConfig.url
 
@@ -56,6 +57,8 @@ export default async function BlogPostPage({
   const { slug } = await params
   const post = getPost(slug)
   if (!post) notFound()
+  const product = productForArticle(post.slug)
+  const contents = product ? getContents(product.slug) : undefined
 
   const url = `${SITE_URL}/blog/${post.slug}`
   const jsonLd = {
@@ -119,17 +122,56 @@ export default async function BlogPostPage({
       </article>
 
       <aside className="mt-12 rounded-xl border border-blue-200 bg-blue-50 p-6">
-        <h2 className="text-lg font-semibold mb-2">Preparing for DevOps interviews?</h2>
-        <p className="text-sm text-slate-700 mb-4">
-          Our five-book series covers cloud, Kubernetes, Terraform, CI/CD and SRE with 250+ real interview
-          questions and worked answers. Every purchase includes the free Interview-Day Playbook.
-        </p>
-        <div className="flex flex-wrap items-center gap-4">
-          <TrackedLink href="/ebooks" eventName="blog_cta_clicked" eventProperties={{ destination: 'ebooks', article: post.slug }} className="btn-primary inline-block">Browse the DevOps ebooks</TrackedLink>
+        {product && contents ? (
+          <>
+            <h2 className="text-lg font-semibold mb-2">Preparing for this interview? The matching ebook is {product.title}</h2>
+            <p className="text-sm text-slate-700 mb-4">
+              {contents.questionCount} questions in {contents.chapters.length} chapters, including {contents.chapters.slice(0, 3).map((c) => c.title).join(', ')}.
+              Each question is answered the way a senior engineer would: a 30-second answer, the deep dive, the tradeoffs and the follow-ups.
+              Read one full question free before deciding. Every purchase includes the free Interview-Day Playbook.
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <TrackedLink href={`/ebooks/${product.slug}`} eventName="blog_cta_clicked" eventProperties={{ destination: 'product', product: product.id, article: post.slug }} className="btn-primary inline-block">
+                See the {contents.questionCount} questions
+              </TrackedLink>
+              <TrackedLink href={sampleHrefFor(product.slug)} eventName="blog_cta_clicked" eventProperties={{ destination: 'sample', product: product.id, article: post.slug }} className="font-semibold text-blue-700 underline-offset-4 hover:underline">
+                Read a free sample question
+              </TrackedLink>
+            </div>
+          </>
+        ) : product ? (
+          <>
+            <h2 className="text-lg font-semibold mb-2">Preparing across the whole DevOps stack? Start with the five-book bundle</h2>
+            <p className="text-sm text-slate-700 mb-4">
+              Cloud, Kubernetes, Terraform, CI/CD and SRE: {totalQuestions} interview questions with worked answers,
+              plus the free Interview-Day Playbook. Read eight full questions free before deciding.
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <TrackedLink href={`/ebooks/${BUNDLE_SLUG}`} eventName="blog_cta_clicked" eventProperties={{ destination: 'product', product: product.id, article: post.slug }} className="btn-primary inline-block">
+                See the bundle
+              </TrackedLink>
+              <TrackedLink href={sampleHrefFor(BUNDLE_SLUG)} target="_blank" eventName="blog_cta_clicked" eventProperties={{ destination: 'sample', product: product.id, article: post.slug }} className="font-semibold text-blue-700 underline-offset-4 hover:underline">
+                Download the free 8-question sample (PDF)
+              </TrackedLink>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2 className="text-lg font-semibold mb-2">Preparing for DevOps interviews?</h2>
+            <p className="text-sm text-slate-700 mb-4">
+              Our five-book series covers cloud, Kubernetes, Terraform, CI/CD and SRE with {totalQuestions} interview
+              questions and worked answers. Every purchase includes the free Interview-Day Playbook.
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <TrackedLink href="/ebooks" eventName="blog_cta_clicked" eventProperties={{ destination: 'ebooks', article: post.slug }} className="btn-primary inline-block">Browse the DevOps ebooks</TrackedLink>
+            </div>
+          </>
+        )}
+        <p className="mt-4 text-sm">
           <TrackedLink href="/labs" eventName="blog_cta_clicked" eventProperties={{ destination: 'labs', article: post.slug }} className="font-semibold text-blue-700 underline-offset-4 hover:underline">
-            Practice with Incident Labs
+            Or practice with the free Incident Labs
           </TrackedLink>
-        </div>
+        </p>
       </aside>
     </main>
   )
