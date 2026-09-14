@@ -128,7 +128,7 @@ export default async function BlogPostPage({
             <p className="text-sm text-slate-700 mb-4">
               {contents.questionCount} questions in {contents.chapters.length} chapters, including {contents.chapters.slice(0, 3).map((c) => c.title).join(', ')}.
               Each question is answered the way a senior engineer would: a 30-second answer, the deep dive, the tradeoffs and the follow-ups.
-              Read one full question free before deciding. Every purchase includes the free Interview-Day Playbook.
+              Read a sample answer free before deciding. Every purchase includes the free Interview-Day Playbook.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <TrackedLink href={`/ebooks/${product.slug}`} eventName="blog_cta_clicked" eventProperties={{ destination: 'product', product: product.id, article: post.slug }} className="btn-primary inline-block">

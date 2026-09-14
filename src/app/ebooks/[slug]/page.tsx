@@ -218,7 +218,7 @@ export default async function EbookPage({
               eventProperties={{ location: "product_page", product: ebook.id, kind: "html" }}
               className="inline-flex items-center justify-center px-5 py-3 font-semibold text-blue-700 hover:underline"
             >
-              Read a full sample question
+              Read a sample answer
             </TrackedLink>
           ) : (
             <TrackedLink
@@ -266,7 +266,7 @@ export default async function EbookPage({
             Every question runs three pages in this layout.{" "}
             {contents && (
               <>
-                <TrackedLink href={`/samples/${ebook.slug}`} eventName="sample_opened" eventProperties={{ location: "product_format", product: ebook.id, kind: "html" }} className="font-semibold text-blue-700 hover:underline">Read one complete question from this book</TrackedLink>
+                <TrackedLink href={`/samples/${ebook.slug}`} eventName="sample_opened" eventProperties={{ location: "product_format", product: ebook.id, kind: "html" }} className="font-semibold text-blue-700 hover:underline">Read an answer excerpt from this book</TrackedLink>
                 {" or "}
               </>
             )}

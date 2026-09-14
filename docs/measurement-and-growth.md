@@ -47,7 +47,7 @@ invented reviews, urgency, ranking promises, or career-outcome guarantees.
 ## Buyer decision content (verified source material)
 
 `src/data/book-contents.json` is generated from the built ebooks and holds every
-chapter title, every question title and one complete excerpt per book. Product
+chapter title, every question title and one verified answer excerpt per book. Product
 pages render the contents overview and the seven-part answer format from it;
 `/samples/<book-slug>` publishes the excerpt as an indexable HTML sample with a
 canonical URL. The downloadable PDF sample stays what it is: eight complete

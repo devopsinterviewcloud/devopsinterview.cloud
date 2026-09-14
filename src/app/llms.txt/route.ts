@@ -27,7 +27,7 @@ export function GET() {
 
 ## Bundle and bonus
 
-- [Complete DevOps Mastery Bundle (all 5 books)](${SITE}/ebooks/complete-devops-mastery-bundle): ₹2,999 / $31.99 — save 33% versus buying the books separately.
+- [Complete DevOps Mastery Bundle (all 5 books)](${SITE}/ebooks/complete-devops-mastery-bundle): ₹2,999 / $31.99 — save ₹1,496 (33%) in India or $17.96 (36%) elsewhere versus buying the books separately.
 - The Interview-Day Playbook (7-day & 24-hour prep plan, STAR worksheets, system-design scaffold, negotiation basics) is included FREE with every purchase.
 
 ## Blog (free interview prep articles)
