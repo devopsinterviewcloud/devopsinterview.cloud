@@ -70,6 +70,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     }))
 
+  // One verified sample question per single book (HTML, indexable, canonical).
+  const samplePages = ebooksData
+    .filter((ebook) => ebook.slug !== 'interview-day-playbook' && !('isBundle' in ebook && ebook.isBundle))
+    .map((ebook) => ({
+      url: `${baseUrl}/samples/${ebook.slug}`,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }))
+
   // Blog: the index plus every post, dated from the post frontmatter so Google
   // sees real lastModified values instead of a moving build timestamp.
   const posts = getAllPosts()
@@ -88,5 +97,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
   ]
 
-  return [...staticPages, ...ebookPages, ...blogPages]
+  return [...staticPages, ...ebookPages, ...samplePages, ...blogPages]
 }

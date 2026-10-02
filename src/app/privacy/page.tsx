@@ -13,7 +13,7 @@ export default function PrivacyPolicy() {
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">Privacy Policy</h1>
-          <p className="text-lg text-muted-foreground">Last updated: June 15, 2026</p>
+          <p className="text-lg text-muted-foreground">Last updated: September 14, 2026</p>
         </div>
 
         <div className="prose prose-lg max-w-none text-foreground">
@@ -83,9 +83,9 @@ export default function PrivacyPolicy() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Cookies and Tracking</h2>
             <p>
-              We use cookies and similar technologies to improve your browsing experience, 
-              analyze site traffic, and personalize content. You can control cookie settings 
-              through your browser preferences.
+              We use cookieless Vercel Web Analytics to understand aggregate site traffic and
+              conversion events. These events do not include the email address or payment details
+              you enter at checkout. Your currency preference is stored locally in your browser.
             </p>
           </section>
 

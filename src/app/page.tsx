@@ -5,9 +5,13 @@ import Script from "next/script";
 import EbookPrice from "@/components/EbookPrice";
 import { DynamicPriceText } from "@/components/DynamicPriceText";
 import SampleSignup from "@/components/SampleSignup";
+import TrackedLink from "@/components/TrackedLink";
+import BundleSavings from "@/components/BundleSavings";
+import { bundleSavings, getContents, sampleHrefFor, totalQuestions } from "@/lib/catalog";
 import { ArrowRight, Clock3, Gift, SquareTerminal } from "lucide-react";
 
 export default function Home() {
+  const savings = bundleSavings();
   // Escape "<" so the JSON-LD can never break out of the <script> tag.
   const escapeJsonLd = (obj: unknown) => JSON.stringify(obj).replace(/</g, '\\u003c')
 
@@ -15,7 +19,7 @@ export default function Home() {
   const faqs = [
     { question: "What formats are the ebooks available in?", answer: "All ebooks are delivered in PDF format, professionally designed for technical reading with code syntax highlighting, diagrams, and easy navigation. Compatible with all devices including computers, tablets, and smartphones." },
     { question: "How long does delivery take?", answer: "Instant digital delivery: within minutes of your payment being confirmed, you'll receive download links directly at your registered email address. No physical shipping involved." },
-    { question: "Do you offer bundle discounts?", answer: "Yes! Purchase all 5 comprehensive ebooks as a bundle and save 33% versus buying them separately. Individual books are available separately. Every purchase also includes the Interview-Day Playbook free." },
+    { question: "Do you offer bundle discounts?", answer: `Yes. In India the five-book bundle is ₹${savings.bundleINR.toLocaleString("en-IN")} against ₹${savings.separateINR.toLocaleString("en-IN")} for the books bought separately (you save ₹${savings.saveINR.toLocaleString("en-IN")}, about ${savings.pctINR}%). Elsewhere it is $${savings.bundleUSD.toFixed(2)} against $${savings.separateUSD.toFixed(2)} (you save $${savings.saveUSD.toFixed(2)}, about ${savings.pctUSD}%). Every purchase also includes the Interview-Day Playbook free.` },
     { question: "What currencies do you accept?", answer: "Customers in India pay in INR (₹) via Razorpay (GST-inclusive); everyone else pays in USD ($) via PayPal. Use the currency selector in the header to switch how prices are shown." },
     { question: "Are the ebooks suitable for beginners?", answer: "The books target mid-to-senior interview preparation, but each topic is built up from fundamentals with step-by-step explanations and real-world examples, so motivated junior engineers can follow along too." },
     { question: "Do I get free updates?", answer: "Yes. If we revise or correct the edition you purchased, you'll receive the updated PDF free of charge by replying to your delivery email." },
@@ -95,33 +99,33 @@ export default function Home() {
             
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-8 text-foreground">
-              Master DevOps &amp; Cloud
+              DevOps Interview Questions
               <br />
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Interview Success
+                With Senior-Level Answers
               </span>
             </h1>
 
             {/* Value Proposition */}
             <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto leading-relaxed text-foreground">
-              Expert-curated ebooks covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD, and more. 
-              Pass certifications, ace interviews, and advance your career with comprehensive guides and practical examples.
+              Prepare for DevOps, cloud, and SRE interviews with {totalQuestions} worked questions
+              covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD, and production reliability.
             </p>
 
             {/* CTA Button */}
             <div className="flex flex-col sm:flex-row justify-center gap-4 mb-20">
-              <a href="#ebooks" className="btn-primary text-lg px-10 py-4 inline-flex items-center justify-center">
+              <TrackedLink href="#ebooks" eventName="home_ebooks_cta_clicked" eventProperties={{ location: "hero" }} className="btn-primary text-lg px-10 py-4 inline-flex items-center justify-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Get Your First Ebook - Starting at{' '}<DynamicPriceText usdPrice={9.99} />
-              </a>
-              <a href="#ebooks" className="bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-50 text-lg px-10 py-4 rounded-xl font-semibold transition-all inline-flex items-center justify-center">
-                View All Ebooks
+              </TrackedLink>
+              <TrackedLink href="/samples/cloud-interview-mastery-sample.pdf" target="_blank" eventName="sample_opened" eventProperties={{ location: "hero" }} className="bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-50 text-lg px-10 py-4 rounded-xl font-semibold transition-all inline-flex items-center justify-center">
+                Read 8 Free Questions
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
-              </a>
+              </TrackedLink>
             </div>
           </div>
 
@@ -154,7 +158,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold text-foreground mb-2">Free Updates</h3>
-              <p className="text-muted-foreground">Lifetime content updates</p>
+              <p className="text-muted-foreground">Download link re-sent on request</p>
             </div>
           </div>
         </div>
@@ -252,11 +256,11 @@ export default function Home() {
                 {ebook.isBundle && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
                     <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg whitespace-nowrap">
-                      ⭐ BEST VALUE - SAVE 33% ⭐
+                      ⭐ ALL 5 BOOKS IN ONE ⭐
                     </span>
                   </div>
                 )}
-                <div className="relative aspect-[3/4] rounded-lg mb-6 overflow-hidden bg-gray-100">
+                <TrackedLink href={`/ebooks/${ebook.slug}`} eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: "home_cover" }} className="relative block aspect-[3/4] rounded-lg mb-6 overflow-hidden bg-gray-100">
                   <Image
                     src={ebook.coverUrl}
                     alt={`Cover of ${ebook.title}`}
@@ -271,14 +275,7 @@ export default function Home() {
                       </span>
                     </div>
                   )}
-                  {ebook.originalPrice && (
-                    <div className="absolute right-3 top-3">
-                      <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                        {Math.round(((ebook.originalPrice - ebook.price) / ebook.originalPrice) * 100)}% OFF
-                      </span>
-                    </div>
-                  )}
-                </div>
+                </TrackedLink>
 
                 <div className="mb-3">
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -287,7 +284,7 @@ export default function Home() {
                 </div>
 
                 <h3 className="text-xl font-bold mb-2 line-clamp-2 text-foreground">
-                  {ebook.title}
+                  <TrackedLink href={`/ebooks/${ebook.slug}`} eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: "home_title" }} className="hover:text-blue-700 hover:underline">{ebook.title}</TrackedLink>
                 </h3>
 
                 <p className="text-sm mb-4 line-clamp-3 text-muted-foreground">
@@ -312,7 +309,6 @@ export default function Home() {
                 <div className="flex items-center justify-between mb-4">
                   <EbookPrice
                     usdPrice={ebook.price}
-                    originalUsdPrice={ebook.originalPrice}
                   />
                   <span className="text-sm text-muted-foreground">{ebook.pageCount} pages</span>
                 </div>
@@ -326,13 +322,15 @@ export default function Home() {
                 </div>
 
                 <p className="text-xs text-center text-emerald-700 font-medium mb-2">🎁 Free Interview-Day Playbook included</p>
-                <a href={`/checkout?ebook=${ebook.id}`} className="btn-primary w-full inline-flex items-center justify-center">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Buy Now
-                </a>
-                <p className="text-xs text-center text-muted-foreground mt-2">Secure checkout · Instant email delivery</p>
+                {ebook.isBundle && <p className="mb-2 text-center text-xs font-medium text-emerald-700"><BundleSavings savings={savings} /></p>}
+                <TrackedLink href={`/ebooks/${ebook.slug}`} eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: "home_card" }} className="btn-primary w-full inline-flex items-center justify-center">
+                  {getContents(ebook.slug) ? `See all ${getContents(ebook.slug)!.questionCount} questions` : "See what's inside"}
+                </TrackedLink>
+                <p className="text-xs text-center text-muted-foreground mt-2">
+                  <TrackedLink href={sampleHrefFor(ebook.slug)} {...(ebook.isBundle ? { target: "_blank" } : {})} eventName="sample_opened" eventProperties={{ location: "home_card", product: ebook.id, kind: ebook.isBundle ? "pdf" : "html" }} className="text-blue-700 hover:underline">
+                    {ebook.isBundle ? "Download 8 free questions (PDF)" : "Read a free sample question"}
+                  </TrackedLink>
+                </p>
               </div>
             ))}
           </div>
@@ -341,10 +339,11 @@ export default function Home() {
             <div className="inline-flex flex-col items-center gap-4">
               <Link href="/ebooks/complete-devops-mastery-bundle" className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 text-base sm:px-12 sm:text-lg">
                 <Gift className="h-5 w-5" aria-hidden="true" />
-                Special Bundle Offer: Buy All 5 Books &amp; Save 33%!
+                Get all 5 books as a bundle
               </Link>
+              <p className="text-sm font-medium text-emerald-700"><BundleSavings savings={savings} /></p>
               <p className="text-sm text-muted-foreground">
-                💎 Individual books <DynamicPriceText usdPrice={9.99} /> each • Complete Bundle <DynamicPriceText usdPrice={31.99} /> • PDF format • Prices auto-convert to your currency
+                💎 Individual books <DynamicPriceText usdPrice={9.99} /> each • Complete Bundle <DynamicPriceText usdPrice={31.99} /> • PDF format • India pays in INR via Razorpay, everywhere else in USD via PayPal
               </p>
             </div>
           </div>
@@ -359,61 +358,79 @@ export default function Home() {
               Browse by Category
             </div>
             <h2 className="text-4xl md:text-5xl font-black mb-6 text-foreground">
-              Find Your Perfect DevOps Learning Path
+              Choose Your Interview Topic
             </h2>
             <p className="text-xl max-w-3xl mx-auto text-muted-foreground">
-              Comprehensive collections organized by technology and skill level. Whether you're preparing for AWS certification,
-              mastering Kubernetes, or diving into infrastructure automation, find the perfect learning path for your career goals.
+              Focus your preparation on the systems and tradeoffs you expect to discuss in your next technical interview.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                title: "Cloud Certifications",
-                description: "Complete certification guides for AWS Solutions Architect, Azure DevOps Engineer, and GCP Cloud Architect with practice exams and hands-on labs.",
+                title: "Cloud Architecture",
+                slug: "cloud-interview-mastery",
+                description: "Compare AWS, Azure, and GCP across architecture, networking, security, cost, and disaster recovery interview scenarios.",
                 icon: "☁️",
                 color: "bg-blue-100 text-blue-700"
               },
               {
                 title: "Container Orchestration",
-                description: "Master Kubernetes, Docker Swarm, and container management. Covers microservices architecture, service mesh, networking, and production deployment strategies.",
+                slug: "container-orchestration-journey",
+                description: "Practice Docker and Kubernetes questions covering scheduling, networking, security, storage, and production debugging.",
                 icon: "📦",
                 color: "bg-green-100 text-green-700"
               },
               {
                 title: "Infrastructure as Code",
-                description: "Automate infrastructure with Terraform, Ansible, CloudFormation, and other IaC tools. Learn provisioning, configuration management, and deployment best practices.",
+                slug: "infrastructure-automation-mastery",
+                description: "Prepare for Terraform and OpenTofu questions on state, modules, testing, drift, policy, and delivery at scale.",
                 icon: "🏗️",
                 color: "bg-orange-100 text-orange-700"
               },
               {
                 title: "CI/CD Pipelines",
-                description: "Build robust deployment pipelines with Jenkins, GitLab CI, GitHub Actions, and Azure DevOps. Covers automated testing, code quality, and release management.",
+                slug: "modern-cicd-gitops",
+                description: "Work through pipeline, GitOps, progressive delivery, rollback, and software supply-chain security questions.",
                 icon: "🔄",
                 color: "bg-purple-100 text-purple-700"
               },
               {
                 title: "Monitoring & Observability",
-                description: "Implement comprehensive monitoring with Prometheus, Grafana, ELK Stack, and distributed tracing. Master alerting, logging, and observability strategies.",
+                slug: "senior-devops-handbook",
+                description: "Explain SLOs, alert design, logs, metrics, traces, incident response, and reliability tradeoffs in senior interviews.",
                 icon: "📊",
                 color: "bg-red-100 text-red-700"
               },
               {
                 title: "Interview Preparation",
-                description: "Comprehensive interview prep covering technical questions, system design, behavioral interviews, salary negotiation, and career advancement strategies.",
+                slug: "complete-devops-mastery-bundle",
+                description: "Use answer frameworks, system-design prompts, STAR worksheets, reverse questions, and a focused interview-week plan.",
                 icon: "💼",
                 color: "bg-indigo-100 text-indigo-700"
               }
-            ].map((category, index) => (
-              <div key={index} className="card group hover:shadow-lg transition-all cursor-pointer">
+            ].map((category, index) => {
+              const book = ebooksData.find((e) => e.slug === category.slug)!
+              const contents = getContents(category.slug)
+              return (
+              <div key={index} className="card group hover:shadow-lg transition-all">
                 <div className="p-6">
                   <div className="text-4xl mb-4">{category.icon}</div>
                   <h3 className="text-xl font-semibold mb-2 text-foreground">{category.title}</h3>
                   <p className="text-muted-foreground">{category.description}</p>
+                  <p className="mt-4 text-sm">
+                    <TrackedLink href={`/ebooks/${category.slug}`} eventName="topic_card_clicked" eventProperties={{ topic: category.slug, destination: "product" }} className="font-semibold text-blue-700 hover:underline">
+                      {contents ? `${contents.questionCount} questions in ${book.title.split(":")[0]}` : `${book.title.split(":")[0]}${category.slug === "complete-devops-mastery-bundle" ? " (Playbook included free)" : ""}`}
+                    </TrackedLink>
+                    <span className="mx-2 text-muted-foreground">·</span>
+                    <TrackedLink href={sampleHrefFor(category.slug)} {...(contents ? {} : { target: "_blank" })} eventName="topic_card_clicked" eventProperties={{ topic: category.slug, destination: "sample" }} className="text-blue-700 hover:underline">
+                      free sample
+                    </TrackedLink>
+                  </p>
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -429,7 +446,7 @@ export default function Home() {
               Ace Your DevOps &amp; Cloud Interviews
             </h2>
             <p className="text-xl max-w-3xl mx-auto text-muted-foreground">
-              Comprehensive interview preparation with 250+ senior-level questions across five books, hands-on scenarios,
+              Interview preparation with {totalQuestions} senior-level questions across five books, hands-on scenarios,
               and real interview answers. Covering system design, troubleshooting, behavioral questions, and salary
               negotiation strategies to help you land senior DevOps, SRE, and cloud architect roles.
             </p>
@@ -455,12 +472,12 @@ export default function Home() {
               <div className="p-8">
                 <h3 className="text-2xl font-bold mb-4 text-foreground">Get the Complete Bundle</h3>
                 <ul className="space-y-3 text-muted-foreground mb-6">
-                  <li>✅ All 5 books: 250+ senior-level interview questions</li>
+                  <li>✅ All 5 books: {totalQuestions} senior-level interview questions</li>
                   <li>✅ Cloud (AWS, Azure, GCP) + Containers & Kubernetes</li>
                   <li>✅ Infrastructure as Code: Terraform & OpenTofu</li>
                   <li>✅ Modern CI/CD & GitOps with Argo CD</li>
                   <li>✅ Senior DevOps & SRE: observability and reliability</li>
-                  <li>✅ One download, lifetime access, best value</li>
+                  <li>✅ One download page for all five PDFs plus the Playbook</li>
                 </ul>
                 <Link href="/ebooks/complete-devops-mastery-bundle" className="block text-center w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">View the bundle</Link>
               </div>
@@ -483,6 +500,18 @@ export default function Home() {
             Cloud Interview Mastery, answered the way a senior engineer actually would.
             Straight to your inbox.
           </p>
+          <div className="mb-5">
+            <TrackedLink
+              href="/samples/cloud-interview-mastery-sample.pdf"
+              target="_blank"
+              eventName="sample_opened"
+              eventProperties={{ location: "sample_section" }}
+              className="inline-flex items-center justify-center rounded-xl bg-white px-7 py-3 font-semibold text-blue-900 hover:bg-blue-50"
+            >
+              Open the sample now
+            </TrackedLink>
+          </div>
+          <p className="mb-3 text-sm text-blue-100">Or email yourself a copy:</p>
           <SampleSignup source="home-free-sample" />
         </div>
       </section>
@@ -592,7 +621,7 @@ export default function Home() {
               <div key={index} className="card">
                 <div className="p-6">
                   <h3 className="text-lg font-semibold text-foreground mb-3">{faq.question}</h3>
-                  <p className="text-muted-foreground">{faq.answer}</p>
+                  <p className="break-words text-muted-foreground [overflow-wrap:anywhere]">{faq.answer}</p>
                 </div>
               </div>
             ))}
