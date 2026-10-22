@@ -1,18 +1,16 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getAllQuestions, categoryLabel } from '@/lib/questions'
-import { siteConfig } from '@/config/site'
+import { createPageMetadata } from '@/config/site'
 import TrackedLink from '@/components/TrackedLink'
 import { totalQuestions, BUNDLE_SLUG } from '@/lib/catalog'
 
-const SITE_URL = siteConfig.url
-
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: 'DevOps Interview Questions, Answered Properly',
   description:
     'Real DevOps, Kubernetes, AWS, Terraform and SRE interview questions with the answers interviewers actually want, plus the follow-ups they use to probe deeper.',
-  alternates: { canonical: `${SITE_URL}/questions` },
-}
+  path: '/questions',
+})
 
 export default function QuestionsIndexPage() {
   const questions = getAllQuestions()
