@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import ebooksData from '@/data/ebooks.json'
 import { getAllPosts } from '@/lib/blog'
+import { getAllQuestions } from '@/lib/questions'
 import { siteConfig } from '@/config/site'
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -97,5 +98,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
   ]
 
-  return [...staticPages, ...ebookPages, ...samplePages, ...blogPages]
+  // Interview Q&A: the index plus every question page.
+  const questions = getAllQuestions()
+  const questionPages = [
+    ...(questions.length
+      ? [{
+          url: `${baseUrl}/questions`,
+          changeFrequency: 'weekly' as const,
+          priority: 0.7,
+        }]
+      : []),
+    ...questions.map((q) => ({
+      url: `${baseUrl}/questions/${q.slug}`,
+      lastModified: new Date(q.date),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
+  ]
+
+  return [...staticPages, ...ebookPages, ...samplePages, ...blogPages, ...questionPages]
 }

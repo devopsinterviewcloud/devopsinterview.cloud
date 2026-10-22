@@ -22,6 +22,7 @@ export default function SiteHeader() {
               <Link href="/#categories" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Categories</Link>
               <Link href="/#interview-prep" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Interview Prep</Link>
               <Link href="/blog" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Blog</Link>
+              <Link href="/questions" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Questions</Link>
               <Link href="/#youtube" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">YouTube</Link>
               <Link href="/#ebooks" className="btn-primary">Get Started</Link>
             </div>
@@ -31,6 +32,7 @@ export default function SiteHeader() {
         <div className="flex items-center gap-5 overflow-x-auto border-t border-slate-100 py-2 xl:hidden" aria-label="Mobile navigation">
           <Link href="/ebooks" className="shrink-0 text-sm font-medium text-foreground">Ebooks</Link>
           <Link href="/blog" className="shrink-0 text-sm font-medium text-foreground">Blog</Link>
+          <Link href="/questions" className="shrink-0 text-sm font-medium text-foreground">Questions</Link>
           <Link href="/labs" className="shrink-0 text-sm font-medium text-foreground">Free lab</Link>
           <Link href="/#free-sample" className="shrink-0 text-sm font-semibold text-blue-700">Free sample</Link>
         </div>

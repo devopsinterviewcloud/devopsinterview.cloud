@@ -35,5 +35,13 @@ const config = {
   }
 }
 
-// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
-module.exports = createJestConfig(config)
+// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async.
+// marked ships ESM-only, and next/jest's own transformIgnorePatterns would block it from the
+// transform, so widen its allowlist after the config is generated (needed by lib/questions tests).
+module.exports = async () => {
+  const jestConfig = await createJestConfig(config)()
+  jestConfig.transformIgnorePatterns = jestConfig.transformIgnorePatterns.map((p) =>
+    p.replace('(?!(geist)', '(?!(geist|marked)')
+  )
+  return jestConfig
+}
