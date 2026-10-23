@@ -244,7 +244,7 @@ export default function Home() {
               Master DevOps &amp; Cloud Interview Questions
             </h2>
             <p className="text-xl max-w-3xl mx-auto text-muted-foreground">
-              Expert-curated guides covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD, and more.
+              Expert-curated guides covering AWS, Azure, GCP, Kubernetes, Terraform, CI/CD, and more.
               Perfect for DevOps engineers, cloud architects, and SRE professionals preparing for technical interviews.
             </p>
           </div>
