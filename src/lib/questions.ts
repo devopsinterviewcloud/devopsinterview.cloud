@@ -55,7 +55,7 @@ export function categoryLabel(category: string): string {
 // scope get the senior handbook; the index page itself pitches the bundle.
 const categoryProducts: Record<string, string> = {
   kubernetes: 'container-orchestration-journey',
-  docker: 'container-orchestration-journey',
+  docker: BUNDLE_SLUG,  // no book is about Docker; the series covers what follows it
   microservices: 'container-orchestration-journey',
   aws: 'cloud-interview-mastery',
   azure: 'cloud-interview-mastery',
