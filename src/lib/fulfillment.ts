@@ -1,9 +1,12 @@
 /**
- * Idempotent fulfilment: mark a paid order complete and email the download link.
+ * Idempotent fulfilment: mark a paid order complete, email the download link and
+ * tell the store owner about the sale.
  * Called from the payment webhooks (the source of truth), never from the browser.
  */
 import { Resend } from 'resend'
+import type { Order } from '@prisma/client'
 import { db } from '@/lib/db'
+import { getEbook } from '@/lib/catalog'
 import { createDownloadToken } from '@/lib/download-token'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -103,11 +106,50 @@ export async function fulfillByGatewayOrderId(
       console.error('fulfillment: DOWNLOAD EMAIL FAILED - will retry on redelivery', {
         orderId: order.id, email: order.customerEmail, slug: order.ebookSlug, error: e,
       })
+      await notifySale(order, false)
       return { ok: true, alreadyFulfilled: false as const, emailFailed: true as const }
     }
   }
   await db.order.updateMany({ where: { id: order.id }, data: { status: 'COMPLETED' } })
+  await notifySale(order, Boolean(order.ebookSlug && order.customerEmail))
   return { ok: true, alreadyFulfilled: false as const }
+}
+
+/**
+ * Email the owner once per sale, from the delivery that won the claim. Best effort:
+ * a failure is logged and never fails fulfilment or makes the gateway redeliver,
+ * and a slow Resend call is abandoned after 5s so it can't hold up the response.
+ */
+async function notifySale(order: Order, downloadEmailSent: boolean) {
+  const product = (order.ebookSlug && getEbook(order.ebookSlug)?.title) || order.ebookSlug || 'unknown product'
+  const text = [
+    `Product: ${product}`,
+    `Amount: ${order.total} ${order.currency}${order.gateway ? ` via ${order.gateway}` : ''}`,
+    `Buyer: ${order.customerEmail}`,
+    `Order: ${order.id}`,
+    downloadEmailSent ? 'Download email: sent' : 'Download email: FAILED (a webhook redelivery will retry it)',
+  ].join('\n')
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    const sent = resend.emails.send(
+      {
+        from: process.env.EMAIL_FROM || 'DevOpsInterview.Cloud <noreply@devopsinterview.cloud>',
+        replyTo: order.customerEmail,
+        to: [process.env.EMAIL_REPLY_TO || 'devopsinterview.cloud@gmail.com'],
+        subject: `New sale: ${product} (${order.total} ${order.currency})`,
+        text,
+      },
+      { idempotencyKey: `sale-email/${order.id}` },
+    )
+    const timedOut = new Promise<'timeout'>((resolve) => { timer = setTimeout(resolve, 5000, 'timeout') })
+    const res = await Promise.race([sent, timedOut])
+    if (res === 'timeout') console.error('fulfillment: sale notification timed out', { orderId: order.id })
+    else if (res.error) console.error('fulfillment: sale notification rejected', { orderId: order.id, error: res.error })
+  } catch (e) {
+    console.error('fulfillment: sale notification failed', { orderId: order.id, error: e })
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 /**
