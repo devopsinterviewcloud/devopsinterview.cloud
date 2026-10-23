@@ -158,9 +158,16 @@ export default async function QuestionPage({
               Our five-book series covers cloud, Kubernetes, Terraform, CI/CD and SRE with {totalQuestions} interview
               questions and worked answers. Every purchase includes the free Interview-Day Playbook.
             </p>
-            <TrackedLink href="/ebooks" eventName="questions_cta_clicked" eventProperties={{ destination: 'ebooks', question: question.slug }} className="btn-primary inline-block">
-              Browse the DevOps ebooks
-            </TrackedLink>
+            {/* categories mapped to the bundle (it has no single-book contents) go straight to it */}
+            {product ? (
+              <TrackedLink href={`/ebooks/${product.slug}`} eventName="questions_cta_clicked" eventProperties={{ destination: 'product', product: product.id, question: question.slug }} className="btn-primary inline-block">
+                See the five-book bundle
+              </TrackedLink>
+            ) : (
+              <TrackedLink href="/ebooks" eventName="questions_cta_clicked" eventProperties={{ destination: 'ebooks', question: question.slug }} className="btn-primary inline-block">
+                Browse the DevOps ebooks
+              </TrackedLink>
+            )}
           </>
         )}
       </aside>

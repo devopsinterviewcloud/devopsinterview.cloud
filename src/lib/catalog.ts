@@ -96,7 +96,7 @@ export const articleProducts: Record<string, string> = {
   'kubernetes-interview-questions-2026': 'container-orchestration-journey',
   'kubernetes-production-debugging-walkthrough': 'container-orchestration-journey',
   'kubernetes-rbac-least-privilege-lockdown': 'container-orchestration-journey',
-  'docker-image-optimization-multi-stage-builds': 'container-orchestration-journey',
+  'docker-image-optimization-multi-stage-builds': BUNDLE_SLUG,
   'terraform-interview-questions': 'infrastructure-automation-mastery',
   'terraform-mono-repo-20-aws-accounts': 'infrastructure-automation-mastery',
   'aws-azure-gcp-which-certification-first': 'cloud-interview-mastery',
