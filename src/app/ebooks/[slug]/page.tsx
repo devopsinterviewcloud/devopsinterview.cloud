@@ -271,7 +271,7 @@ export default async function EbookPage({
               </>
             )}
             <TrackedLink href={SAMPLE_PDF} target="_blank" eventName="sample_opened" eventProperties={{ location: "product_format", product: ebook.id, kind: "pdf" }} className="font-semibold text-blue-700 hover:underline">download the free {SAMPLE_PDF_QUESTIONS}-question PDF sample</TrackedLink>
-            {ebook.slug !== SAMPLE_PDF_BOOK_SLUG && !ebook.isBundle ? ". The PDF sample is from Cloud Interview Mastery, not from this book." : " (from Cloud Interview Mastery)."}
+            {ebook.slug !== SAMPLE_PDF_BOOK_SLUG && !ebook.isBundle ? ". The PDF sample is from Cloud Platforms, not from this book." : " (from Cloud Platforms)."}
           </p>
         </div>
       </section>

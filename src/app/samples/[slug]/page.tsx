@@ -131,7 +131,7 @@ export default async function SamplePage({ params }: { params: Promise<{ slug: s
           <TrackedLink href={SAMPLE_PDF} target="_blank" eventName="sample_opened" eventProperties={{ location: 'sample_page', product: ebook.id, kind: 'pdf' }} className="font-semibold text-blue-700 hover:underline">
             Download the free {SAMPLE_PDF_QUESTIONS}-question PDF sample
           </TrackedLink>{' '}
-          (from Cloud Interview Mastery).
+          (from Cloud Platforms).
         </p>
       </section>
 

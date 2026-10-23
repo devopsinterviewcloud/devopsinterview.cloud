@@ -2,7 +2,7 @@
   {
     "id": "1",
     "slug": "cloud-interview-mastery",
-    "title": "Cloud Interview Mastery: AWS, Azure & GCP",
+    "title": "Cloud Platforms: AWS, Azure & GCP Interview Questions",
     "description": "Senior-level multi-cloud interview preparation across AWS, Azure, and GCP: 50 questions answered the way a senior engineer actually would. Covers multi-cloud architecture and tradeoffs, core compute and storage services, networking and cloud security, identity and access, cost optimization and FinOps, serverless, and disaster recovery and high availability.",
     "price": 9.99,
     "priceINR": 899,
@@ -26,7 +26,7 @@
   {
     "id": "2",
     "slug": "container-orchestration-journey",
-    "title": "Container Orchestration Journey: Docker to Kubernetes",
+    "title": "Containers & Orchestration: Kubernetes Interview Questions",
     "description": "Senior-level containers and Kubernetes interview preparation: 52 questions answered the way a senior engineer actually would. Covers workload deployment and scheduling, cluster networking and service mesh, container and supply-chain security, identity and RBAC, stateful workloads and storage, observability, operators and CRDs, and platform engineering and multi-tenancy.",
     "price": 9.99,
     "priceINR": 899,
@@ -52,7 +52,7 @@
   {
     "id": "3",
     "slug": "infrastructure-automation-mastery",
-    "title": "Infrastructure as Code Mastery: Terraform & OpenTofu",
+    "title": "Infrastructure as Code: Terraform & OpenTofu Interview Questions",
     "description": "Senior-level Infrastructure as Code interview preparation built on Terraform and OpenTofu. Covers state management and remote backends, module design and versioning, drift detection and reconciliation, testing with the native terraform test framework and Terratest, secrets and policy-as-code, CI/CD and GitOps delivery, the tooling landscape and multi-cloud (Pulumi, AWS CDK, Crossplane), and platform, scale, and cost. Real interview questions answered the way a senior engineer actually would.",
     "price": 9.99,
     "priceINR": 899,
@@ -76,7 +76,7 @@
   {
     "id": "4",
     "slug": "modern-cicd-gitops",
-    "title": "Modern CI/CD & GitOps: Pipelines, Argo CD & Progressive Delivery",
+    "title": "CI/CD & GitOps: Pipelines, GitOps & Progressive Delivery Interview Questions",
     "description": "Senior-level CI/CD and GitOps interview preparation: 50 questions answered the way a senior engineer actually would. Covers pipeline architecture and optimization, GitOps and continuous deployment with Argo CD and Flux, progressive delivery (canary, blue-green, Argo Rollouts), rollback and database migrations, pipeline and supply-chain security (SBOM, Sigstore/cosign, SLSA), DevSecOps and compliance-as-code, Git strategy and the tooling landscape, and delivery culture and DORA metrics.",
     "price": 9.99,
     "priceINR": 899,
@@ -102,7 +102,7 @@
   {
     "id": "5",
     "slug": "senior-devops-handbook",
-    "title": "Senior DevOps & SRE Handbook: Observability, Reliability & Security",
+    "title": "SRE & Production Operations: SLOs, Observability & Incident Response Interview Questions",
     "description": "Advanced, senior-level DevOps and SRE interview preparation: 50 questions answered the way a senior engineer actually would. Covers observability foundations (metrics, logs, traces, OpenTelemetry), telemetry cost engineering and distributed tracing, SRE with SLOs, error budgets and multi-burn-rate alerting, incident command and production debugging, security and zero-trust, AIOps and platform engineering, resilience engineering and chaos, and architecting and leading for the future.",
     "price": 9.99,
     "priceINR": 899,
@@ -153,8 +153,8 @@
   {
     "id": "bundle",
     "slug": "complete-devops-mastery-bundle",
-    "title": "Complete DevOps Mastery Bundle: All 5 Books",
-    "description": "All five DevOps interview ebooks in one purchase: Cloud Interview Mastery (AWS, Azure, GCP), Container Orchestration Journey (Docker to Kubernetes), Infrastructure as Code Mastery (Terraform & OpenTofu), Modern CI/CD & GitOps (Pipelines, Argo CD & Progressive Delivery), and the Senior DevOps & SRE Handbook (Observability, Reliability & Security). 252 senior-level interview questions across the full path from cloud fundamentals to production reliability. In India the bundle is ₹2,999 against ₹4,495 for the five books bought separately; elsewhere $31.99 against $49.95.",
+    "title": "DevOps Interview Mastery: The Complete Series (All 5 Books)",
+    "description": "All five DevOps interview ebooks in one purchase: Cloud Platforms (AWS, Azure, GCP), Containers & Orchestration (Kubernetes), Infrastructure as Code (Terraform & OpenTofu), CI/CD & GitOps (Pipelines, GitOps & Progressive Delivery), and SRE & Production Operations (SLOs, Observability & Incident Response). 252 senior-level interview questions across the full path from cloud fundamentals to production reliability. In India the bundle is ₹2,999 against ₹4,495 for the five books bought separately; elsewhere $31.99 against $49.95.",
     "price": 31.99,
     "priceINR": 2999,
     "coverUrl": "/ebook-covers/bundle-complete.jpg",

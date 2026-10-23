@@ -260,7 +260,7 @@ export default function Home() {
                     </span>
                   </div>
                 )}
-                <TrackedLink href={`/ebooks/${ebook.slug}`} eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: "home_cover" }} className="relative block aspect-[3/4] rounded-lg mb-6 overflow-hidden bg-gray-100">
+                <TrackedLink href={`/ebooks/${ebook.slug}`} eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: "home_cover" }} className="relative block aspect-[2/3] rounded-lg mb-6 overflow-hidden bg-gray-100">
                   <Image
                     src={ebook.coverUrl}
                     alt={`Cover of ${ebook.title}`}
@@ -268,19 +268,18 @@ export default function Home() {
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
-                  {ebook.isFeatured && (
-                    <div className="absolute left-3 top-3">
-                      <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                        Featured
-                      </span>
-                    </div>
-                  )}
                 </TrackedLink>
 
-                <div className="mb-3">
+                {/* Featured sits here, not on the cover: the covers carry text in every corner */}
+                <div className="mb-3 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     {ebook.category}
                   </span>
+                  {ebook.isFeatured && (
+                    <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                      Featured
+                    </span>
+                  )}
                 </div>
 
                 <h3 className="text-xl font-bold mb-2 line-clamp-2 text-foreground">
@@ -475,8 +474,8 @@ export default function Home() {
                   <li>✅ All 5 books: {totalQuestions} senior-level interview questions</li>
                   <li>✅ Cloud (AWS, Azure, GCP) + Containers & Kubernetes</li>
                   <li>✅ Infrastructure as Code: Terraform & OpenTofu</li>
-                  <li>✅ Modern CI/CD & GitOps with Argo CD</li>
-                  <li>✅ Senior DevOps & SRE: observability and reliability</li>
+                  <li>✅ CI/CD & GitOps: pipelines, Argo CD and progressive delivery</li>
+                  <li>✅ SRE & Production Operations: SLOs, observability and incidents</li>
                   <li>✅ One download page for all five PDFs plus the Playbook</li>
                 </ul>
                 <Link href="/ebooks/complete-devops-mastery-bundle" className="block text-center w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">View the bundle</Link>
@@ -497,7 +496,7 @@ export default function Home() {
           </h2>
           <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
             Get a polished PDF with one real interview question from every chapter of
-            Cloud Interview Mastery, answered the way a senior engineer actually would.
+            the Cloud Platforms book, answered the way a senior engineer actually would.
             Straight to your inbox.
           </p>
           <div className="mb-5">
