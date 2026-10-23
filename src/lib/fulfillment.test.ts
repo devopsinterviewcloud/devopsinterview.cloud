@@ -5,7 +5,8 @@
 //  - a second delivery for an already-fulfilled order sends nothing again,
 //  - a lost atomic claim never sends a second email,
 //  - a capture that does not match the stored amount/currency is never delivered,
-//  - an email failure keeps the order paid+PROCESSING for a retry.
+//  - an email failure keeps the order paid+PROCESSING for a retry,
+//  - the owner gets one sale email per claimed order, and its failure changes nothing.
 const sendMock = jest.fn()
 jest.mock('resend', () => ({ Resend: jest.fn().mockImplementation(() => ({ emails: { send: (...a: unknown[]) => sendMock(...a) } })) }))
 const findUnique = jest.fn()
@@ -20,13 +21,20 @@ const pending = { id: 'ord_1', gatewayOrderId: 'order_gw', paymentStatus: 'PENDI
 
 beforeEach(() => { jest.clearAllMocks(); sendMock.mockResolvedValue({ error: null }) })
 
-test('first verified delivery claims the order, emails once, marks COMPLETED', async () => {
+test('first verified delivery claims the order, emails the buyer and the owner once, marks COMPLETED', async () => {
   findUnique.mockResolvedValueOnce(pending)
   updateMany.mockResolvedValueOnce({ count: 1 }).mockResolvedValueOnce({ count: 1 })
   const r = await fulfillByGatewayOrderId('order_gw', 'pay_1', { amount: 899, currency: 'INR' })
   expect(r).toEqual({ ok: true, alreadyFulfilled: false })
-  expect(sendMock).toHaveBeenCalledTimes(1)
+  expect(sendMock).toHaveBeenCalledTimes(2)
+  expect(sendMock.mock.calls[0][0].to).toEqual(['buyer@example.com'])
   expect(sendMock.mock.calls[0][1]).toEqual({ idempotencyKey: 'purchase-email/ord_1' })
+  const [sale, saleOpts] = sendMock.mock.calls[1]
+  expect(saleOpts).toEqual({ idempotencyKey: 'sale-email/ord_1' })
+  expect(sale.to).toEqual([process.env.EMAIL_REPLY_TO || 'devopsinterview.cloud@gmail.com'])
+  expect(sale.replyTo).toBe('buyer@example.com')
+  expect(sale.subject).toBe('New sale: Cloud Interview Mastery: AWS, Azure & GCP (899 INR)')
+  expect(sale.text).toContain('Download email: sent')
   expect(updateMany.mock.calls[0][0].where).toEqual({ id: 'ord_1', paymentStatus: { in: ['PENDING', 'FAILED'] } })
   expect(updateMany.mock.calls[1][0].data).toEqual({ status: 'COMPLETED' })
 })
@@ -77,6 +85,25 @@ test('an email failure keeps the order paid but PROCESSING and reports emailFail
   const r = await fulfillByGatewayOrderId('order_gw', 'pay_1', { amount: 899, currency: 'INR' })
   expect(r).toEqual({ ok: true, alreadyFulfilled: false, emailFailed: true })
   expect(updateMany).toHaveBeenCalledTimes(1) // no COMPLETED flip
+  expect(sendMock).toHaveBeenCalledTimes(2)
+  expect(sendMock.mock.calls[1][0].text).toContain('Download email: FAILED')
+})
+
+test.each([
+  ['rejects', () => sendMock.mockResolvedValueOnce({ error: null }).mockResolvedValueOnce({ error: { name: 'rate_limit_exceeded', message: 'slow down' } })],
+  ['throws', () => sendMock.mockResolvedValueOnce({ error: null }).mockRejectedValueOnce(new Error('network'))],
+  ['hangs', () => sendMock.mockResolvedValueOnce({ error: null }).mockReturnValueOnce(new Promise(() => {}))],
+])('a sale notification that %s does not change the fulfilment result', async (_label, arrange) => {
+  findUnique.mockResolvedValueOnce(pending)
+  updateMany.mockResolvedValueOnce({ count: 1 }).mockResolvedValueOnce({ count: 1 })
+  arrange()
+  jest.useFakeTimers()
+  const pendingResult = fulfillByGatewayOrderId('order_gw', 'pay_1', { amount: 899, currency: 'INR' })
+  await jest.advanceTimersByTimeAsync(5000)
+  const r = await pendingResult
+  jest.useRealTimers()
+  expect(r).toEqual({ ok: true, alreadyFulfilled: false })
+  expect(updateMany.mock.calls[1][0].data).toEqual({ status: 'COMPLETED' })
 })
 
 test('a paid PROCESSING order retries the email on redelivery and then completes', async () => {
@@ -84,6 +111,7 @@ test('a paid PROCESSING order retries the email on redelivery and then completes
   updateMany.mockResolvedValueOnce({ count: 1 })
   const r = await fulfillByGatewayOrderId('order_gw', 'pay_1')
   expect(r).toEqual({ ok: true, alreadyFulfilled: true })
-  expect(sendMock).toHaveBeenCalledTimes(1)
+  expect(sendMock).toHaveBeenCalledTimes(1) // buyer only: the owner was told when the order was claimed
+  expect(sendMock.mock.calls[0][1]).toEqual({ idempotencyKey: 'purchase-email/ord_1' })
   expect(updateMany.mock.calls[0][0].data).toEqual({ status: 'COMPLETED' })
 })
