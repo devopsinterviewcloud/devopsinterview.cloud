@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { verifyDownloadToken } from '@/lib/download-token'
-import { signedUrlsForSlug } from '@/lib/storage'
+import { ebooks } from '@/lib/catalog'
+import { filesForSlug, signedUrlsForSlug } from '@/lib/storage'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -38,7 +39,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
   }
   const esc = (s: string) =>
     s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  // Label each file with its book's title; a single book's first file is that book's PDF.
   const prettyName = (name: string) =>
+    ebooks.find((e) => !e.isBundle && filesForSlug(e.slug)[0] === name)?.title ??
     name.replace(/\.pdf$/i, '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
   const list = files
     .map((f) => {

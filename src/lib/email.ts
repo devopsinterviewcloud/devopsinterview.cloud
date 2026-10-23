@@ -62,7 +62,7 @@ ${message}`
 }
 
 /**
- * Lead-magnet delivery: emails the free Cloud Interview Mastery sample (8 real
+ * Lead-magnet delivery: emails the free Cloud Platforms sample (8 real
  * questions, one per chapter) to a new subscriber. The sample is served as a
  * static asset from /samples so this works even before Supabase storage is wired.
  */
@@ -78,7 +78,7 @@ export async function sendSampleEmail({ email }: { email: string }) {
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="text-align: center; margin-bottom: 28px;">
     <h1 style="color: #1f2937; margin-bottom: 8px;">Your free sample is ready</h1>
-    <p style="color: #6b7280; margin: 0;">8 real interview questions, one from every chapter of Cloud Interview Mastery</p>
+    <p style="color: #6b7280; margin: 0;">8 real interview questions, one from every chapter of Cloud Platforms</p>
   </div>
   <div style="text-align: center; margin-bottom: 28px;">
     <a href="${sampleUrl}" style="display: inline-block; background-color: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Download the free sample (PDF)</a>
@@ -100,7 +100,7 @@ export async function sendSampleEmail({ email }: { email: string }) {
 
   const text = `Your free sample is ready
 
-8 real interview questions, one from every chapter of Cloud Interview Mastery.
+8 real interview questions, one from every chapter of Cloud Platforms.
 
 Download (PDF): ${sampleUrl}
 

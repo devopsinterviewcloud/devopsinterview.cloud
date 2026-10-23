@@ -35,7 +35,7 @@ function getEbook(slug: string) {
 
 const audience: Record<string, string> = {
   "cloud-interview-mastery": "DevOps engineers, cloud engineers, and architects preparing for interviews that compare AWS, Azure, and GCP services and design tradeoffs.",
-  "container-orchestration-journey": "Engineers preparing for Docker, Kubernetes, platform engineering, and production troubleshooting rounds.",
+  "container-orchestration-journey": "Engineers preparing for Kubernetes, service mesh, platform engineering, and production troubleshooting rounds.",
   "infrastructure-automation-mastery": "Engineers interviewing for roles that use Terraform or OpenTofu to manage infrastructure safely at scale.",
   "modern-cicd-gitops": "DevOps and platform engineers preparing to discuss pipeline design, GitOps, progressive delivery, and software supply-chain security.",
   "senior-devops-handbook": "Senior DevOps and SRE candidates preparing for reliability, observability, incident response, and technical leadership interviews.",
@@ -74,10 +74,10 @@ export async function generateMetadata({
   const url = `${SITE_URL}/ebooks/${ebook.slug}`;
   const seoTitles: Record<string, string> = {
     "cloud-interview-mastery": "Cloud Interview Ebook: AWS, Azure & GCP | DevOps Prep",
-    "container-orchestration-journey": "Docker & Kubernetes Interview Ebook | DevOps Prep",
+    "container-orchestration-journey": "Kubernetes Interview Ebook | DevOps Prep",
     "infrastructure-automation-mastery": "Terraform & OpenTofu Interview Ebook | DevOps Prep",
     "modern-cicd-gitops": "CI/CD & GitOps Interview Ebook | DevOps Prep",
-    "senior-devops-handbook": "DevOps & SRE Interview Ebook | DevOpsInterview.Cloud",
+    "senior-devops-handbook": "SRE & Production Operations Interview Ebook | DevOps Prep",
     "complete-devops-mastery-bundle": "Complete DevOps Interview Ebook Bundle | Cloud & SRE",
   };
   const title = seoTitles[ebook.slug] ?? truncateMetadataText(ebook.title, 58);
@@ -271,7 +271,7 @@ export default async function EbookPage({
               </>
             )}
             <TrackedLink href={SAMPLE_PDF} target="_blank" eventName="sample_opened" eventProperties={{ location: "product_format", product: ebook.id, kind: "pdf" }} className="font-semibold text-blue-700 hover:underline">download the free {SAMPLE_PDF_QUESTIONS}-question PDF sample</TrackedLink>
-            {ebook.slug !== SAMPLE_PDF_BOOK_SLUG && !ebook.isBundle ? ". The PDF sample is from Cloud Interview Mastery, not from this book." : " (from Cloud Interview Mastery)."}
+            {ebook.slug !== SAMPLE_PDF_BOOK_SLUG && !ebook.isBundle ? ". The PDF sample is from Cloud Platforms, not from this book." : " (from Cloud Platforms)."}
           </p>
         </div>
       </section>

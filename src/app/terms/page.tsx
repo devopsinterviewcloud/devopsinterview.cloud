@@ -32,7 +32,7 @@ export default function TermsOfService() {
               DevOpsInterview.Cloud provides:
             </p>
             <ul className="list-disc pl-6 mb-4">
-              <li>Digital ebooks covering DevOps, Cloud, AWS, Azure, GCP, Kubernetes, Docker, and related technologies</li>
+              <li>Digital ebooks covering DevOps, Cloud, AWS, Azure, GCP, Kubernetes, and related technologies</li>
               <li>Interview preparation materials for DevOps and Cloud engineering roles</li>
               <li>Educational content and resources for professional development</li>
               <li>Newsletter with industry insights and career guidance</li>

@@ -27,6 +27,7 @@ Living doc. Update after every change. (Honest current state lives in STATUS.md;
 - [x] Book covers v2 (REDESIGN): premium type-led series rendered from HTML/CSS via Playwright (`scripts/render_covers.py`) — bold Inter title, flat white topic icon, per-topic color (blue/teal/violet/orange/emerald/gold-navy bundle), thumbnail-legible. Replaced the earlier AI-art-overlay covers. Logo kept from `scripts/gen_site_images.py`.
 
 - [x] Book covers v3 (FINAL): rich gpt-image backgrounds (`scripts/gen_cover_bg.py`, art kept in `scripts/_bg/`, gitignored) with crisp Inter type composited via Playwright (`scripts/render_covers.py`) — assets inlined as base64 data URIs (Chromium blocks file:// on set_content), light bottom-only scrim so art stays vivid + text legible. Per-topic palette; thumbnail-legible.
+- [x] Book covers v4 (2026-10-23): one flat color per book, shared title size, code-drawn emblems; rendered with the PDFs and Kindle covers from `covers/` in the private books repo, so `scripts/render_covers.py` and `scripts/gen_cover_bg.py` are gone. Product names now match the cover titles.
 - [x] **Checkout + fulfillment build (code complete; UNTESTED — needs sandbox creds + storage; test before live).**
   - Server-side pricing/GST: `src/lib/pricing.ts` (authoritative price; INR GST-inclusive, 18% itemized; never trusts client amount).
   - Gateways: `src/lib/payments/razorpay.ts` (create order + HMAC webhook/checkout signature verify) and `src/lib/payments/paypal.ts` (Orders v2: token/create/capture/verify-webhook).

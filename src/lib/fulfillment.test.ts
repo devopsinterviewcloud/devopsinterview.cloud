@@ -33,7 +33,7 @@ test('first verified delivery claims the order, emails the buyer and the owner o
   expect(saleOpts).toEqual({ idempotencyKey: 'sale-email/ord_1' })
   expect(sale.to).toEqual([process.env.EMAIL_REPLY_TO || 'devopsinterview.cloud@gmail.com'])
   expect(sale.replyTo).toBe('buyer@example.com')
-  expect(sale.subject).toBe('New sale: Cloud Interview Mastery: AWS, Azure & GCP (899 INR)')
+  expect(sale.subject).toBe('New sale: Cloud Platforms: AWS, Azure & GCP Interview Questions (899 INR)')
   expect(sale.text).toContain('Download email: sent')
   expect(updateMany.mock.calls[0][0].where).toEqual({ id: 'ord_1', paymentStatus: { in: ['PENDING', 'FAILED'] } })
   expect(updateMany.mock.calls[1][0].data).toEqual({ status: 'COMPLETED' })

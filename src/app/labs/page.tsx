@@ -198,7 +198,7 @@ export default function LabsPage() {
                 <p className="mt-4 text-sm text-muted-foreground">
                   Build the underlying observability and incident-response theory with the{" "}
                   <Link href="/ebooks/senior-devops-handbook" className="font-semibold text-blue-700 underline-offset-4 hover:underline">
-                    Senior DevOps &amp; SRE interview ebook
+                    SRE &amp; Production Operations ebook
                   </Link>.
                 </p>
               </div>

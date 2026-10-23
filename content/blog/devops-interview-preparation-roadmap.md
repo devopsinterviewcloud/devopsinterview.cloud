@@ -33,7 +33,7 @@ Pick the provider your target jobs mention most (in most markets that is AWS, bu
 
 **The bar:** given a networking symptom ("instance cannot reach the internet"), you list the four or five most likely causes in the order you would check them.
 
-If your interviews span multiple clouds, [Cloud Interview Mastery: AWS, Azure & GCP](/ebooks/cloud-interview-mastery) maps the equivalent services and the questions asked about each, which saves you re-deriving everything three times.
+If your interviews span multiple clouds, [Cloud Platforms (AWS, Azure & GCP)](/ebooks/cloud-interview-mastery) maps the equivalent services and the questions asked about each, which saves you re-deriving everything three times.
 
 ## Weeks 5-6: Kubernetes, the main event
 
@@ -57,7 +57,7 @@ For most DevOps loops in 2026, Kubernetes is the longest technical conversation.
 
 **Study:** pipeline anatomy (build, test, scan, artifact, deploy), deployment strategies and when each fits (rolling, blue/green, canary), GitOps with Argo CD or Flux and what reconciliation buys you over push deploys, secrets in pipelines (OIDC federation over static keys), and rollback thinking: how fast, triggered by what signal.
 
-**Build:** a pipeline that ships your app to your kind cluster via Argo CD. Then break a deploy and roll it back, and note the time it took; "our rollback was two minutes because Git revert re-synced" is a lovely sentence to say in an interview. For the full progressive-delivery picture, [Modern CI/CD & GitOps](/ebooks/modern-cicd-gitops) covers pipelines, Argo CD, and canary analysis at interview depth.
+**Build:** a pipeline that ships your app to your kind cluster via Argo CD. Then break a deploy and roll it back, and note the time it took; "our rollback was two minutes because Git revert re-synced" is a lovely sentence to say in an interview. For the full progressive-delivery picture, [CI/CD & GitOps](/ebooks/modern-cicd-gitops) covers pipelines, Argo CD, and canary analysis at interview depth.
 
 ## Weeks 9-10 (senior track): observability, reliability, security
 
@@ -67,7 +67,7 @@ If you are interviewing at senior or SRE level, these two weeks are what separat
 
 **Build:** put Prometheus and Grafana on your cluster, define one SLO for your app, and make one alert fire for the right reason. Run one game-day against yourself.
 
-**The bar:** you can design an alerting strategy that would not page anyone at 3 a.m. for a cause that self-heals, and defend it. This is precisely the ground [Senior DevOps & SRE Handbook](/ebooks/senior-devops-handbook) covers, question by question.
+**The bar:** you can design an alerting strategy that would not page anyone at 3 a.m. for a cause that self-heals, and defend it. This is precisely the ground [SRE & Production Operations](/ebooks/senior-devops-handbook) covers, question by question.
 
 ## The final two weeks: convert knowledge into offers
 
@@ -81,4 +81,4 @@ If you are interviewing at senior or SRE level, these two weeks are what separat
 
 ## The compressed version
 
-If you have less than 60 days: weeks 1-2 fundamentals are non-negotiable, one cloud at depth beats everything else, Kubernetes gets whatever time remains, and Terraform state plus one prepared incident story covers a surprising fraction of the rest. The [Complete DevOps Mastery Bundle](/ebooks/complete-devops-mastery-bundle) packages all five books (250+ questions with worked answers across cloud, containers, IaC, CI/CD and SRE) if you want the structured version of this entire roadmap in one place.
+If you have less than 60 days: weeks 1-2 fundamentals are non-negotiable, one cloud at depth beats everything else, Kubernetes gets whatever time remains, and Terraform state plus one prepared incident story covers a surprising fraction of the rest. The [DevOps Interview Mastery bundle](/ebooks/complete-devops-mastery-bundle) packages all five books (250+ questions with worked answers across cloud, containers, IaC, CI/CD and SRE) if you want the structured version of this entire roadmap in one place.
