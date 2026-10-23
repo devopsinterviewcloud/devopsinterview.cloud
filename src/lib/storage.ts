@@ -31,7 +31,7 @@ const FILE_MAP: Record<string, string[]> = {
   'modern-cicd-gitops': ['cicd-gitops.pdf'],
   // Interview-Day Playbook (add-on) — built. UPLOAD interview-day-playbook.pdf to the bucket.
   'interview-day-playbook': ['interview-day-playbook.pdf'],
-  // Book 5 (Advanced DevOps / Senior DevOps Handbook) — built. UPLOAD advanced-devops.pdf to the bucket.
+  // Book 5 (SRE & Production Operations) — built. UPLOAD advanced-devops.pdf to the bucket.
   'senior-devops-handbook': ['advanced-devops.pdf'],
   // bundle delivers all five books:
   'complete-devops-mastery-bundle': ['cloud-platforms.pdf', 'containers-orchestration.pdf', 'infrastructure-as-code.pdf', 'cicd-gitops.pdf', 'advanced-devops.pdf'],

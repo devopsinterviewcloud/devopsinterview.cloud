@@ -109,7 +109,7 @@ export default function Home() {
             {/* Value Proposition */}
             <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto leading-relaxed text-foreground">
               Prepare for DevOps, cloud, and SRE interviews with {totalQuestions} worked questions
-              covering AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD, and production reliability.
+              covering AWS, Azure, GCP, Kubernetes, Terraform, CI/CD, and production reliability.
             </p>
 
             {/* CTA Button */}
@@ -376,7 +376,7 @@ export default function Home() {
               {
                 title: "Container Orchestration",
                 slug: "container-orchestration-journey",
-                description: "Practice Docker and Kubernetes questions covering scheduling, networking, security, storage, and production debugging.",
+                description: "Practice Kubernetes questions covering scheduling, networking, security, storage, and production debugging.",
                 icon: "📦",
                 color: "bg-green-100 text-green-700"
               },
@@ -456,7 +456,7 @@ export default function Home() {
               <div className="p-8">
                 <h3 className="text-2xl font-bold mb-4 text-foreground">The Complete Question Bank</h3>
                 <ul className="space-y-3 text-muted-foreground mb-6">
-                  <li>✅ Docker & Kubernetes Container Orchestration</li>
+                  <li>✅ Kubernetes & Container Orchestration</li>
                   <li>✅ CI/CD Jenkins, GitLab, GitHub Actions Pipeline Design</li>
                   <li>✅ AWS, Azure, GCP Cloud Architecture Solutions</li>
                   <li>✅ Terraform & OpenTofu Infrastructure as Code (IaC)</li>
