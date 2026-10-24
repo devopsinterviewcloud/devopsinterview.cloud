@@ -10,8 +10,8 @@ const updateMany = jest.fn()
 jest.mock('@/lib/db', () => ({ db: { order: { findFirst: (...a: unknown[]) => findFirst(...a), create: (...a: unknown[]) => create(...a), updateMany: (...a: unknown[]) => updateMany(...a) } } }))
 const createRz = jest.fn(); const fetchRz = jest.fn()
 jest.mock('@/lib/payments/razorpay', () => ({ razorpayConfigured: () => true, createRazorpayOrder: (...a: unknown[]) => createRz(...a), fetchRazorpayOrder: (...a: unknown[]) => fetchRz(...a) }))
-const createPp = jest.fn()
-jest.mock('@/lib/payments/paypal', () => ({ paypalConfigured: () => true, createPayPalOrder: (...a: unknown[]) => createPp(...a), getPayPalOrder: jest.fn(), paypalApprovalUrl: (id: string) => `https://www.paypal.com/checkoutnow?token=${id}` }))
+const createPp = jest.fn(); const getPp = jest.fn()
+jest.mock('@/lib/payments/paypal', () => ({ paypalConfigured: () => true, createPayPalOrder: (...a: unknown[]) => createPp(...a), getPayPalOrder: (...a: unknown[]) => getPp(...a), paypalApprovalUrl: (id: string) => `https://www.paypal.com/checkoutnow?token=${id}` }))
 
 import { NextRequest } from 'next/server'
 import { POST } from './route'
@@ -97,4 +97,13 @@ test('an international checkout needs the name, billing address and a real count
   const res = await post(ok)
   expect(res.status).toBe(200)
   expect(create.mock.calls[0][0].data).toMatchObject({ currency: 'USD', tax: 0, buyerCountry: 'DE', billingAddress: 'Hauptstr. 1, 10115 Berlin', customerName: 'Ada Lovelace' })
+})
+
+test('a reused PayPal order keeps the buyer\'s corrected name, address and country', async () => {
+  findFirst.mockResolvedValue({ id: 'ord_pp', gatewayOrderId: 'PP_OLD' })
+  getPp.mockResolvedValue({ status: 'CREATED' })
+  const res = await post({ productId: '1', currency: 'USD', email: 'buyer@example.com', name: 'Ada L', country: 'FR', address: '1 Rue X, 75001 Paris' })
+  expect((await res.json()).orderId).toBe('PP_OLD')
+  expect(createPp).not.toHaveBeenCalled()
+  expect(updateMany).toHaveBeenCalledWith({ where: { id: 'ord_pp', paymentStatus: 'PENDING' }, data: { customerName: 'Ada L', billingAddress: '1 Rue X, 75001 Paris', buyerCountry: 'FR' } })
 })

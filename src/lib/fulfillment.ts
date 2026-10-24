@@ -102,9 +102,13 @@ export async function fulfillByGatewayOrderId(
   const supplier = gstSupplier()
   let claimed: Order | null
   let invoiceProblem: string | undefined
+  const payer = supplier ? await payerDetails(order) : {}
   if (supplier) {
     try {
-      claimed = await claimWithInvoice(order.id, claimable, { gatewayPaymentId, fulfilledAt }, supplier.prefix, await payerDetails(order))
+      // PayPal's name/country only fill gaps: the invoice keeps the billing details the
+      // buyer typed together, and a disagreement is flagged to the owner instead.
+      claimed = await claimWithInvoice(order.id, claimable, { gatewayPaymentId, fulfilledAt }, supplier,
+        { customerName: payer.name, buyerCountry: payer.country })
     } catch (e) {
       console.error('invoice: claim with invoice failed, claiming without one', { orderId: order.id, error: e })
       invoiceProblem = `invoice numbering failed (${e instanceof Error ? e.message : String(e)})`
@@ -137,12 +141,12 @@ export async function fulfillByGatewayOrderId(
       console.error('fulfillment: DOWNLOAD EMAIL FAILED - will retry on redelivery', {
         orderId: order.id, email: order.customerEmail, slug: order.ebookSlug, error: e,
       })
-      await notifySale(invoiced, false, problem)
+      await notifySale(invoiced, false, problem, payer.country)
       return { ok: true, alreadyFulfilled: false as const, emailFailed: true as const }
     }
   }
   await db.order.updateMany({ where: { id: order.id }, data: { status: 'COMPLETED' } })
-  await notifySale(invoiced, Boolean(order.ebookSlug && order.customerEmail), problem)
+  await notifySale(invoiced, Boolean(order.ebookSlug && order.customerEmail), problem, payer.country)
   return { ok: true, alreadyFulfilled: false as const }
 }
 
@@ -159,15 +163,15 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
  * PayPal: better evidence of the place of supply than the checkout menu. If PayPal
  * doesn't answer in 5s the checkout data stands.
  */
-async function payerDetails(order: Order): Promise<{ customerName?: string; buyerCountry?: string }> {
+async function payerDetails(order: Order): Promise<{ name?: string; country?: string }> {
   if (order.gateway !== 'paypal' || !order.gatewayOrderId || order.invoiceNumber) return {}
   try {
     const pp = await withTimeout(getPayPalOrder(order.gatewayOrderId), 5000)
-    const out: { customerName?: string; buyerCountry?: string } = {}
+    const out: { name?: string; country?: string } = {}
     const name = [pp?.payer?.name?.given_name, pp?.payer?.name?.surname].filter(Boolean).join(' ').trim()
-    if (name) out.customerName = name.slice(0, 120)
+    if (name) out.name = name.slice(0, 120)
     const cc = pp?.payer?.address?.country_code
-    if (typeof cc === 'string' && /^[A-Z]{2}$/.test(cc)) out.buyerCountry = cc
+    if (typeof cc === 'string' && /^[A-Z]{2}$/.test(cc)) out.country = cc
     return out
   } catch (e) {
     console.error('invoice: PayPal payer lookup failed, using checkout data', { orderId: order.id, error: e })
@@ -181,13 +185,17 @@ function invoiceBlock(order: Order): string {
 }
 
 /** One line for the owner: the invoice, or why there isn't one. */
-function invoiceNote(order: Order, problem?: string): string {
+function invoiceNote(order: Order, problem?: string, payerCountry?: string): string {
   const s = gstSupplier()
   if (!s || !order.invoiceNumber) return `Invoice: NOT ISSUED, ${problem ?? 'unknown reason'}. Issue one by hand.`
-  const t = taxSplit(order, s.gstin.slice(0, 2), Boolean(s.lutRef))
+  const t = taxSplit(order, s.gstin.slice(0, 2))
   if (t.kind === 'export' || t.kind === 'export-igst') {
     const where = countryName(order.buyerCountry) ?? 'country not recorded'
-    const warn = order.buyerCountry === 'IN' ? ' WARNING: PayPal says the payer is in India, so this is not an export; it needs IGST.' : ''
+    const warn = payerCountry === 'IN'
+      ? ' WARNING: PayPal says the payer is in India, so this may not be an export; check it before filing.'
+      : payerCountry && payerCountry !== order.buyerCountry
+        ? ` Note: PayPal's payer country is ${countryName(payerCountry) ?? payerCountry}, not the billing country.`
+        : ''
     const treatment = t.kind === 'export' ? 'under LUT' : `no LUT configured, IGST ${t.igst.toFixed(2)} ${t.currency} payable`
     return `Invoice: ${order.invoiceNumber}, export to ${where}, ${treatment}.${warn}`
   }
@@ -201,7 +209,7 @@ function invoiceNote(order: Order, problem?: string): string {
  * a failure is logged and never fails fulfilment or makes the gateway redeliver,
  * and a slow Resend call is abandoned after 5s so it can't hold up the response.
  */
-async function notifySale(order: Order, downloadEmailSent: boolean, invoiceProblem?: string) {
+async function notifySale(order: Order, downloadEmailSent: boolean, invoiceProblem?: string, payerCountry?: string) {
   const product = productTitle(order.ebookSlug)
   const text = [
     `Product: ${product}`,
@@ -209,7 +217,7 @@ async function notifySale(order: Order, downloadEmailSent: boolean, invoiceProbl
     `Buyer: ${order.customerEmail}`,
     `Order: ${order.id}`,
     downloadEmailSent ? 'Download email: sent' : 'Download email: FAILED (a webhook redelivery will retry it)',
-    invoiceNote(order, invoiceProblem),
+    invoiceNote(order, invoiceProblem, payerCountry),
   ].join('\n')
   let timer: ReturnType<typeof setTimeout> | undefined
   try {

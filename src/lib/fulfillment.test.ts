@@ -133,7 +133,7 @@ describe('GST invoice', () => {
   const env = { ...process.env }
   beforeEach(() => Object.assign(process.env, { GSTIN: '33ABCDE1234F1Z5', GST_TRADE_NAME: 'Test Traders', GST_ADDRESS: 'Chennai' }))
   afterEach(() => { process.env = { ...env } })
-  const karnataka = { ...pending, subtotal: 761.86, tax: 137.14, buyerState: '29', buyerCountry: 'IN', billingAddress: null, invoiceNumber: null, invoiceDate: null }
+  const karnataka = { ...pending, subtotal: 761.86, tax: 137.14, buyerState: '29', buyerCountry: 'IN', billingAddress: null, exportLutRef: null, invoiceNumber: null, invoiceDate: null }
   // The locked row inside the claim transaction, then the counter, then the update returns the claimed row.
   const claimInTx = (row: object, last = 7) => {
     txQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([{ last }])
@@ -180,18 +180,20 @@ describe('GST invoice', () => {
   })
 
   test('a PayPal order takes the payer name and country from PayPal for its export invoice', async () => {
-    const usd = { ...pending, gateway: 'paypal', currency: 'USD', total: 31.99, subtotal: 31.99, tax: 0, buyerState: null, buyerCountry: 'FR', billingAddress: '1 Rue X, Paris', customerName: null, invoiceNumber: null, invoiceDate: null }
+    const usd = { ...pending, gateway: 'paypal', currency: 'USD', total: 31.99, subtotal: 31.99, tax: 0, buyerState: null, buyerCountry: 'FR', billingAddress: '1 Rue X, Paris', exportLutRef: null, customerName: null, invoiceNumber: null, invoiceDate: null }
     findUnique.mockResolvedValueOnce(usd)
     getPayPalOrder.mockResolvedValueOnce({ payer: { name: { given_name: 'Ada', surname: 'Lovelace' }, address: { country_code: 'DE' } } })
     claimInTx(usd, 1)
     updateMany.mockResolvedValue({ count: 1 })
     await fulfillByGatewayOrderId('order_gw', 'pay_1', { amount: 31.99, currency: 'USD' })
-    expect(txUpdate.mock.calls[0][0].data).toMatchObject({ customerName: 'Ada Lovelace', buyerCountry: 'DE' })
+    const data = txUpdate.mock.calls[0][0].data
+    expect(data).toMatchObject({ customerName: 'Ada Lovelace', subtotal: 27.11, tax: 4.88 }) // no LUT: IGST fixed now
+    expect(data).not.toHaveProperty('buyerCountry') // the typed billing country stands
     const purchase = sendMock.mock.calls[0][0]
     expect(purchase.html).toContain('Invoice (export of services)')
-    expect(purchase.html).toContain('Billed to: Ada Lovelace, 1 Rue X, Paris, Germany')
-    expect(purchase.html).toContain('export on payment of integrated tax') // no LUT configured
-    expect(sendMock.mock.calls[1][0].text).toContain('export to Germany, no LUT configured, IGST 4.88 USD payable')
+    expect(purchase.html).toContain('Billed to: Ada Lovelace, 1 Rue X, Paris, France')
+    expect(purchase.html).toContain('export on payment of integrated tax')
+    expect(sendMock.mock.calls[1][0].text).toContain("export to France, no LUT configured, IGST 4.88 USD payable. Note: PayPal's payer country is Germany, not the billing country.")
   })
 
   test('if the claim transaction fails the order is still claimed and delivered, and the owner is told', async () => {

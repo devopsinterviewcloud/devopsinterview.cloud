@@ -24,7 +24,7 @@ export function gstSupplier(): GstSupplier | undefined {
   const address = process.env.GST_ADDRESS?.trim()
   if (!gstin || !tradeName || !address || !/^\d{2}[A-Z0-9]{13}$/.test(gstin)) return undefined
   const prefix = (process.env.GST_INVOICE_PREFIX?.trim() || 'PE').toUpperCase()
-  if (!/^[A-Z0-9]{1,5}$/.test(prefix)) return undefined // PREFIX/2627/00001 must stay within GST's 16 characters
+  if (!/^[A-Z0-9]{1,4}$/.test(prefix)) return undefined // PREF/2627/000001 is the longest that fits GST's 16 characters
   return { gstin, tradeName, address, prefix, lutRef: process.env.GST_LUT_REF?.trim() || undefined }
 }
 
@@ -39,21 +39,25 @@ export function financialYear(at: Date): string {
 }
 
 export function invoiceNumberFor(prefix: string, fy: string, n: number): string {
-  return `${prefix}/${fy}/${String(n).padStart(5, '0')}`
+  const num = `${prefix}/${fy}/${String(n).padStart(5, '0')}`
+  if (num.length > 16) throw new Error(`invoice number ${num} is longer than GST's 16 characters`)
+  return num
 }
 
 /**
  * Claim a paid order and give it its invoice number in one transaction. The row is
  * locked first, so a concurrent delivery waits; once this commits, nothing can see
  * the order paid without its invoice, and retried download emails carry the same
- * one. Returns the updated order, or null when another delivery already claimed it.
+ * one. An export's tax treatment is fixed here too: zero-rated under the current LUT,
+ * or IGST taken out of the price when there is none. Returns the updated order, or
+ * null when another delivery already claimed it. `fill` only fills empty fields.
  */
 export async function claimWithInvoice(
   orderId: string,
   claimable: PaymentStatus[],
   claim: { gatewayPaymentId: string; fulfilledAt: Date },
-  prefix: string,
-  extra: { customerName?: string; buyerCountry?: string } = {},
+  supplier: GstSupplier,
+  fill: { customerName?: string; buyerCountry?: string } = {},
 ): Promise<Order | null> {
   return db.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT id FROM orders WHERE id = ${orderId} FOR UPDATE`
@@ -68,10 +72,20 @@ export async function claimWithInvoice(
         INSERT INTO invoice_counters (fy, last) VALUES (${fy}, 1)
         ON CONFLICT (fy) DO UPDATE SET last = invoice_counters.last + 1
         RETURNING last`
-      data.invoiceNumber = invoiceNumberFor(prefix, fy, Number(last))
+      data.invoiceNumber = invoiceNumberFor(supplier.prefix, fy, Number(last))
       data.invoiceDate = claim.fulfilledAt
-      if (extra.customerName && !row.customerName) data.customerName = extra.customerName
-      if (extra.buyerCountry) data.buyerCountry = extra.buyerCountry
+      if (fill.customerName && !row.customerName) data.customerName = fill.customerName
+      if (fill.buyerCountry && !row.buyerCountry) data.buyerCountry = fill.buyerCountry
+      if (row.currency !== 'INR') {
+        if (supplier.lutRef) {
+          data.exportLutRef = supplier.lutRef
+        } else {
+          const total = Number(row.total)
+          const net = round2(total / (1 + GST_RATE))
+          data.subtotal = net
+          data.tax = round2(total - net)
+        }
+      }
     }
     return tx.order.update({ where: { id: orderId }, data })
   })
@@ -94,17 +108,17 @@ export type TaxSplit = {
 }
 
 /**
- * CGST+SGST inside the seller's state, IGST elsewhere in India. Exports are zero-rated
- * under an LUT; without one IGST is payable, taken out of the (fixed) price.
+ * CGST+SGST inside the seller's state, IGST elsewhere in India. An export carries the
+ * treatment fixed when it was invoiced: IGST in subtotal/tax if it had no LUT,
+ * otherwise zero-rated.
  */
-export function taxSplit(order: Money, supplierState: string, underLut: boolean): TaxSplit {
+export function taxSplit(order: Money, supplierState: string): TaxSplit {
   const taxable = Number(order.subtotal)
   const tax = Number(order.tax)
   const total = Number(order.total)
   if (order.currency !== 'INR') {
-    if (underLut) return { kind: 'export', taxable: total, cgst: 0, sgst: 0, igst: 0, total, currency: order.currency }
-    const net = round2(total / (1 + GST_RATE))
-    return { kind: 'export-igst', taxable: net, cgst: 0, sgst: 0, igst: round2(total - net), total, currency: order.currency }
+    if (tax > 0) return { kind: 'export-igst', taxable, cgst: 0, sgst: 0, igst: tax, total, currency: order.currency }
+    return { kind: 'export', taxable: total, cgst: 0, sgst: 0, igst: 0, total, currency: order.currency }
   }
   if (order.buyerState === supplierState) {
     const cgst = round2(tax / 2)
@@ -133,13 +147,13 @@ export function istDate(at: Date): string {
   return `${String(d.getUTCDate()).padStart(2, '0')}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${d.getUTCFullYear()}`
 }
 
-type InvoiceOrder = Money & Pick<Order, 'buyerCountry' | 'billingAddress' | 'customerName' | 'customerEmail' | 'invoiceNumber' | 'invoiceDate'>
+type InvoiceOrder = Money & Pick<Order, 'buyerCountry' | 'billingAddress' | 'exportLutRef' | 'customerName' | 'customerEmail' | 'invoiceNumber' | 'invoiceDate'>
 
 /** The invoice as an email-safe HTML block (inline styles only). */
 export function invoiceHtml(order: InvoiceOrder, product: string, s: GstSupplier): string {
   if (!order.invoiceNumber || !order.invoiceDate) return ''
   const supplierState = s.gstin.slice(0, 2)
-  const t = taxSplit(order, supplierState, Boolean(s.lutRef))
+  const t = taxSplit(order, supplierState)
   const isExport = t.kind === 'export' || t.kind === 'export-igst'
   const cell = 'padding:6px 8px;border:1px solid #e2e8f0;text-align:left;font-size:13px'
   const taxRows =
@@ -157,7 +171,7 @@ export function invoiceHtml(order: InvoiceOrder, product: string, s: GstSupplier
     .map((x) => esc(x.trim()).replace(/\r?\n/g, ', '))
   const endorsement =
     t.kind === 'export'
-      ? `<p style="font-size:12px;margin:8px 0">Supply meant for export under Letter of Undertaking (${esc(s.lutRef ?? '')}) without payment of integrated tax.</p>`
+      ? `<p style="font-size:12px;margin:8px 0">Supply meant for export under Letter of Undertaking${order.exportLutRef ? ` (${esc(order.exportLutRef)})` : ''} without payment of integrated tax.</p>`
       : t.kind === 'export-igst'
         ? '<p style="font-size:12px;margin:8px 0">Supply meant for export on payment of integrated tax.</p>'
         : ''
@@ -204,13 +218,12 @@ export function previousMonth(at: Date): string {
 /** Summary for GSTR-1 / GSTR-3B: consumer sales by state, and the export invoices. */
 export function monthlyReport(orders: ReportOrder[], month: string, s: GstSupplier) {
   const supplierState = s.gstin.slice(0, 2)
-  const underLut = Boolean(s.lutRef)
   const byState = new Map<string, { count: number; taxable: number; cgst: number; sgst: number; igst: number; total: number }>()
   const exports: { invoiceNumber: string; date: string; country: string; currency: string; taxable: number; igst: number; total: number }[] = []
   const csv = [['invoice_no', 'date', 'type', 'state_code', 'state', 'country', 'currency', 'taxable', 'cgst', 'sgst', 'igst', 'total', 'product'].join(',')]
   for (const o of orders) {
     if (!o.invoiceNumber || !o.invoiceDate) continue
-    const t = taxSplit(o, supplierState, underLut)
+    const t = taxSplit(o, supplierState)
     const date = istDate(o.invoiceDate)
     if (t.kind === 'export' || t.kind === 'export-igst') {
       exports.push({ invoiceNumber: o.invoiceNumber, date, country: o.buyerCountry ?? '', currency: t.currency, taxable: t.taxable, igst: t.igst, total: t.total })
@@ -241,7 +254,7 @@ export function monthlyReport(orders: ReportOrder[], month: string, s: GstSuppli
       ${stateRows ? `<table style="border-collapse:collapse"><tr><th style="${cell}">State</th><th style="${cell}">Invoices</th><th style="${cell}">Taxable</th><th style="${cell}">CGST</th><th style="${cell}">SGST</th><th style="${cell}">IGST</th><th style="${cell}">Total</th></tr>${stateRows}</table>` : '<p>None.</p>'}
       <h3>Exports of services (GSTR-1 Table 6A, GSTR-3B 3.1(b))</h3>
       ${exportRows ? `<table style="border-collapse:collapse"><tr><th style="${cell}">Invoice</th><th style="${cell}">Date</th><th style="${cell}">Country</th><th style="${cell}">Taxable</th><th style="${cell}">IGST</th><th style="${cell}">Total</th></tr>${exportRows}</table>
-      <p style="font-size:13px">GST returns need these in INR: convert the gross invoice value at the exchange rate for each invoice date (CGST Rule 34). PayPal's payout is net of its fees, so it understates the value.${underLut ? '' : ' <strong>No LUT is configured (GST_LUT_REF), so these exports were invoiced with IGST payable. Filing an LUT makes later exports zero-rated.</strong>'}</p>` : '<p>None.</p>'}
+      <p style="font-size:13px">GST returns need these in INR: convert the gross invoice value at the exchange rate for each invoice date (CGST Rule 34). PayPal's payout is net of its fees, so it understates the value.${exports.some((e) => e.igst > 0) ? ' <strong>Exports with IGST were invoiced when no LUT was configured (GST_LUT_REF), so that IGST is payable. Filing an LUT makes later exports zero-rated.</strong>' : ''}</p>` : '<p>None.</p>'}
     </div>`
   return { html, csv: csv.join('\n') + '\n', count }
 }

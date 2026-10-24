@@ -152,6 +152,9 @@ model Order {
   buyerCountry      String?
   billingAddress    String?
   invoiceNumber     String?     @unique
+  // LUT ARN an export was invoiced under; exports invoiced without one carry IGST
+  // in subtotal/tax. Fixed at invoicing so a later LUT never rewrites a past invoice.
+  exportLutRef      String?
   invoiceDate       DateTime?
 
   // Metadata

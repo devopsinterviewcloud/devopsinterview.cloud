@@ -117,6 +117,11 @@ export async function POST(req: NextRequest) {
       try {
         const gw = await getPayPalOrder(existingPp.gatewayOrderId)
         if (gw.status === 'CREATED' || gw.status === 'PAYER_ACTION_REQUIRED' || gw.status === 'APPROVED') {
+          // The invoice prints these, so keep the buyer's latest corrections.
+          await db.order.updateMany({
+            where: { id: existingPp.id, paymentStatus: 'PENDING' },
+            data: { customerName: name, billingAddress: address, buyerCountry: country },
+          })
           // Send the buyer (back) through PayPal approval. For APPROVED orders
           // this lets a declined funding source be replaced (PayPal's documented
           // INSTRUMENT_DECLINED recovery); the return lands on /checkout/success,
