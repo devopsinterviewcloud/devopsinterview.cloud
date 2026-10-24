@@ -385,4 +385,58 @@
   }
   .prose-article img { max-width: 100%; height: auto; }
 
+  /* Form fields: labelled above, 2px ink box, red once the browser marks them invalid. */
+  .field-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .field {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 14px;
+    border: 2px solid var(--color-ink);
+    border-radius: 0;
+    background: var(--color-sheet);
+    color: var(--color-ink);
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .field::placeholder { color: var(--color-subtle); }
+  select.field {
+    appearance: none;
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2315171c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    cursor: pointer;
+  }
+  .field:user-invalid { border-color: var(--color-book-red); }
+  .field-help {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--color-subtle);
+  }
+  .field-error {
+    display: none;
+    margin-top: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--color-book-red);
+  }
+  .field:user-invalid ~ .field-error,
+  .check:user-invalid ~ .field-error { display: block; }
+  .check {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    accent-color: var(--color-ink);
+  }
+  .check:user-invalid { outline: 2px solid var(--color-book-red); outline-offset: 2px; }
 }
