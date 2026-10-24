@@ -5,6 +5,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { safeTrack } from '@/lib/analytics'
 import ebooksData from '@/data/ebooks.json'
+import { GST_STATES } from '@/lib/gst-states'
 
 const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js'
 
@@ -66,6 +67,7 @@ function CheckoutContent() {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [country, setCountry] = useState('')
+  const [gstState, setGstState] = useState('')
   const [agree, setAgree] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -122,7 +124,7 @@ function CheckoutContent() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: ebook.id, currency, email, name }),
+        body: JSON.stringify({ productId: ebook.id, currency, email, name, country, ...(currency === 'INR' ? { state: gstState } : {}) }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -293,6 +295,17 @@ function CheckoutContent() {
                   <option value="OTHER">Other</option>
                 </select>
               </div>
+              {isIndia && (
+                <div>
+                  <label htmlFor="gst-state" className="block text-sm font-medium text-foreground mb-2">State *</label>
+                  <select id="gst-state" required value={gstState} onChange={(e) => setGstState(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select State</option>
+                    {GST_STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
+                  </select>
+                  <p className="mt-1 text-xs text-muted-foreground">Used for your GST invoice.</p>
+                </div>
+              )}
               {isIndia && rzpScript === 'blocked' && (
                 <div className="bg-amber-50 border-l-4 border-amber-500 text-amber-900 text-sm p-3 rounded">
                   Your browser is blocking the payment window (usually an ad-blocker).

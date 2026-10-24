@@ -146,6 +146,12 @@ model Order {
   status            OrderStatus @default(PENDING)
   fulfilledAt       DateTime?
 
+  // GST invoicing: buyer's state (GST state code) for INR sales, country for exports
+  buyerState        String?
+  buyerCountry      String?
+  invoiceNumber     String?     @unique
+  invoiceDate       DateTime?
+
   // Metadata
   ipAddress         String?
   userAgent         String?
@@ -295,4 +301,13 @@ enum OrderStatus {
   FAILED
   REFUNDED
   CANCELLED
+}
+
+// One invoice series per Indian financial year ("2627" = Apr 2026 to Mar 2027);
+// fulfilment takes the next number under a row lock so numbers never repeat.
+model InvoiceCounter {
+  fy   String @id
+  last Int    @default(0)
+
+  @@map("invoice_counters")
 }

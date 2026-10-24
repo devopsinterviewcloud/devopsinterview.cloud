@@ -6,6 +6,10 @@
     {
       "path": "/api/health",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/gst-report",
+      "schedule": "30 3 1 * *"
     }
   ]
 }
