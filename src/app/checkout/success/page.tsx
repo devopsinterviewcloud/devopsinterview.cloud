@@ -13,6 +13,7 @@ import { safeTrack } from '@/lib/analytics'
 type ConfirmState = 'confirming' | 'paid' | 'processing' | 'pending' | 'failed' | 'unknown'
 
 const POLL_MS = 3000
+const inlineLink = 'font-semibold text-ink underline underline-offset-4 hover:decoration-2'
 const MAX_POLLS = 10
 
 function SuccessContent() {
@@ -58,51 +59,52 @@ function SuccessContent() {
     return () => { cancelled = true; clearTimeout(timer) }
   }, [token])
 
-  const card = (emoji: string, title: string, body: React.ReactNode, cta?: React.ReactNode) => (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-md text-center bg-white rounded-lg shadow-md p-10">
-        <div className="text-4xl mb-3">{emoji}</div>
-        <h1 className="text-2xl font-bold text-foreground mb-2">{title}</h1>
-        <div className="text-muted-foreground">{body}</div>
-        {cta ?? (
-          <Link href="/" className="inline-block mt-6 text-blue-600 font-medium hover:underline">Back to home</Link>
-        )}
+  const card = (title: string, body: React.ReactNode, cta?: React.ReactNode) => (
+    <main id="main" className="pb-16 text-[17px]">
+      <div className="wrap pt-10 sm:pt-14">
+        <div role="status" className="max-w-[560px] border-2 border-ink bg-sheet p-6 sm:p-8">
+          <h1 className="display-2">{title}</h1>
+          <div className="mt-4 leading-relaxed text-subtle">{body}</div>
+          {cta ?? (
+            <Link href="/" className="btn-primary mt-6">Back to home</Link>
+          )}
+        </div>
       </div>
-    </div>
+    </main>
   )
 
   switch (state) {
     case 'confirming':
-      return card('⏳', 'Confirming your payment…', 'One moment - we are checking with PayPal. Do not close this page.')
+      return card('Confirming your payment…', 'One moment - we are checking with PayPal. Do not close this page.')
     case 'paid':
-      return card('✅', 'Payment received', (
+      return card('Payment received', (
         <>
           <p>Your download link (plus the free Interview-Day Playbook) is on its way to the
           email you used at checkout. It can take a moment to arrive - check your inbox and spam.</p>
         </>
       ))
     case 'processing':
-      return card('📬', 'Payment is being confirmed', 'PayPal accepted your payment and confirmation is in progress. Your download link will arrive by email shortly - no further action is needed.')
+      return card('Payment is being confirmed', 'PayPal accepted your payment and confirmation is in progress. Your download link will arrive by email shortly - no further action is needed.')
     case 'pending':
-      return card('🛒', 'Payment not completed', 'The payment was not completed (the approval was not finished or the payment method was declined), so you have not been charged. You can try again - PayPal will let you pick a different payment method.', (
-        <Link href="/#ebooks" className="inline-block mt-6 text-blue-600 font-medium hover:underline">Return to the store to try again</Link>
+      return card('Payment not completed', 'The payment was not completed (the approval was not finished or the payment method was declined), so you have not been charged. You can try again - PayPal will let you pick a different payment method.', (
+        <Link href="/#ebooks" className="btn-primary mt-6">Return to the store to try again</Link>
       ))
     case 'failed':
-      return card('❌', 'Payment did not go through', (
+      return card('Payment did not go through', (
         <p>Your payment was declined or cancelled, so nothing was delivered. If you believe you
-        were charged, <Link href="/contact" className="text-blue-600 hover:underline">contact us</Link> with
+        were charged, <Link href="/contact" className={inlineLink}>contact us</Link> with
         your PayPal receipt and we will sort it out.</p>
       ), (
-        <Link href="/#ebooks" className="inline-block mt-6 text-blue-600 font-medium hover:underline">Return to the store</Link>
+        <Link href="/#ebooks" className="btn-primary mt-6">Return to the store</Link>
       ))
     default:
-      return card('📖', 'Thanks for your purchase', 'If you completed a payment, your download link will arrive by email shortly. Check your inbox and spam folder.')
+      return card('Thanks for your purchase', 'If you completed a payment, your download link will arrive by email shortly. Check your inbox and spam folder.')
   }
 }
 
 export default function CheckoutSuccessPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}>
+    <Suspense fallback={<div className="wrap py-16 text-subtle">Loading…</div>}>
       <SuccessContent />
     </Suspense>
   )
