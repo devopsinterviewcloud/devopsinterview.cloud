@@ -2,11 +2,12 @@
 
 /*
  * Direction A, "Cover System": the palette, type and shapes come from the book
- * covers. Shadows and radii are cleared so they can't creep back by habit. The
- * default colour palette stays for now because the pages not yet redesigned
- * (blog, questions, checkout, labs, legal) still use slate and blue utilities.
+ * covers. The default colour palette, shadows and radii are cleared so slate,
+ * blue-600 and rounded cards can't creep back by habit. A colour the tokens
+ * don't cover gets a named token here, not a Tailwind default.
  */
 @theme {
+  --color-*: initial;
   --shadow-*: initial;
   --inset-shadow-*: initial;
   --drop-shadow-*: initial;
@@ -21,6 +22,7 @@
   --radius-4xl: 0;
 
   --color-ink: #15171c;
+  --color-white: #ffffff;
   --color-paper: #f1ede4;
   --color-sheet: #ffffff;
   --color-subtle: #4a4d55;
@@ -35,7 +37,7 @@
   --color-book-red: #b3262e;
 }
 
-/* Older semantic names, still used by the pages not yet redesigned. */
+/* Semantic aliases for the shadcn-style primitives in components/ui. */
 :root {
   --background: #f1ede4;
   --foreground: #15171c;
@@ -225,51 +227,6 @@
   }
 }
 
-/* Text color handling */
-.text-foreground {
-  color: var(--foreground);
-}
-
-.text-muted-foreground {
-  color: var(--muted-foreground);
-}
-
-.text-secondary-foreground {
-  color: var(--secondary-foreground);
-}
-
-/* Ensure all text uses theme-appropriate colors on light backgrounds only */
-.bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6, .bg-white p, .bg-white li, .bg-white span,
-.bg-slate-50 h1, .bg-slate-50 h2, .bg-slate-50 h3, .bg-slate-50 h4, .bg-slate-50 h5, .bg-slate-50 h6, .bg-slate-50 p, .bg-slate-50 li, .bg-slate-50 span {
-  color: var(--foreground);
-}
-
-/* Muted text should use muted foreground */
-.text-muted, .muted {
-  color: var(--muted-foreground);
-}
-
-/* Override for specific backgrounds */
-.bg-muted {
-  background-color: var(--muted);
-  color: var(--muted-foreground);
-}
-
-.bg-background {
-  background-color: var(--background);
-  color: var(--foreground);
-}
-
-/* Ensure proper contrast for light backgrounds */
-.bg-white, .bg-slate-50, .bg-gray-50 {
-  color: var(--foreground);
-}
-
-.bg-white .text-muted-foreground, 
-.bg-slate-50 .text-muted-foreground,
-.bg-gray-50 .text-muted-foreground {
-  color: var(--muted-foreground);
-}
 /*
  * Long-form reading text on the white sheet: blog articles, question pages and
  * the policies. Measure comes from the page (680px); markdown is rendered as is.
