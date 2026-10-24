@@ -42,7 +42,7 @@ export default function LabsPage() {
         <div className="wrap grid items-center gap-10 py-14 lg:grid-cols-12 lg:gap-x-6 lg:py-20">
           <div className="lg:col-span-7">
             <span className="chip bg-paper text-ink">Interactive interview practice</span>
-            <h1 id="labs-heading" className="display-1 mt-5 max-w-[11em]">
+            <h1 id="labs-heading" className="display-1 mt-5 max-w-[11em] max-[389px]:text-[44px]">
               Practice incident troubleshooting like it&apos;s the real interview.
             </h1>
             <p className="mt-6 max-w-[34em] text-[18px] leading-relaxed text-ink-subtle sm:text-[20px]">
