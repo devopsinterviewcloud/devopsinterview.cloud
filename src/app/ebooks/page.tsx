@@ -3,6 +3,8 @@ import Link from 'next/link'
 import EbookPrice from '@/components/EbookPrice'
 import ebooksData from '@/data/ebooks.json'
 import { createPageMetadata, siteConfig } from '@/config/site'
+import { getContents } from '@/lib/catalog'
+import { bookStyle, splitTitle, topicLine } from '@/lib/book-style'
 
 const SITE_URL = siteConfig.url
 
@@ -16,6 +18,7 @@ type Ebook = {
   coverUrl: string
   pageCount: number
   category?: string
+  isBundle?: boolean
 }
 
 const ebooks = (ebooksData as Ebook[]).filter(
@@ -44,7 +47,7 @@ export default function EbooksPage() {
   }
 
   return (
-    <main id="main" className="container mx-auto px-4 py-12 max-w-5xl">
+    <main id="main" className="pb-16 text-[17px]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -52,89 +55,89 @@ export default function EbooksPage() {
         }}
       />
 
-      <nav
-        className="text-sm text-muted-foreground mb-8"
-        aria-label="Breadcrumb"
-      >
-        <Link href="/" className="hover:underline">
-          Home
-        </Link>
-        <span className="mx-2">/</span>
-        <span className="text-foreground">Ebooks</span>
-      </nav>
+      <div className="wrap">
+        <nav className="pt-5 text-[14px] font-medium" aria-label="Breadcrumb">
+          <Link href="/" className="underline-offset-4 hover:underline">
+            Home
+          </Link>
+          <span className="mx-2 text-subtle" aria-hidden="true">/</span>
+          <span className="text-subtle">Ebooks</span>
+        </nav>
 
-      <h1 className="text-4xl font-bold mb-3">DevOps Interview Ebooks</h1>
-      <p className="text-muted-foreground mb-3 max-w-3xl">
-        Prepare for senior DevOps, SRE, cloud, platform engineering, and
-        infrastructure interviews with practical questions and in-depth answers.
-      </p>
-      <p className="text-sm text-muted-foreground mb-10">
-        The free Interview-Day Playbook is included as a bonus.
-      </p>
+        <header className="pt-8 pb-10 sm:pt-10 sm:pb-12">
+          <span className="chip">The books</span>
+          <h1 className="display-1 mt-5">DevOps Interview Ebooks</h1>
+          <p className="mt-5 max-w-[40em] text-[18px] leading-normal sm:text-[20px]">
+            Prepare for senior DevOps, SRE, cloud, platform engineering, and
+            infrastructure interviews with practical questions and in-depth answers.
+          </p>
+          <p className="mt-3 text-[15px] text-subtle">
+            The free Interview-Day Playbook is included as a bonus.
+          </p>
+        </header>
 
-      <div className="space-y-8">
-        {ebooks.map((ebook) => (
-          <article
-            key={ebook.slug}
-            className="border border-slate-200 rounded-xl p-6 hover:shadow-md transition-shadow"
-          >
-            <div className="grid gap-6 sm:grid-cols-[140px_1fr]">
-              <Link
-                href={`/ebooks/${ebook.slug}`}
-                aria-label={`View ${ebook.title}`}
+        <ol>
+          {ebooks.map((ebook) => {
+            const style = bookStyle(ebook.id)
+            const contents = getContents(ebook.slug)
+            const { name } = splitTitle(ebook.title)
+            const topic = ebook.isBundle ? '' : topicLine(ebook.title)
+            return (
+              <li
+                key={ebook.slug}
+                className="grid grid-cols-[112px_minmax(0,1fr)] gap-x-5 gap-y-4 border-t-2 border-ink py-8 sm:grid-cols-[180px_minmax(0,1fr)] sm:gap-x-8 lg:grid-cols-[200px_minmax(0,1fr)_200px]"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ebook.coverUrl}
-                  alt={`Cover of ${ebook.title}`}
-                  width={140}
-                  height={210}
-                  className="w-full max-w-[140px] rounded-lg border shadow-sm"
-                />
-              </Link>
+                <Link
+                  href={`/ebooks/${ebook.slug}`}
+                  aria-label={`View ${ebook.title}`}
+                  className="self-start sm:row-span-3 lg:row-span-2"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={ebook.coverUrl}
+                    alt={`Cover of ${ebook.title}`}
+                    width={200}
+                    height={300}
+                    className="aspect-[2/3] w-full object-cover"
+                  />
+                </Link>
 
-              <div>
-                {ebook.category && (
-                  <span className="inline-block text-xs font-semibold uppercase tracking-wide text-blue-700 bg-blue-100 rounded-full px-3 py-1 mb-3">
-                    {ebook.category}
-                  </span>
-                )}
+                <div className="min-w-0">
+                  <span className="chip">{style.label}</span>
+                  <h2 className="display-3 mt-3 text-[32px] sm:text-[40px]">
+                    <Link
+                      href={`/ebooks/${ebook.slug}`}
+                      className="decoration-2 underline-offset-4 hover:underline"
+                    >
+                      {ebook.isBundle ? splitTitle(ebook.title).rest : name}
+                    </Link>
+                  </h2>
+                  {topic && <p className="mt-2 text-[16px] font-medium leading-snug text-subtle">{topic}</p>}
+                  <p className="meta mt-3 text-subtle">
+                    {contents
+                      ? `${contents.questionCount} questions · ${contents.chapters.length} chapters · `
+                      : ''}
+                    PDF · {ebook.pageCount} pages · Instant download
+                  </p>
+                </div>
 
-                <h2 className="text-xl font-semibold mb-2">
-                  <Link
-                    href={`/ebooks/${ebook.slug}`}
-                    className="hover:text-blue-600 transition-colors"
-                  >
-                    {ebook.title}
-                  </Link>
-                </h2>
-
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-4">
+                <p className="col-span-2 max-w-[42em] text-[16px] leading-relaxed text-subtle sm:col-span-1 sm:col-start-2">
                   {ebook.description}
                 </p>
 
-                <div className="mb-4">
+                <div className="col-span-2 flex items-center justify-between gap-4 sm:col-span-1 sm:col-start-2 lg:col-start-3 lg:row-span-2 lg:row-start-1 lg:flex-col lg:items-end lg:justify-start">
                   <EbookPrice
                     usdPrice={ebook.price}
                     originalUsdPrice={ebook.originalPrice ?? null}
                   />
-                </div>
-
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <Link
-                    href={`/ebooks/${ebook.slug}`}
-                    className="text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline"
-                  >
+                  <Link href={`/ebooks/${ebook.slug}`} className="btn-primary">
                     View ebook
                   </Link>
-                  <span className="text-xs text-muted-foreground">
-                    PDF · {ebook.pageCount} pages · Instant download
-                  </span>
                 </div>
-              </div>
-            </div>
-          </article>
-        ))}
+              </li>
+            )
+          })}
+        </ol>
       </div>
     </main>
   )

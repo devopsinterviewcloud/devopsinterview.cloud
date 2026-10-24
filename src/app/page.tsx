@@ -7,9 +7,80 @@ import { DynamicPriceText } from "@/components/DynamicPriceText";
 import SampleSignup from "@/components/SampleSignup";
 import TrackedLink from "@/components/TrackedLink";
 import BundleSavings from "@/components/BundleSavings";
-import { bundleSavings, getContents, sampleHrefFor, totalQuestions } from "@/lib/catalog";
-import { ArrowRight, Clock3, Gift, SquareTerminal } from "lucide-react";
+import { bundle, bundleSavings, ebooks, getContents, sampleHrefFor, singleBooks, totalQuestions, PLAYBOOK_SLUG, SAMPLE_PDF, SAMPLE_PDF_QUESTIONS, type CatalogEbook } from "@/lib/catalog";
+import { bookStyle, splitTitle, topicLine } from "@/lib/book-style";
 import { SPOTIFY_URL } from "@/lib/podcast";
+
+const playbook = ebooks.find((e) => e.slug === PLAYBOOK_SLUG)!;
+const totalChapters = singleBooks.reduce((n, b) => n + (getContents(b.slug)?.chapters.length ?? 0), 0);
+
+const topics = [
+  {
+    title: "Cloud Architecture",
+    slug: "cloud-interview-mastery",
+    description: "Compare AWS, Azure, and GCP across architecture, networking, security, cost, and disaster recovery interview scenarios.",
+  },
+  {
+    title: "Container Orchestration",
+    slug: "container-orchestration-journey",
+    description: "Practice Kubernetes questions covering scheduling, networking, security, storage, and production debugging.",
+  },
+  {
+    title: "Infrastructure as Code",
+    slug: "infrastructure-automation-mastery",
+    description: "Prepare for Terraform and OpenTofu questions on state, modules, testing, drift, policy, and delivery at scale.",
+  },
+  {
+    title: "CI/CD Pipelines",
+    slug: "modern-cicd-gitops",
+    description: "Work through pipeline, GitOps, progressive delivery, rollback, and software supply-chain security questions.",
+  },
+  {
+    title: "Monitoring & Observability",
+    slug: "senior-devops-handbook",
+    description: "Explain SLOs, alert design, logs, metrics, traces, incident response, and reliability tradeoffs in senior interviews.",
+  },
+  {
+    title: "Interview Preparation",
+    slug: "complete-devops-mastery-bundle",
+    description: "Use answer frameworks, system-design prompts, STAR worksheets, reverse questions, and a focused interview-week plan.",
+  },
+];
+
+const coverSizes = "(min-width: 1280px) 221px, (min-width: 1024px) 31vw, (min-width: 640px) 47vw, 100vw";
+
+function BookCard({ ebook }: { ebook: CatalogEbook }) {
+  const style = bookStyle(ebook.id);
+  const contents = getContents(ebook.slug);
+  return (
+    <article id={`book-${ebook.id}`} className="flex scroll-mt-6 flex-col">
+      <TrackedLink href={`/ebooks/${ebook.slug}`} eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: "home_cover" }} className="block">
+        <Image src={ebook.coverUrl} alt={`Cover of ${ebook.title}`} width={1024} height={1536} sizes={coverSizes} className="aspect-[2/3] w-full object-cover" />
+      </TrackedLink>
+      <div className="mt-4 flex flex-1 flex-col border-t-2 border-ink pt-3.5">
+        <div><span className="chip">{style.label}</span></div>
+        <h3 className="display-3 mt-3 text-[32px]">
+          <TrackedLink href={`/ebooks/${ebook.slug}`} eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: "home_title" }} className="decoration-2 underline-offset-4 hover:underline">
+            {splitTitle(ebook.title).name}
+          </TrackedLink>
+        </h3>
+        <p className="mt-2 text-[15px] font-medium leading-snug text-subtle">{topicLine(ebook.title)}</p>
+        <p className="meta mt-1.5 text-subtle">{contents?.questionCount} questions · {ebook.pageCount} pages</p>
+        <div className="mt-auto flex items-center justify-between gap-3 pt-[18px]">
+          <EbookPrice usdPrice={ebook.price} />
+          <TrackedLink href={`/ebooks/${ebook.slug}`} eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: "home_card" }} className="btn-primary">
+            See inside<span className="sr-only"> {splitTitle(ebook.title).name}</span>
+          </TrackedLink>
+        </div>
+        <p className="mt-3 text-[14px]">
+          <TrackedLink href={sampleHrefFor(ebook.slug)} eventName="sample_opened" eventProperties={{ location: "home_card", product: ebook.id, kind: "html" }} className="underline underline-offset-4 hover:decoration-2">
+            Read a free sample question
+          </TrackedLink>
+        </p>
+      </div>
+    </article>
+  );
+}
 
 export default function Home() {
   const savings = bundleSavings();
@@ -84,512 +155,336 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: escapeJsonLd(faqData) }}
       />
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <main id="main" className="text-[17px]">
 
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-20 px-4 sm:px-6 lg:px-8 text-foreground">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center animate-fade-in-up">
-            {/* Trust Badge */}
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-semibold mb-8" style={{color: '#1e40af'}}>
-              <svg className="w-4 h-4 mr-2 text-yellow-500 fill-current" viewBox="0 0 24 24">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
-              250+ senior-level interview questions across five books
-            </div>
-            
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight mb-8 text-foreground">
-              DevOps Interview Questions
-              <br />
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                With Senior-Level Answers
-              </span>
-            </h1>
-
-            {/* Value Proposition */}
-            <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto leading-relaxed text-foreground">
-              Prepare for DevOps, cloud, and SRE interviews with {totalQuestions} worked questions
-              covering AWS, Azure, GCP, Kubernetes, Terraform, CI/CD, and production reliability.
+      <section className="pt-8 pb-10 sm:pt-10">
+        <div className="wrap grid grid-cols-1 items-center gap-x-6 lg:grid-cols-12">
+          <div className="lg:col-span-6">
+            <span className="chip">{splitTitle(bundle.title).name}</span>
+            <h1 className="display-1 mt-[18px] sm:mt-6">DevOps interview questions with senior-level answers</h1>
+            <p className="mt-[18px] max-w-[34em] text-[18px] leading-normal sm:mt-6 sm:text-[20px]">
+              {totalQuestions} questions in five PDF books. Each one has a 30-second answer, the deep dive, the trade-offs and the follow-ups.
             </p>
-
-            {/* CTA Button */}
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-20">
-              <TrackedLink href="#ebooks" eventName="home_ebooks_cta_clicked" eventProperties={{ location: "hero" }} className="btn-primary text-lg px-10 py-4 inline-flex items-center justify-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Get Your First Ebook - Starting at{' '}<DynamicPriceText usdPrice={9.99} />
+            <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
+              <TrackedLink href="#ebooks" eventName="home_ebooks_cta_clicked" eventProperties={{ location: "hero" }} className="btn-primary">
+                <span>See the five books, from <DynamicPriceText usdPrice={singleBooks[0].price} /></span>
               </TrackedLink>
-              <TrackedLink href="/samples/cloud-interview-mastery-sample.pdf" target="_blank" eventName="sample_opened" eventProperties={{ location: "hero" }} className="bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-50 text-lg px-10 py-4 rounded-xl font-semibold transition-all inline-flex items-center justify-center">
-                Read 8 Free Questions
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+              <TrackedLink href={SAMPLE_PDF} target="_blank" eventName="sample_opened" eventProperties={{ location: "hero" }} className="btn-secondary">
+                Read {SAMPLE_PDF_QUESTIONS} free questions
               </TrackedLink>
             </div>
           </div>
-
-          {/* Trust Signals */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="text-center animate-fade-in-up">
-              <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">Digital Delivery</h3>
-              <p className="text-muted-foreground">Instant delivery to your email</p>
-            </div>
-
-            <div className="text-center animate-fade-in-up" style={{animationDelay: '0.1s'}}>
-              <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">PDF Format</h3>
-              <p className="text-muted-foreground">PDF format included</p>
-            </div>
-
-            <div className="text-center animate-fade-in-up" style={{animationDelay: '0.2s'}}>
-              <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">Free Updates</h3>
-              <p className="text-muted-foreground">Download link re-sent on request</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Background Decoration */}
-        <div className="absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-300/20 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl"></div>
+          <ul className="mt-8 grid grid-cols-3 gap-2 sm:gap-3 lg:col-span-6 lg:mt-0" aria-label="The five books">
+            {singleBooks.map((b) => (
+              <li key={b.slug}>
+                <Image src={b.coverUrl} alt={`${bookStyle(b.id).label}, ${splitTitle(b.title).name} cover`} width={1024} height={1536} sizes="(min-width: 1280px) 192px, (min-width: 1024px) 15vw, 31vw" priority className="aspect-[2/3] w-full object-cover" />
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      {/* Incident Labs Section */}
-      <section aria-labelledby="incident-labs-heading" className="px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 text-slate-100 shadow-2xl shadow-slate-900/15">
-          <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.72fr)]">
-            <div className="p-7 sm:p-10 lg:p-14">
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-400/10 px-3 py-1.5 text-sm font-semibold text-blue-200">
-                <span className="h-2 w-2 rounded-full bg-blue-400" aria-hidden="true" />
-                NEW: Incident Labs
-              </div>
-              <h2 id="incident-labs-heading" className="mt-7 max-w-2xl text-3xl font-black tracking-tight text-slate-50 sm:text-4xl lg:text-5xl">
-                Don&apos;t just study the answer. Investigate the incident.
-              </h2>
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-                Practice the troubleshooting round in an interactive browser lab. Follow
-                evidence, run controlled experiments, and defend your root-cause analysis.
-              </p>
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-                <Link
-                  href="/labs"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition-colors duration-200 hover:bg-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-                >
-                  Explore Incident Labs
-                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
-                </Link>
-                <span className="inline-flex items-center justify-center gap-2 text-sm font-medium text-slate-300 sm:justify-start">
-                  <Clock3 className="h-4 w-4 text-blue-300" aria-hidden="true" />
-                  First lab is free · ~20 min
+      <nav aria-label="Books in the series" className="border-t-2 border-b border-ink border-b-hair">
+        <ol className="wrap flex flex-col lg:flex-row">
+          {singleBooks.map((b) => (
+            <li key={b.slug} className="border-hair not-first:border-t lg:flex-auto lg:px-5 lg:first:pl-0 lg:last:pr-0 lg:not-first:border-t-0 lg:not-first:border-l">
+              <a href={`#book-${b.id}`} className="group flex items-baseline gap-4 py-3 lg:block lg:pb-3.5">
+                <span className="meta flex items-center gap-2 text-subtle">
+                  <span className={`size-3 shrink-0 ${bookStyle(b.id).square}`} aria-hidden="true" />
+                  {bookStyle(b.id).label}
                 </span>
-              </div>
-            </div>
+                <span className="block text-[15px] font-semibold leading-snug underline-offset-[3px] group-hover:underline lg:mt-1">{splitTitle(b.title).name}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
 
-            <div className="border-t border-slate-800 bg-slate-900/70 p-7 sm:p-10 lg:border-l lg:border-t-0 lg:p-12">
-              <div className="flex items-center justify-between border-b border-slate-700 pb-4 font-mono text-xs uppercase tracking-[0.16em] text-slate-400">
-                <span className="inline-flex items-center gap-2">
-                  <SquareTerminal className="h-4 w-4 text-blue-400" aria-hidden="true" />
-                  Incident 01
-                </span>
-                <span className="text-amber-300">Cost anomaly</span>
-              </div>
-              <div className="pt-6">
-                <p className="font-mono text-xs uppercase tracking-[0.16em] text-slate-400">Observed</p>
-                <div className="mt-3 flex items-end justify-between gap-4">
-                  <p className="font-mono text-3xl font-semibold tabular-nums text-slate-50">+43.8%</p>
-                  <p className="text-right text-sm text-slate-400">token cost<br />in 24 hours</p>
-                </div>
-                <div className="mt-8 grid gap-3">
-                  {[
-                    ["Traffic", "Flat"],
-                    ["Deployments", "1 change"],
-                    ["Your move", "Find the cause"],
-                  ].map(([label, value]) => (
-                    <div key={label} className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-950/70 px-4 py-3 text-sm">
-                      <span className="text-slate-400">{label}</span>
-                      <strong className="font-mono font-medium text-slate-100">{value}</strong>
-                    </div>
-                  ))}
-                </div>
-              </div>
+      <section id="ebooks" className="scroll-mt-4 pt-12 pb-12 sm:pt-[52px] sm:pb-[60px]">
+        <div className="wrap">
+          <div className="mb-7 sm:mb-8 sm:flex sm:items-end sm:justify-between sm:gap-6">
+            <div>
+              <span className="chip">The books</span>
+              <h2 className="display-2 mt-4">One book, or all five</h2>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Ebooks Section */}
-      <section id="ebooks" className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-semibold mb-6">
-              Featured DevOps Ebooks
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-6 text-foreground">
-              Master DevOps &amp; Cloud Interview Questions
-            </h2>
-            <p className="text-xl max-w-3xl mx-auto text-muted-foreground">
-              Expert-curated guides covering AWS, Azure, GCP, Kubernetes, Terraform, CI/CD, and more.
-              Perfect for DevOps engineers, cloud architects, and SRE professionals preparing for technical interviews.
+            <p className="mt-3.5 max-w-[30em] text-[15px] leading-[1.55] text-subtle sm:mt-0 sm:text-right">
+              <DynamicPriceText usdPrice={singleBooks[0].price} /> a book, or all five for <DynamicPriceText usdPrice={bundle.price} />. The PDF download link is emailed after payment. India pays in INR via Razorpay, everywhere else in USD via PayPal.
             </p>
           </div>
 
-          {/* Enhanced Ebook Cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {ebooksData.filter((e) => e.slug !== "interview-day-playbook").map((ebook, index) => (
-              <div key={index} className={`card group animate-fade-in-up ${ebook.isBundle ? 'ring-4 ring-yellow-400 shadow-2xl relative' : ''}`} style={{animationDelay: `${index * 0.1}s`}}>
-                {ebook.isBundle && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                    <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg whitespace-nowrap">
-                      ⭐ ALL 5 BOOKS IN ONE ⭐
-                    </span>
-                  </div>
-                )}
-                <TrackedLink href={`/ebooks/${ebook.slug}`} eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: "home_cover" }} className="relative block aspect-[2/3] rounded-lg mb-6 overflow-hidden bg-gray-100">
-                  <Image
-                    src={ebook.coverUrl}
-                    alt={`Cover of ${ebook.title}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </TrackedLink>
+          <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-3 xl:grid-cols-5">
+            {singleBooks.map((ebook) => <BookCard key={ebook.slug} ebook={ebook} />)}
 
-                {/* Featured sits here, not on the cover: the covers carry text in every corner */}
-                <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {ebook.category}
-                  </span>
-                  {ebook.isFeatured && (
-                    <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                      Featured
-                    </span>
-                  )}
-                </div>
-
-                <h3 className="text-xl font-bold mb-2 line-clamp-2 text-foreground">
-                  <TrackedLink href={`/ebooks/${ebook.slug}`} eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: "home_title" }} className="hover:text-blue-700 hover:underline">{ebook.title}</TrackedLink>
+            <article id="book-bundle" className="flex scroll-mt-6 flex-col sm:col-span-2 sm:grid sm:grid-cols-subgrid lg:col-span-3">
+              <TrackedLink href={`/ebooks/${bundle.slug}`} eventName="product_view_clicked" eventProperties={{ product: bundle.id, location: "home_cover" }} className="block sm:col-start-1 sm:self-start">
+                <Image src={bundle.coverUrl} alt={`Cover of ${bundle.title}`} width={1024} height={1536} sizes={coverSizes} className="aspect-[2/3] w-full object-cover" />
+              </TrackedLink>
+              <div className="mt-4 flex flex-col border-t-2 border-ink pt-3.5 sm:col-[2/-1] sm:mt-0">
+                <div><span className="chip">{bookStyle(bundle.id).label}</span></div>
+                <h3 className="display-3 mt-3 text-[32px]">
+                  <TrackedLink href={`/ebooks/${bundle.slug}`} eventName="product_view_clicked" eventProperties={{ product: bundle.id, location: "home_title" }} className="decoration-2 underline-offset-4 hover:underline">
+                    {splitTitle(bundle.title).rest.replace(/ \(.*\)$/, "")}
+                  </TrackedLink>
                 </h3>
-
-                <p className="text-sm mb-4 line-clamp-3 text-muted-foreground">
-                  {ebook.description}
-                </p>
-
-                {/* Honest trust signals only. Star ratings/review counts were
-                    removed: the store has no verified customers yet, so they
-                    would be fabricated (FTC/Google-policy risk). Reinstate real
-                    aggregate ratings once attributable reviews exist. */}
-                <div className="flex items-center gap-2 mb-4 text-sm">
-                  <span className="inline-flex items-center gap-1 font-medium text-emerald-700">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    New 2026 edition
-                  </span>
-                  <span className="text-muted-foreground" aria-hidden="true">·</span>
-                  <span className="text-muted-foreground">{ebook.format.join(" / ")}</span>
-                </div>
-
-                <div className="flex items-center justify-between mb-4">
-                  <EbookPrice
-                    usdPrice={ebook.price}
-                  />
-                  <span className="text-sm text-muted-foreground">{ebook.pageCount} pages</span>
-                </div>
-
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {ebook.tags.map((tag, tagIndex) => (
-                    <span key={tagIndex} className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                      {tag}
-                    </span>
+                <p className="meta mt-2.5 text-subtle">{totalQuestions} questions · {totalChapters} chapters · {bundle.pageCount} pages</p>
+                <ul className="mt-4 border-t border-hair">
+                  {singleBooks.map((b) => (
+                    <li key={b.slug} className="flex items-center gap-2.5 border-b border-hair py-[5px] text-[15px] font-medium leading-snug">
+                      <span className={`size-3 shrink-0 ${bookStyle(b.id).square}`} aria-hidden="true" />
+                      {splitTitle(b.title).name}
+                      <span className="ml-auto text-[14px] tabular-nums text-subtle">{getContents(b.slug)?.questionCount}</span>
+                    </li>
                   ))}
+                </ul>
+                <div className="mt-auto flex items-center justify-between gap-3 pt-[18px]">
+                  <EbookPrice usdPrice={bundle.price} />
+                  <TrackedLink href={`/ebooks/${bundle.slug}`} eventName="product_view_clicked" eventProperties={{ product: bundle.id, location: "home_card" }} className="btn-primary">
+                    See inside<span className="sr-only"> the complete series</span>
+                  </TrackedLink>
                 </div>
-
-                <p className="text-xs text-center text-emerald-700 font-medium mb-2">🎁 Free Interview-Day Playbook included</p>
-                {ebook.isBundle && <p className="mb-2 text-center text-xs font-medium text-emerald-700"><BundleSavings savings={savings} /></p>}
-                <TrackedLink href={`/ebooks/${ebook.slug}`} eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: "home_card" }} className="btn-primary w-full inline-flex items-center justify-center">
-                  {getContents(ebook.slug) ? `See all ${getContents(ebook.slug)!.questionCount} questions` : "See what's inside"}
-                </TrackedLink>
-                <p className="text-xs text-center text-muted-foreground mt-2">
-                  <TrackedLink href={sampleHrefFor(ebook.slug)} {...(ebook.isBundle ? { target: "_blank" } : {})} eventName="sample_opened" eventProperties={{ location: "home_card", product: ebook.id, kind: ebook.isBundle ? "pdf" : "html" }} className="text-blue-700 hover:underline">
-                    {ebook.isBundle ? "Download 8 free questions (PDF)" : "Read a free sample question"}
+                <BundleSavings savings={savings} className="mt-2 text-[14px] leading-snug text-subtle" />
+                <p className="mt-3 text-[14px]">
+                  <TrackedLink href={sampleHrefFor(bundle.slug)} target="_blank" eventName="sample_opened" eventProperties={{ location: "home_card", product: bundle.id, kind: "pdf" }} className="underline underline-offset-4 hover:decoration-2">
+                    Download {SAMPLE_PDF_QUESTIONS} free questions (PDF)
                   </TrackedLink>
                 </p>
               </div>
-            ))}
-          </div>
+            </article>
 
-          <div className="text-center">
-            <div className="inline-flex flex-col items-center gap-4">
-              <Link href="/ebooks/complete-devops-mastery-bundle" className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 text-base sm:px-12 sm:text-lg">
-                <Gift className="h-5 w-5" aria-hidden="true" />
-                Get all 5 books as a bundle
-              </Link>
-              <p className="text-sm font-medium text-emerald-700"><BundleSavings savings={savings} /></p>
-              <p className="text-sm text-muted-foreground">
-                💎 Individual books <DynamicPriceText usdPrice={9.99} /> each • Complete Bundle <DynamicPriceText usdPrice={31.99} /> • PDF format • India pays in INR via Razorpay, everywhere else in USD via PayPal
+            <article className="flex flex-col sm:col-span-2 sm:grid sm:grid-cols-subgrid lg:col-span-3 xl:col-span-2">
+              <Image src={playbook.coverUrl} alt={`Cover of ${playbook.title}`} width={1024} height={1536} sizes={coverSizes} className="aspect-[2/3] w-full object-cover outline-2 -outline-offset-2 outline-ink sm:col-start-1 sm:self-start" />
+              <div className="mt-4 flex flex-col border-t-2 border-ink pt-3.5 sm:col-[2/-1] sm:mt-0">
+                <div><span className="chip">{bookStyle(playbook.id).label}</span></div>
+                <h3 className="display-3 mt-3 text-[32px]">{playbook.title.replace(/^The /, "")}</h3>
+                <p className="mt-2 text-[15px] font-medium leading-snug text-subtle">For the week of the interview, and the day itself</p>
+                <p className="meta mt-1.5 text-subtle">Companion guide · {playbook.pageCount} pages</p>
+                <p className="price mt-auto pt-[18px]">Free</p>
+                <p className="mt-2 text-[14px] text-subtle">Comes with every book and with the bundle.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="free-sample" className="scroll-mt-4 border-t-2 border-ink pt-12 pb-14 sm:pt-11 sm:pb-12">
+        <div className="wrap">
+          <div className="grid grid-cols-1 items-end gap-x-6 border-l-[6px] border-book-blue py-1 pl-5 sm:pl-7 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <span className="chip">Free sample</span>
+              <h2 className="display-2 mt-4">Try {SAMPLE_PDF_QUESTIONS} questions free</h2>
+              <p className="mt-3.5 max-w-[34em]">
+                One complete question from every chapter of Cloud Platforms, answered the way a senior engineer actually would: the 30-second answer, the deep dive, the trade-offs and the follow-ups. Open the PDF now, or have it emailed to you.
               </p>
+            </div>
+            <div className="mt-6 lg:col-span-5 lg:mt-0">
+              <TrackedLink
+                href={SAMPLE_PDF}
+                target="_blank"
+                eventName="sample_opened"
+                eventProperties={{ location: "sample_section" }}
+                className="btn-primary w-full sm:w-auto"
+              >
+                Open the sample now
+              </TrackedLink>
+              <p className="mt-4 mb-2 text-[14px] text-subtle">Or email yourself a copy:</p>
+              <SampleSignup source="home-free-sample" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section id="categories" className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm font-semibold mb-6">
-              Browse by Category
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-6 text-foreground">
-              Choose Your Interview Topic
+      <section aria-labelledby="incident-labs-heading" className="on-ink bg-ink text-white">
+        <div className="wrap grid gap-10 py-14 lg:grid-cols-12 lg:gap-x-6 lg:py-16">
+          <div className="lg:col-span-7">
+            <span className="chip bg-paper text-ink">New: Incident Labs</span>
+            <h2 id="incident-labs-heading" className="display-2 mt-4 max-w-[13em]">
+              Don&apos;t just study the answer. Investigate the incident.
             </h2>
-            <p className="text-xl max-w-3xl mx-auto text-muted-foreground">
+            <p className="mt-5 max-w-[34em] text-[18px] leading-relaxed text-ink-subtle">
+              Practice the troubleshooting round in an interactive browser lab. Follow
+              evidence, run controlled experiments, and defend your root-cause analysis.
+            </p>
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <Link href="/labs" className="btn-primary">Explore Incident Labs</Link>
+              <span className="text-[15px] text-ink-subtle">First lab is free · about 20 min</span>
+            </div>
+          </div>
+
+          <div className="border-2 border-ink-rule p-6 sm:p-8 lg:col-span-5">
+            <div className="meta flex items-center justify-between border-b border-ink-rule pb-3 text-ink-subtle">
+              <span>Incident 01</span>
+              <span className="text-highlight">Cost anomaly</span>
+            </div>
+            <p className="meta mt-6 text-ink-subtle">Observed</p>
+            <div className="mt-2 flex items-end justify-between gap-4">
+              <p className="display-2 tabular-nums">+43.8%</p>
+              <p className="text-right text-[14px] leading-snug text-ink-subtle">token cost<br />in 24 hours</p>
+            </div>
+            <dl className="mt-6 border-t border-ink-rule">
+              {[
+                ["Traffic", "Flat"],
+                ["Deployments", "1 change"],
+                ["Your move", "Find the cause"],
+              ].map(([label, value]) => (
+                <div key={label} className="flex items-center justify-between border-b border-ink-rule py-3 text-[15px]">
+                  <dt className="text-ink-subtle">{label}</dt>
+                  <dd className="font-semibold">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section id="categories" className="py-12 sm:py-14">
+        <div className="wrap">
+          <div className="mb-8 sm:flex sm:items-end sm:justify-between sm:gap-6">
+            <div>
+              <span className="chip">Topics</span>
+              <h2 className="display-2 mt-4">Study by topic</h2>
+            </div>
+            <p className="mt-3.5 max-w-[30em] text-[15px] leading-[1.55] text-subtle sm:mt-0 sm:text-right">
               Focus your preparation on the systems and tradeoffs you expect to discuss in your next technical interview.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Cloud Architecture",
-                slug: "cloud-interview-mastery",
-                description: "Compare AWS, Azure, and GCP across architecture, networking, security, cost, and disaster recovery interview scenarios.",
-                icon: "☁️",
-                color: "bg-blue-100 text-blue-700"
-              },
-              {
-                title: "Container Orchestration",
-                slug: "container-orchestration-journey",
-                description: "Practice Kubernetes questions covering scheduling, networking, security, storage, and production debugging.",
-                icon: "📦",
-                color: "bg-green-100 text-green-700"
-              },
-              {
-                title: "Infrastructure as Code",
-                slug: "infrastructure-automation-mastery",
-                description: "Prepare for Terraform and OpenTofu questions on state, modules, testing, drift, policy, and delivery at scale.",
-                icon: "🏗️",
-                color: "bg-orange-100 text-orange-700"
-              },
-              {
-                title: "CI/CD Pipelines",
-                slug: "modern-cicd-gitops",
-                description: "Work through pipeline, GitOps, progressive delivery, rollback, and software supply-chain security questions.",
-                icon: "🔄",
-                color: "bg-purple-100 text-purple-700"
-              },
-              {
-                title: "Monitoring & Observability",
-                slug: "senior-devops-handbook",
-                description: "Explain SLOs, alert design, logs, metrics, traces, incident response, and reliability tradeoffs in senior interviews.",
-                icon: "📊",
-                color: "bg-red-100 text-red-700"
-              },
-              {
-                title: "Interview Preparation",
-                slug: "complete-devops-mastery-bundle",
-                description: "Use answer frameworks, system-design prompts, STAR worksheets, reverse questions, and a focused interview-week plan.",
-                icon: "💼",
-                color: "bg-indigo-100 text-indigo-700"
-              }
-            ].map((category, index) => {
-              const book = ebooksData.find((e) => e.slug === category.slug)!
-              const contents = getContents(category.slug)
+          <ul className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+            {topics.map((topic) => {
+              const book = ebooksData.find((e) => e.slug === topic.slug)!
+              const contents = getContents(topic.slug)
               return (
-              <div key={index} className="card group hover:shadow-lg transition-all">
-                <div className="p-6">
-                  <div className="text-4xl mb-4">{category.icon}</div>
-                  <h3 className="text-xl font-semibold mb-2 text-foreground">{category.title}</h3>
-                  <p className="text-muted-foreground">{category.description}</p>
-                  <p className="mt-4 text-sm">
-                    <TrackedLink href={`/ebooks/${category.slug}`} eventName="topic_card_clicked" eventProperties={{ topic: category.slug, destination: "product" }} className="font-semibold text-blue-700 hover:underline">
-                      {contents ? `${contents.questionCount} questions in ${book.title.split(":")[0]}` : `${book.title.split(":")[0]}${category.slug === "complete-devops-mastery-bundle" ? " (Playbook included free)" : ""}`}
-                    </TrackedLink>
-                    <span className="mx-2 text-muted-foreground">·</span>
-                    <TrackedLink href={sampleHrefFor(category.slug)} {...(contents ? {} : { target: "_blank" })} eventName="topic_card_clicked" eventProperties={{ topic: category.slug, destination: "sample" }} className="text-blue-700 hover:underline">
-                      free sample
-                    </TrackedLink>
-                  </p>
-                </div>
-              </div>
+              <li key={topic.slug} className="border-t-2 border-ink pt-3.5">
+                <h3 className="flex items-center gap-2.5 text-[19px] font-bold leading-snug">
+                  <span className={`size-3 shrink-0 ${bookStyle(book.id).square}`} aria-hidden="true" />
+                  {topic.title}
+                </h3>
+                <p className="mt-2 text-[16px] text-subtle">{topic.description}</p>
+                <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[15px]">
+                  <TrackedLink href={`/ebooks/${topic.slug}`} eventName="topic_card_clicked" eventProperties={{ topic: topic.slug, destination: "product" }} className="font-semibold underline underline-offset-4 hover:decoration-2">
+                    {contents ? `${contents.questionCount} questions in ${book.title.split(":")[0]}` : `${book.title.split(":")[0]}${topic.slug === "complete-devops-mastery-bundle" ? " (Playbook included free)" : ""}`}
+                  </TrackedLink>
+                  <TrackedLink href={sampleHrefFor(topic.slug)} {...(contents ? {} : { target: "_blank" })} eventName="topic_card_clicked" eventProperties={{ topic: topic.slug, destination: "sample" }} className="underline underline-offset-4 hover:decoration-2">
+                    free sample
+                  </TrackedLink>
+                </p>
+              </li>
               )
             })}
-          </div>
+          </ul>
         </div>
       </section>
 
-      {/* Interview Preparation Section */}
-      <section id="interview-prep" className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-sm font-semibold mb-6">
-              Career Advancement
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-6 text-foreground">
-              Ace Your DevOps &amp; Cloud Interviews
-            </h2>
-            <p className="text-xl max-w-3xl mx-auto text-muted-foreground">
-              Interview preparation with {totalQuestions} senior-level questions across five books, hands-on scenarios,
-              and real interview answers. Covering system design, troubleshooting, behavioral questions, and salary
-              negotiation strategies to help you land senior DevOps, SRE, and cloud architect roles.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="card">
-              <div className="p-8">
-                <h3 className="text-2xl font-bold mb-4 text-foreground">The Complete Question Bank</h3>
-                <ul className="space-y-3 text-muted-foreground mb-6">
-                  <li>✅ Kubernetes & Container Orchestration</li>
-                  <li>✅ CI/CD Jenkins, GitLab, GitHub Actions Pipeline Design</li>
-                  <li>✅ AWS, Azure, GCP Cloud Architecture Solutions</li>
-                  <li>✅ Terraform & OpenTofu Infrastructure as Code (IaC)</li>
-                  <li>✅ Observability, SRE, SLOs & Incident Response</li>
-                  <li>✅ Supply-chain Security, DevSecOps & Zero Trust</li>
-                </ul>
-                <Link href="/#ebooks" className="block text-center w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">Browse all 5 books</Link>
-              </div>
-            </div>
-
-            <div className="card">
-              <div className="p-8">
-                <h3 className="text-2xl font-bold mb-4 text-foreground">Get the Complete Bundle</h3>
-                <ul className="space-y-3 text-muted-foreground mb-6">
-                  <li>✅ All 5 books: {totalQuestions} senior-level interview questions</li>
-                  <li>✅ Cloud (AWS, Azure, GCP) + Containers & Kubernetes</li>
-                  <li>✅ Infrastructure as Code: Terraform & OpenTofu</li>
-                  <li>✅ CI/CD & GitOps: pipelines, Argo CD and progressive delivery</li>
-                  <li>✅ SRE & Production Operations: SLOs, observability and incidents</li>
-                  <li>✅ One download page for all five PDFs plus the Playbook</li>
-                </ul>
-                <Link href="/ebooks/complete-devops-mastery-bundle" className="block text-center w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">View the bundle</Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Free Sample / Lead Magnet Section */}
-      <section id="free-sample" className="py-20 bg-gradient-to-br from-slate-900 to-blue-950 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm font-semibold mb-6">
-            Free Sample
-          </div>
-          <h2 className="text-4xl md:text-5xl font-black mb-6">
-            Try 8 questions free, before you buy
-          </h2>
-          <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
-            Get a polished PDF with one real interview question from every chapter of
-            the Cloud Platforms book, answered the way a senior engineer actually would.
-            Straight to your inbox.
+      <section id="interview-prep" className="border-t-2 border-ink py-12 sm:py-14">
+        <div className="wrap">
+          <span className="chip">Coverage</span>
+          <h2 className="display-2 mt-4">What the series covers</h2>
+          <p className="mt-4 max-w-[44em] text-subtle">
+            Interview preparation with {totalQuestions} senior-level questions across five books, hands-on scenarios,
+            and real interview answers. Covering system design, troubleshooting, behavioral questions, and salary
+            negotiation strategies to help you land senior DevOps, SRE, and cloud architect roles.
           </p>
-          <div className="mb-5">
-            <TrackedLink
-              href="/samples/cloud-interview-mastery-sample.pdf"
-              target="_blank"
-              eventName="sample_opened"
-              eventProperties={{ location: "sample_section" }}
-              className="inline-flex items-center justify-center rounded-xl bg-white px-7 py-3 font-semibold text-blue-900 hover:bg-blue-50"
-            >
-              Open the sample now
-            </TrackedLink>
+
+          <div className="mt-8 grid gap-x-6 gap-y-10 md:grid-cols-2">
+            <div className="flex flex-col">
+              <h3 className="display-3">The complete question bank</h3>
+              <ul className="mt-4 border-t-2 border-ink">
+                {[
+                  "Kubernetes & Container Orchestration",
+                  "CI/CD Jenkins, GitLab, GitHub Actions Pipeline Design",
+                  "AWS, Azure, GCP Cloud Architecture Solutions",
+                  "Terraform & OpenTofu Infrastructure as Code (IaC)",
+                  "Observability, SRE, SLOs & Incident Response",
+                  "Supply-chain Security, DevSecOps & Zero Trust",
+                ].map((item) => (
+                  <li key={item} className="flex items-baseline gap-3 border-b border-hair py-2.5 text-[16px]">
+                    <span className="size-2 shrink-0 -translate-y-px bg-ink" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6"><Link href="/#ebooks" className="btn-secondary">Browse all 5 books</Link></div>
+            </div>
+
+            <div className="flex flex-col">
+              <h3 className="display-3">Get the complete bundle</h3>
+              <ul className="mt-4 border-t-2 border-ink">
+                {[
+                  `All 5 books: ${totalQuestions} senior-level interview questions`,
+                  "Cloud (AWS, Azure, GCP) + Containers & Kubernetes",
+                  "Infrastructure as Code: Terraform & OpenTofu",
+                  "CI/CD & GitOps: pipelines, Argo CD and progressive delivery",
+                  "SRE & Production Operations: SLOs, observability and incidents",
+                  "One download page for all five PDFs plus the Playbook",
+                ].map((item) => (
+                  <li key={item} className="flex items-baseline gap-3 border-b border-hair py-2.5 text-[16px]">
+                    <span className="size-2 shrink-0 -translate-y-px bg-ink" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6"><Link href="/ebooks/complete-devops-mastery-bundle" className="btn-primary">View the bundle</Link></div>
+            </div>
           </div>
-          <p className="mb-3 text-sm text-blue-100">Or email yourself a copy:</p>
-          <SampleSignup source="home-free-sample" />
         </div>
       </section>
 
-      {/* YouTube Channel Section */}
-      <section id="youtube" className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-red-100 text-red-800 text-sm font-semibold mb-6">
-              Free Learning Resources
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-6 text-foreground">
-              DevOps &amp; Cloud YouTube Channel
-            </h2>
-            <p className="text-xl max-w-3xl mx-auto text-muted-foreground">
-              Get free DevOps and cloud interview tips, tutorials, and career advice through our YouTube channel. 
-              Learn from industry experts, get insider interview strategies, and stay updated with the latest technologies.
-            </p>
-          </div>
+      <section id="youtube" className="border-t-2 border-ink py-12 sm:py-14">
+        <div className="wrap">
+          <span className="chip">Free learning resources</span>
+          <h2 className="display-2 mt-4">Watch and listen</h2>
+          <p className="mt-4 max-w-[44em] text-subtle">
+            Get free DevOps and cloud interview tips, tutorials, and career advice through our YouTube channel and podcast.
+          </p>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="card group hover:shadow-lg transition-all">
-              <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <svg className="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold mb-4 text-foreground">YouTube Channel</h3>
-                <p className="text-muted-foreground mb-6">
-                  Watch free DevOps and cloud interview tutorials, certification tips for AWS/Azure/GCP, hands-on Kubernetes and Docker demos,
-                  Terraform guides, CI/CD pipelines, and real-world troubleshooting scenarios.
-                </p>
-                <ul className="text-left text-sm text-muted-foreground mb-6 space-y-2">
-                  <li>✅ Weekly DevOps & Cloud interview tips</li>
-                  <li>✅ Hands-on AWS, Azure, GCP tutorials</li>
-                  <li>✅ Kubernetes & Docker deep dives</li>
-                  <li>✅ Career advancement strategies</li>
-                  <li>✅ Live Q&A sessions with experts</li>
-                </ul>
-                <a 
-                  href="https://www.youtube.com/@DevOpsInterviewCloud/videos"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary w-full bg-red-600 hover:bg-red-700 text-white inline-block text-center"
-                >
-                  Subscribe to Channel
+          <div className="mt-8 grid gap-x-6 gap-y-10 md:grid-cols-2">
+            <div className="flex flex-col border-t-2 border-ink pt-3.5">
+              <h3 className="display-3">YouTube channel</h3>
+              <p className="mt-3 text-[16px] text-subtle">
+                Watch free DevOps and cloud interview tutorials, certification tips for AWS/Azure/GCP, hands-on Kubernetes and Docker demos,
+                Terraform guides, CI/CD pipelines, and real-world troubleshooting scenarios.
+              </p>
+              <ul className="mt-4 space-y-1.5 text-[16px]">
+                {[
+                  "Weekly DevOps & Cloud interview tips",
+                  "Hands-on AWS, Azure, GCP tutorials",
+                  "Kubernetes & Docker deep dives",
+                  "Career advancement strategies",
+                  "Live Q&A sessions with experts",
+                ].map((item) => (
+                  <li key={item} className="flex items-baseline gap-3">
+                    <span className="size-2 shrink-0 -translate-y-px bg-ink" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6">
+                <a href="https://www.youtube.com/@DevOpsInterviewCloud/videos" target="_blank" rel="noopener noreferrer" className="btn-primary">
+                  Subscribe to the channel
                 </a>
               </div>
             </div>
 
-            <div className="card group hover:shadow-lg transition-all">
-              <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <svg className="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold mb-4 text-foreground">DevOps Podcast</h3>
-                <p className="text-muted-foreground mb-6">
-                  Real DevOps and cloud interview scenarios, broken down the way a senior engineer would answer them,
-                  with the trade-offs interviewers actually probe for.
-                </p>
-                <ul className="text-left text-sm text-muted-foreground mb-6 space-y-2">
-                  <li>✅ Kubernetes, AWS and Terraform scenarios</li>
-                  <li>✅ CI/CD, observability and incident response</li>
-                  <li>✅ On Spotify and Amazon Music</li>
-                </ul>
-                <a
-                  href={SPOTIFY_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary w-full bg-purple-600 hover:bg-purple-700 text-white inline-flex items-center justify-center"
-                >
+            <div className="flex flex-col border-t-2 border-ink pt-3.5">
+              <h3 className="display-3">DevOps podcast</h3>
+              <p className="mt-3 text-[16px] text-subtle">
+                Real DevOps and cloud interview scenarios, broken down the way a senior engineer would answer them,
+                with the trade-offs interviewers actually probe for.
+              </p>
+              <ul className="mt-4 space-y-1.5 text-[16px]">
+                {[
+                  "Kubernetes, AWS and Terraform scenarios",
+                  "CI/CD, observability and incident response",
+                  "On Spotify and Amazon Music",
+                ].map((item) => (
+                  <li key={item} className="flex items-baseline gap-3">
+                    <span className="size-2 shrink-0 -translate-y-px bg-ink" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6">
+                <a href={SPOTIFY_URL} target="_blank" rel="noopener noreferrer" className="btn-primary">
                   Listen on Spotify
-                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
                 </a>
               </div>
             </div>
@@ -602,123 +497,23 @@ export default function Home() {
           real customers yet. Reinstate with verified, attributable reviews once real
           customers exist. */}
 
-      {/* FAQ Section */}
-      <section id="faq" className="py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-sm font-semibold mb-6">
-              FAQ
-            </div>
-            <h2 className="text-4xl md:text-5xl font-black mb-6 text-foreground">
-              Frequently Asked Questions
-            </h2>
+      <section id="faq" className="border-t-2 border-ink py-12 sm:py-14">
+        <div className="wrap grid gap-x-6 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <span className="chip">FAQ</span>
+            <h2 className="display-2 mt-4">Frequently asked questions</h2>
           </div>
-
-          <div className="space-y-6">
-            {faqs.map((faq, index) => (
-              <div key={index} className="card">
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold text-foreground mb-3">{faq.question}</h3>
-                  <p className="break-words text-muted-foreground [overflow-wrap:anywhere]">{faq.answer}</p>
-                </div>
+          <dl className="mt-8 border-t-2 border-ink lg:col-span-8 lg:mt-0">
+            {faqs.map((faq) => (
+              <div key={faq.question} className="border-b border-hair py-5">
+                <dt className="font-semibold">{faq.question}</dt>
+                <dd className="mt-2 break-words text-subtle [overflow-wrap:anywhere]">{faq.answer}</dd>
               </div>
             ))}
-          </div>
+          </dl>
         </div>
       </section>
-
-      {/* Footer CTA */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Advance Your DevOps &amp; Cloud Career?
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Master cloud technologies, ace technical interviews, and advance your career with
-            comprehensive, senior-level guides covering AWS, Azure, GCP, Kubernetes, Terraform, and more.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="#ebooks" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-xl transition-all inline-flex items-center justify-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Start Learning Now
-            </a>
-            <Link href="/ebooks/complete-devops-mastery-bundle" className="bg-purple-600 text-white hover:bg-purple-700 px-8 py-4 text-lg font-semibold rounded-xl transition-all inline-flex items-center justify-center">
-              View the Bundle
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="md:col-span-2">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M13 10V3L4 14h5v7l9-11h-5z"/>
-                  </svg>
-                </div>
-                <span className="text-xl font-bold text-white">DevOpsInterview.Cloud</span>
-              </div>
-              <p className="text-white mb-4 max-w-md">
-                Master DevOps and Cloud technologies with expert-curated ebooks and comprehensive, senior-level
-                interview preparation guides covering AWS, Azure, GCP, Kubernetes, Terraform, CI/CD, and SRE.
-              </p>
-              <p className="text-white mb-6">
-                ⭐ 250+ senior-level interview questions across five books
-              </p>
-
-              <div className="mt-6 pt-4 border-t border-slate-800 text-sm">
-                <p className="text-white">
-                  <a href="mailto:devopsinterview.cloud@gmail.com" className="hover:text-blue-400 transition-colors">
-                    Email: devopsinterview.cloud@gmail.com
-                  </a>
-                </p>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-white mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                <li><a href="#ebooks" className="text-white hover:text-blue-400 transition-colors">Featured Ebooks</a></li>
-                <li><a href="#categories" className="text-white hover:text-blue-400 transition-colors">Browse Categories</a></li>
-                <li><a href="#interview-prep" className="text-white hover:text-blue-400 transition-colors">Interview Prep</a></li>
-                <li><a href="#youtube" className="text-white hover:text-blue-400 transition-colors">YouTube Channel</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-white mb-4">Support</h4>
-              <ul className="space-y-2">
-                <li><a href="/privacy" className="text-white hover:text-blue-400 transition-colors">Privacy Policy</a></li>
-                <li><a href="/terms" className="text-white hover:text-blue-400 transition-colors">Terms of Service</a></li>
-                <li><a href="/contact" className="text-white hover:text-blue-400 transition-colors">Contact Us</a></li>
-                <li><a href="/refunds" className="text-white hover:text-blue-400 transition-colors">Refund Policy</a></li>
-                <li><a href="/shipping" className="text-white hover:text-blue-400 transition-colors">Shipping &amp; Delivery</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-800 pt-8 mt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-white">
-                © 2026 DevOpsInterview.Cloud. All rights reserved.
-              </p>
-              <div className="flex items-center gap-2 mt-4 md:mt-0">
-                <span className="text-white">Made with ❤️ for the DevOps community</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </main>
     </>
   );
 }

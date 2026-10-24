@@ -20,49 +20,42 @@ export default function Error({
   }, [error])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center px-4">
-      <div className="max-w-2xl mx-auto text-center">
-        <div className="mb-8">
-          <h1 className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-            500
-          </h1>
-        </div>
-        <div className="mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+    <main id="main" className="pb-16 text-[17px]">
+      <div className="wrap pt-10 sm:pt-14">
+        <h1 className="font-display text-[120px] leading-[0.85] font-extrabold sm:text-[180px]">
+          500
+        </h1>
+        <div className="mt-6 max-w-[40em]">
+          <h2 className="display-2">
             Something went wrong
           </h2>
-          <p className="text-lg text-muted-foreground mb-2">
+          <p className="mt-4 text-[18px] leading-normal text-subtle">
             An unexpected error interrupted this page. Your payment and account
             data are safe. Please try again.
           </p>
           {error.digest && (
-            <p className="text-xs text-muted-foreground">Reference: {error.digest}</p>
+            <p className="meta mt-3 text-subtle">Reference: {error.digest}</p>
           )}
         </div>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <button
             onClick={reset}
-            className="btn-primary inline-flex items-center justify-center"
+            className="btn-primary"
           >
             Try again
           </button>
-          <Link
-            href="/"
-            className="bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-50 px-6 py-3 rounded-xl font-semibold transition-all inline-flex items-center justify-center"
-          >
+          <Link href="/" className="btn-secondary">
             Back to Homepage
           </Link>
         </div>
-        <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-          <p className="text-sm text-muted-foreground">
-            Still stuck? Email{' '}
-            <a href="mailto:support@devopsinterview.cloud" className="text-blue-600 hover:underline">
-              support@devopsinterview.cloud
-            </a>{' '}
-            and we&apos;ll sort it out.
-          </p>
-        </div>
+        <p className="mt-12 max-w-[680px] border-t border-hair pt-4 text-[15px] text-subtle">
+          Still stuck? Email{' '}
+          <a href="mailto:support@devopsinterview.cloud" className="font-semibold text-ink underline underline-offset-4 hover:decoration-2">
+            support@devopsinterview.cloud
+          </a>{' '}
+          and we&apos;ll sort it out.
+        </p>
       </div>
-    </div>
+    </main>
   )
 }

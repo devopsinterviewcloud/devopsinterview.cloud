@@ -6,7 +6,8 @@ import EbookPrice from "@/components/EbookPrice";
 import { siteConfig, truncateMetadataText } from "@/config/site";
 import TrackedLink from "@/components/TrackedLink";
 import BundleSavings from "@/components/BundleSavings";
-import { bundleSavings, getContents, singleBooks, totalQuestions, SAMPLE_PDF, SAMPLE_PDF_BOOK_SLUG, SAMPLE_PDF_QUESTIONS } from "@/lib/catalog";
+import { bundle, bundleSavings, ebooks as catalog, getContents, singleBooks, totalQuestions, PLAYBOOK_SLUG, SAMPLE_PDF, SAMPLE_PDF_BOOK_SLUG, SAMPLE_PDF_QUESTIONS } from "@/lib/catalog";
+import { bookStyle, splitTitle } from "@/lib/book-style";
 
 const SITE_URL = siteConfig.url;
 
@@ -113,8 +114,18 @@ export default async function EbookPage({
   if (!ebook) notFound();
   const forWhom = audience[ebook.slug];
   const contents = getContents(ebook.slug);
-  const savings = ebook.isBundle ? bundleSavings() : null;
+  const savings = bundleSavings();
   const bundleBooks = ebook.isBundle ? singleBooks.map((b) => ({ ...b, contents: getContents(b.slug) })) : [];
+  const style = bookStyle(ebook.id);
+  const { name, rest } = splitTitle(ebook.title);
+  const playbook = catalog.find((e) => e.slug === PLAYBOOK_SLUG)!;
+  const chapterCount = ebook.isBundle
+    ? bundleBooks.reduce((n, b) => n + (b.contents?.chapters.length ?? 0), 0)
+    : contents?.chapters.length;
+  const excerpt = contents?.excerpt;
+  const excerptChapter = excerpt ? contents.chapters.findIndex((c) => c.title === excerpt.chapter) : -1;
+  const lensText = excerpt ? excerpt.lens.charAt(0).toUpperCase() + excerpt.lens.slice(1) : "";
+  const buyLabel = ebook.isBundle ? "the bundle" : "this ebook";
 
   const url = `${SITE_URL}/ebooks/${ebook.slug}`;
   const productJsonLd = {
@@ -149,8 +160,56 @@ export default async function EbookPage({
     ],
   };
 
+  const about = (
+    <div className={`grid gap-x-6 gap-y-10 md:grid-cols-2 ${ebook.isBundle ? "" : "lg:grid-cols-3"}`} aria-labelledby="audience-heading">
+      <div className={`border-t-2 border-ink pt-3.5 ${ebook.isBundle ? "md:col-span-2" : ""}`}>
+        <h2 className="display-3">About this {ebook.isBundle ? "bundle" : "book"}</h2>
+        <p className="mt-3 text-[16px] leading-relaxed text-subtle">{ebook.description}</p>
+      </div>
+      <div className="border-t-2 border-ink pt-3.5">
+        <h2 id="audience-heading" className="display-3">Who this {ebook.isBundle ? "bundle" : "ebook"} is for</h2>
+        <p className="mt-3 text-[16px] leading-relaxed text-subtle">{forWhom}</p>
+        <h3 className="mt-6 font-semibold">Topics covered</h3>
+        <p className="mt-2 text-[16px] text-subtle">{ebook.tags?.join(" · ")}</p>
+      </div>
+      <div className={`border-t-2 border-ink pt-3.5 ${ebook.isBundle ? "" : "md:col-span-2 lg:col-span-1"}`}>
+        <h2 className="display-3">How every question is answered</h2>
+        <ol className="mt-3 text-[16px] leading-normal">
+          {answerFormat.map((step, i) => (
+            <li key={step} className="flex gap-3 border-b border-hair py-1.5">
+              <span className="w-4 shrink-0 font-semibold tabular-nums">{i + 1}</span>
+              {step}
+            </li>
+          ))}
+        </ol>
+        <p className="mt-4 text-[15px] text-subtle">
+          Every question runs three pages in this layout.{" "}
+          {contents && (
+            <>
+              <TrackedLink href={`/samples/${ebook.slug}`} eventName="sample_opened" eventProperties={{ location: "product_format", product: ebook.id, kind: "html" }} className="font-semibold text-ink underline underline-offset-4 hover:decoration-2">Read an answer excerpt from this book</TrackedLink>
+              {" or "}
+            </>
+          )}
+          <TrackedLink href={SAMPLE_PDF} target="_blank" eventName="sample_opened" eventProperties={{ location: "product_format", product: ebook.id, kind: "pdf" }} className="font-semibold text-ink underline underline-offset-4 hover:decoration-2">download the free {SAMPLE_PDF_QUESTIONS}-question PDF sample</TrackedLink>
+          {ebook.slug !== SAMPLE_PDF_BOOK_SLUG && !ebook.isBundle ? ". The PDF sample is from Cloud Platforms, not from this book." : " (from Cloud Platforms)."}
+        </p>
+      </div>
+    </div>
+  );
+
+  const checkoutLink = (label: React.ReactNode, className: string) => (
+    <TrackedLink
+      href={`/checkout?ebook=${ebook.id}`}
+      eventName="checkout_started"
+      eventProperties={{ product: ebook.id, location: "product_page" }}
+      className={className}
+    >
+      {label}
+    </TrackedLink>
+  );
+
   return (
-    <main id="main" className="container mx-auto px-4 py-12 max-w-5xl">
+    <main id="main" className="text-[17px]">
       <script
         type="application/ld+json"
         // JSON.stringify escaped for safe inline embedding
@@ -161,167 +220,241 @@ export default async function EbookPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c") }}
       />
 
-      <nav className="text-sm text-muted-foreground mb-8" aria-label="Breadcrumb">
-        <Link href="/" className="hover:underline">Home</Link>
-        <span className="mx-2">/</span>
-        <Link href="/ebooks" className="hover:underline">Ebooks</Link>
-        <span className="mx-2">/</span>
-        <span className="text-foreground">{ebook.title}</span>
+      <nav className="wrap py-3 text-[14px] font-medium" aria-label="Breadcrumb">
+        <Link href="/" className="underline-offset-4 hover:underline">Home</Link>
+        <span className="mx-2 text-subtle" aria-hidden="true">/</span>
+        <Link href="/ebooks" className="underline-offset-4 hover:underline">Ebooks</Link>
+        <span className="mx-2 text-subtle" aria-hidden="true">/</span>
+        <span className="text-subtle">{name}</span>
       </nav>
 
-      <div className="grid gap-7 md:grid-cols-[320px_1fr] md:gap-10">
-        <div className="order-2 mx-auto w-full max-w-[170px] md:order-1 md:max-w-none">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={ebook.coverUrl}
-            alt={`Cover of ${ebook.title}`}
-            width={320}
-            height={480}
-            className="w-full rounded-xl border shadow-sm"
-          />
+      <section className={style.fill}>
+        <div className="wrap grid grid-cols-1 items-center gap-x-6 gap-y-8 py-10 lg:min-h-[560px] lg:grid-cols-12">
+          <div className="w-44 sm:w-60 lg:col-span-5 lg:w-80 lg:justify-self-end">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={ebook.coverUrl}
+              alt={`Cover of ${ebook.title}`}
+              width={320}
+              height={480}
+              className={`aspect-[2/3] w-full object-cover outline-2 ${style.onInk ? "outline-ink-rule" : "outline-ink"}`}
+            />
+          </div>
+
+          <div className="min-w-0 lg:col-span-6 lg:col-start-7">
+            <span className={`chip ${style.onInk ? "bg-paper text-ink" : ""}`}>{style.label}</span>
+            <h1 className="mt-4">
+              <span className="display-1 block">{name}</span>
+              {rest && (
+                <>
+                  <span className="sr-only">: </span>
+                  <span className="mt-4 block text-[24px] font-semibold leading-tight">{rest}</span>
+                </>
+              )}
+            </h1>
+
+            <div className="mt-7 border-2 border-ink bg-paper text-ink">
+              <p className="meta border-b border-hair px-4 py-3 sm:px-5">
+                {ebook.isBundle ? `${totalQuestions} questions` : contents ? `${contents.questionCount} questions` : "Worked interview questions"}
+                {chapterCount ? ` · ${chapterCount} chapters` : ""} · {ebook.pageCount} pages · 2026 edition
+              </p>
+              <ul>
+                {!ebook.isBundle && (
+                  <li className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-5 gap-y-2.5 border-b border-hair px-4 py-3.5 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:px-5">
+                    <p className="col-span-2 sm:col-span-1">
+                      <span className="block font-semibold leading-snug">This book</span>
+                      <span className="mt-0.5 block text-[14px] leading-snug text-subtle">PDF, {ebook.pageCount} pages, emailed after payment</span>
+                    </p>
+                    <EbookPrice usdPrice={ebook.price} originalUsdPrice={ebook.originalPrice ?? null} />
+                    {checkoutLink(<>Buy<span className="sr-only"> {buyLabel}</span></>, "btn-primary min-w-[76px]")}
+                  </li>
+                )}
+                <li className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-5 gap-y-2.5 border-b border-hair px-4 py-3.5 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:px-5">
+                  <p className="col-span-2 sm:col-span-1">
+                    <span className="block font-semibold leading-snug">All five books</span>
+                    <span className="mt-0.5 block text-[14px] leading-snug text-subtle">
+                      {totalQuestions} questions. <BundleSavings savings={savings} />
+                    </span>
+                  </p>
+                  <EbookPrice usdPrice={bundle.price} />
+                  {ebook.isBundle ? (
+                    checkoutLink(<>Buy<span className="sr-only"> {buyLabel}</span></>, "btn-primary min-w-[76px]")
+                  ) : (
+                    <TrackedLink
+                      href={`/checkout?ebook=${bundle.id}`}
+                      eventName="checkout_started"
+                      eventProperties={{ product: bundle.id, location: "product_page_bundle_row" }}
+                      className="btn-primary min-w-[76px]"
+                    >
+                      Buy<span className="sr-only"> all five books</span>
+                    </TrackedLink>
+                  )}
+                </li>
+                <li className="grid grid-cols-1 items-center gap-x-5 gap-y-1 border-b border-hair px-4 py-3.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:px-5">
+                  <p className="min-w-0">
+                    <span className="block font-semibold leading-snug">{playbook.title}</span>
+                    <span className="mt-0.5 block text-[14px] leading-snug text-subtle">Companion guide for the week of the interview and the day itself</span>
+                  </p>
+                  <span className="text-[15px] font-medium text-subtle">{ebook.isBundle ? "Included free" : "Free with either"}</span>
+                </li>
+              </ul>
+              <div className="px-4 py-3.5 text-[14px] leading-normal text-subtle sm:px-5">
+                <p>
+                  India: ₹{ebook.priceINR.toLocaleString("en-IN")}{ebook.isBundle ? "" : ` a book or ₹${bundle.priceINR.toLocaleString("en-IN")} for all five`} via Razorpay (GST included).
+                  Elsewhere: ${ebook.price.toFixed(2)}{ebook.isBundle ? "" : ` a book or $${bundle.price.toFixed(2)} for all five`} via PayPal. The exact total is shown before payment.
+                  Prices auto-convert to your local currency.
+                </p>
+                <p className="mt-2.5">
+                  {contents ? (
+                    <TrackedLink
+                      href={`/samples/${ebook.slug}`}
+                      eventName="sample_opened"
+                      eventProperties={{ location: "product_page", product: ebook.id, kind: "html" }}
+                      className="font-semibold text-ink underline underline-offset-4 hover:decoration-2"
+                    >
+                      Read a sample answer
+                    </TrackedLink>
+                  ) : (
+                    <TrackedLink
+                      href={SAMPLE_PDF}
+                      target="_blank"
+                      eventName="sample_opened"
+                      eventProperties={{ location: "product_page", product: ebook.id, kind: "pdf" }}
+                      className="font-semibold text-ink underline underline-offset-4 hover:decoration-2"
+                    >
+                      Read the free {SAMPLE_PDF_QUESTIONS}-question PDF sample
+                    </TrackedLink>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div className="order-1 md:order-2">
-          {ebook.category && (
-            <span className="inline-block text-xs font-semibold uppercase tracking-wide text-blue-700 bg-blue-100 rounded-full px-3 py-1 mb-3">
-              {ebook.category}
-            </span>
-          )}
-          <h1 className="text-3xl font-bold text-foreground mb-4">{ebook.title}</h1>
-          <p className="text-muted-foreground leading-relaxed mb-6">{ebook.description}</p>
-
-          <div className="mb-6">
-            <EbookPrice usdPrice={ebook.price} originalUsdPrice={ebook.originalPrice ?? null} />
-            <p className="text-xs text-muted-foreground mt-1">Prices auto-convert to your local currency.</p>
-          </div>
-
-          <ul className="text-sm text-foreground space-y-2 mb-8">
-            <li>✓ PDF, {ebook.pageCount} pages{ebook.isBundle ? " across five books" : ""}</li>
-            <li>✓ {ebook.isBundle ? `${totalQuestions} questions` : contents ? `${contents.questionCount} questions in ${contents.chapters.length} chapters` : "Worked interview questions"}, each with a 30-second answer, deep dive, tradeoffs and follow-ups</li>
-            <li>✓ Delivered by email after payment is confirmed; download link valid for 3 days and re-sent on request</li>
-            <li>✓ Free Interview-Day Playbook included</li>
-          </ul>
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <TrackedLink
-            href={`/checkout?ebook=${ebook.id}`}
-            eventName="checkout_started"
-            eventProperties={{ product: ebook.id, location: "product_page" }}
-            className="btn-primary inline-flex items-center justify-center px-8 py-3 text-base"
-          >
-            Buy {ebook.isBundle ? "the bundle" : "this ebook"}
-          </TrackedLink>
-          {contents ? (
-            <TrackedLink
-              href={`/samples/${ebook.slug}`}
-              eventName="sample_opened"
-              eventProperties={{ location: "product_page", product: ebook.id, kind: "html" }}
-              className="inline-flex items-center justify-center px-5 py-3 font-semibold text-blue-700 hover:underline"
-            >
-              Read a sample answer
-            </TrackedLink>
-          ) : (
-            <TrackedLink
-              href={SAMPLE_PDF}
-              target="_blank"
-              eventName="sample_opened"
-              eventProperties={{ location: "product_page", product: ebook.id, kind: "pdf" }}
-              className="inline-flex items-center justify-center px-5 py-3 font-semibold text-blue-700 hover:underline"
-            >
-              Read the free {SAMPLE_PDF_QUESTIONS}-question PDF sample
-            </TrackedLink>
-          )}
-          </div>
-
-          <p className="mt-4 text-sm text-muted-foreground">
-            India: ₹{ebook.priceINR.toLocaleString("en-IN")} via Razorpay (GST included). Elsewhere: ${ebook.price.toFixed(2)} via PayPal. The exact total is shown before payment.
-          </p>
-          {savings && <p className="mt-2 text-sm font-medium text-emerald-700"><BundleSavings savings={savings} /></p>}
-
-          {ebook.tags && ebook.tags.length > 0 && (
-            <div className="mt-8 flex flex-wrap gap-2">
-              {ebook.tags.map((t) => (
-                <span key={t} className="text-xs bg-slate-100 text-slate-700 rounded px-2 py-1">{t}</span>
-              ))}
+      <section className="wrap grid grid-cols-1 items-start gap-x-6 gap-y-14 py-12 sm:py-14 lg:grid-cols-12">
+        <div className="lg:col-span-5">
+          {contents && (
+            <div aria-labelledby="contents-heading">
+              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                <h2 id="contents-heading" className="display-2">Inside</h2>
+                <span className="meta text-subtle">{contents.chapters.length} chapters · {contents.questionCount} questions</span>
+              </div>
+              <p className="mt-3 text-[14px] text-subtle">Chapter titles and question wording are taken from the book itself. Open a chapter to see its first questions.</p>
+              <ol className="mt-4 border-t-2 border-ink">
+                {contents.chapters.map((chapter, i) => (
+                  <li key={chapter.title} className="border-b border-hair">
+                    <details className="group" open={i === 0}>
+                      <summary className="flex cursor-pointer list-none items-baseline gap-3 py-2.5 [&::-webkit-details-marker]:hidden">
+                        <span className="w-12 shrink-0 font-display text-[40px] font-extrabold leading-none tabular-nums" aria-hidden="true">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <span className="sr-only">Chapter {i + 1}: </span>
+                        <span className="min-w-0 flex-1 overflow-x-clip font-semibold leading-snug after:-mr-[calc(100%+0.5rem)] after:mb-[0.3em] after:ml-2 after:inline-block after:w-full after:border-b-2 after:border-dotted after:border-subtle after:content-['']">
+                          {chapter.title}
+                        </span>
+                        <span className="shrink-0 self-[last_baseline] whitespace-nowrap text-[15px] font-medium tabular-nums text-subtle">{chapter.questions.length} questions</span>
+                        <span className="relative size-3 shrink-0 self-[last_baseline]" aria-hidden="true">
+                          <span className="absolute inset-x-0 top-[5px] h-0.5 bg-ink" />
+                          <span className="absolute inset-y-0 left-[5px] w-0.5 bg-ink group-open:hidden" />
+                        </span>
+                      </summary>
+                      <ul className="pb-3 pl-[60px] text-[15px] leading-normal">
+                        {chapter.questions.slice(0, 3).map((q) => <li key={q} className="py-1">{q}</li>)}
+                        {chapter.questions.length > 3 && <li className="py-1 text-subtle">and {chapter.questions.length - 3} more</li>}
+                      </ul>
+                    </details>
+                  </li>
+                ))}
+              </ol>
             </div>
           )}
-        </div>
-      </div>
 
-      <section className="mt-14 grid gap-8 border-t border-slate-200 pt-10 md:grid-cols-2" aria-labelledby="audience-heading">
-        <div>
-          <h2 id="audience-heading" className="text-2xl font-bold text-foreground">Who this {ebook.isBundle ? "bundle" : "ebook"} is for</h2>
-          <p className="mt-3 leading-7 text-muted-foreground">{forWhom}</p>
-          <h3 className="mt-7 text-lg font-semibold text-foreground">Topics covered</h3>
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {ebook.tags?.map((tag) => <li key={tag} className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">{tag}</li>)}
-          </ul>
-        </div>
-        <div className="rounded-xl bg-slate-50 p-6">
-          <h2 className="text-xl font-bold text-foreground">How every question is answered</h2>
-          <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-6 text-slate-700">
-            {answerFormat.map((step) => <li key={step}>{step}</li>)}
-          </ol>
-          <p className="mt-5 text-sm text-muted-foreground">
-            Every question runs three pages in this layout.{" "}
-            {contents && (
-              <>
-                <TrackedLink href={`/samples/${ebook.slug}`} eventName="sample_opened" eventProperties={{ location: "product_format", product: ebook.id, kind: "html" }} className="font-semibold text-blue-700 hover:underline">Read an answer excerpt from this book</TrackedLink>
-                {" or "}
-              </>
-            )}
-            <TrackedLink href={SAMPLE_PDF} target="_blank" eventName="sample_opened" eventProperties={{ location: "product_format", product: ebook.id, kind: "pdf" }} className="font-semibold text-blue-700 hover:underline">download the free {SAMPLE_PDF_QUESTIONS}-question PDF sample</TrackedLink>
-            {ebook.slug !== SAMPLE_PDF_BOOK_SLUG && !ebook.isBundle ? ". The PDF sample is from Cloud Platforms, not from this book." : " (from Cloud Platforms)."}
-          </p>
-        </div>
-      </section>
+          {ebook.isBundle && (
+            <div aria-labelledby="bundle-heading">
+              <h2 id="bundle-heading" className="display-2">The five books in this bundle</h2>
+              <ul className="mt-5 border-t-2 border-ink">
+                {bundleBooks.map((b) => (
+                  <li key={b.slug} className="flex gap-3 border-b border-hair py-3">
+                    <span className={`mt-[7px] size-3 shrink-0 ${bookStyle(b.id).square}`} aria-hidden="true" />
+                    <div className="min-w-0">
+                      <h3 className="font-semibold leading-snug">
+                        <Link href={`/ebooks/${b.slug}`} className="underline-offset-4 hover:underline">{b.title}</Link>
+                      </h3>
+                      <p className="mt-1 text-[14px] text-subtle">
+                        {b.contents ? `${b.contents.questionCount} questions in ${b.contents.chapters.length} chapters` : ""} · {b.pageCount} pages ·{" "}
+                        <Link href={`/samples/${b.slug}`} className="text-ink underline underline-offset-4 hover:decoration-2">sample question</Link>
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-      {contents && (
-        <section className="mt-12" aria-labelledby="contents-heading">
-          <h2 id="contents-heading" className="text-2xl font-bold text-foreground">Inside the book: {contents.questionCount} questions in {contents.chapters.length} chapters</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Chapter titles and question wording are taken from the book itself.</p>
-          <ol className="mt-6 grid gap-4 md:grid-cols-2">
-            {contents.chapters.map((chapter, i) => (
-              <li key={chapter.title} className="rounded-xl border border-slate-200 p-5">
-                <h3 className="font-semibold text-foreground">Chapter {i + 1}: {chapter.title} <span className="font-normal text-muted-foreground">({chapter.questions.length} questions)</span></h3>
-                <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
-                  {chapter.questions.slice(0, 3).map((q) => <li key={q}>• {q}</li>)}
-                  {chapter.questions.length > 3 && <li className="text-muted-foreground">and {chapter.questions.length - 3} more</li>}
+          <div className="mt-12" aria-labelledby="before-heading">
+            <h2 id="before-heading" className="display-3">Before you pay</h2>
+            <dl className="mt-3.5 border-t-2 border-ink text-[15px] leading-normal">
+              <div className="grid gap-0.5 border-b border-hair py-3 sm:grid-cols-[112px_1fr] sm:gap-4"><dt className="font-semibold">Format</dt><dd className="text-subtle">PDF, readable on any device. {ebook.pageCount} pages, about {ebook.fileSize}.</dd></div>
+              <div className="grid gap-0.5 border-b border-hair py-3 sm:grid-cols-[112px_1fr] sm:gap-4"><dt className="font-semibold">Price and currency</dt><dd className="text-subtle">₹{ebook.priceINR.toLocaleString("en-IN")} (India, Razorpay, GST included) or ${ebook.price.toFixed(2)} (elsewhere, PayPal). No other charges.</dd></div>
+              <div className="grid gap-0.5 border-b border-hair py-3 sm:grid-cols-[112px_1fr] sm:gap-4"><dt className="font-semibold">Delivery</dt><dd className="text-subtle">A download link is emailed once the payment is confirmed. The link stays valid for 3 days; reply to the email to get a fresh one.</dd></div>
+              <div className="grid gap-0.5 border-b border-hair py-3 sm:grid-cols-[112px_1fr] sm:gap-4"><dt className="font-semibold">Support and refunds</dt><dd className="text-subtle"><Link href="/contact" className="text-ink underline underline-offset-4 hover:decoration-2">Contact us</Link> for delivery problems or duplicate charges. Read the <Link href="/refunds" className="text-ink underline underline-offset-4 hover:decoration-2">refund policy</Link> before buying: digital downloads are final once accessed.</dd></div>
+            </dl>
+          </div>
+        </div>
+
+        <div className="lg:col-span-7">
+          {excerpt ? (
+            <div aria-labelledby="sample-heading">
+              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                <h2 id="sample-heading" className="display-2">Sample question</h2>
+                {excerptChapter >= 0 && <span className="meta text-subtle">From chapter {excerptChapter + 1}</span>}
+              </div>
+              <article className="mt-5 border-2 border-ink bg-sheet px-5 pt-7 pb-6 sm:px-10 sm:pt-9 sm:pb-8">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  <span className={`chip ${style.fill}`}>From {style.label}{excerptChapter >= 0 ? `, Ch. ${excerptChapter + 1}` : ""}</span>
+                  <span className="meta text-subtle">{excerpt.meta}</span>
+                </div>
+                <h3 className="mt-5 text-[22px] font-bold leading-snug tracking-[-0.01em] sm:text-[24px]">{excerpt.question}</h3>
+                <p className="meta mt-6 text-subtle">What this tests</p>
+                <p className="mt-1.5 text-[16px] text-subtle">{lensText}</p>
+                <p className="meta mt-6 text-subtle">30-second answer</p>
+                <p className="mt-1.5">{excerpt.answer30s}</p>
+                <p className="meta mt-6 text-subtle">Recall hook</p>
+                <p className="mt-1.5"><span className="bg-highlight px-1.5 py-0.5 font-semibold [box-decoration-break:clone]">{excerpt.recallHook}</span></p>
+                <p className="meta mt-6 text-subtle">Follow-ups in the book</p>
+                <ul className="mt-2">
+                  {excerpt.followups.map((f) => (
+                    <li key={f.q} className="relative border-t border-hair py-2 pl-[18px] text-[16px] leading-normal">
+                      <span className="absolute top-[17px] left-0 size-2 bg-ink" aria-hidden="true" />
+                      {f.q}
+                    </li>
+                  ))}
                 </ul>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
-
-      {ebook.isBundle && (
-        <section className="mt-12" aria-labelledby="bundle-heading">
-          <h2 id="bundle-heading" className="text-2xl font-bold text-foreground">The five books in this bundle</h2>
-          <ul className="mt-6 grid gap-4 md:grid-cols-2">
-            {bundleBooks.map((b) => (
-              <li key={b.slug} className="rounded-xl border border-slate-200 p-5">
-                <h3 className="font-semibold text-foreground">
-                  <Link href={`/ebooks/${b.slug}`} className="hover:text-blue-700 hover:underline">{b.title}</Link>
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {b.contents ? `${b.contents.questionCount} questions in ${b.contents.chapters.length} chapters` : ""} · {b.pageCount} pages ·{" "}
-                  <Link href={`/samples/${b.slug}`} className="text-blue-700 hover:underline">sample question</Link>
+                <p className="mt-6 border-t-2 border-ink pt-4 text-[15px] text-subtle">
+                  In the book this question runs three pages: it adds a deep dive with a diagram, a decision framework, a
+                  pitfalls table and a worked answer to each follow-up.
                 </p>
-              </li>
-            ))}
-          </ul>
+              </article>
+            </div>
+          ) : (
+            about
+          )}
+        </div>
+      </section>
+
+      {excerpt && (
+        <section className="border-t-2 border-ink">
+          <div className="wrap py-12 sm:py-14">
+            {about}
+          </div>
         </section>
       )}
 
-      <section className="mt-12 rounded-xl border border-slate-200 p-6" aria-labelledby="before-heading">
-        <h2 id="before-heading" className="text-xl font-bold text-foreground">Before you pay</h2>
-        <dl className="mt-4 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
-          <div><dt className="font-semibold text-foreground">Format</dt><dd className="text-slate-700">PDF, readable on any device. {ebook.pageCount} pages, about {ebook.fileSize}.</dd></div>
-          <div><dt className="font-semibold text-foreground">Price and currency</dt><dd className="text-slate-700">₹{ebook.priceINR.toLocaleString("en-IN")} (India, Razorpay, GST included) or ${ebook.price.toFixed(2)} (elsewhere, PayPal). No other charges.</dd></div>
-          <div><dt className="font-semibold text-foreground">Delivery</dt><dd className="text-slate-700">A download link is emailed once the payment is confirmed. The link stays valid for 3 days; reply to the email to get a fresh one.</dd></div>
-          <div><dt className="font-semibold text-foreground">Support and refunds</dt><dd className="text-slate-700"><Link href="/contact" className="text-blue-700 hover:underline">Contact us</Link> for delivery problems or duplicate charges. Read the <Link href="/refunds" className="text-blue-700 hover:underline">refund policy</Link> before buying: digital downloads are final once accessed.</dd></div>
-        </dl>
-      </section>
+      <div className="sticky bottom-0 z-30 flex items-center justify-between gap-4 border-t-2 border-ink bg-paper px-4 py-3 sm:hidden">
+        <EbookPrice usdPrice={ebook.price} originalUsdPrice={ebook.originalPrice ?? null} />
+        {checkoutLink(`Buy ${buyLabel}`, "btn-primary")}
+      </div>
     </main>
   );
 }

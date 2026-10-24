@@ -2,13 +2,17 @@
 
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { safeTrack } from '@/lib/analytics'
+import { bookStyle } from '@/lib/book-style'
 import ebooksData from '@/data/ebooks.json'
 import { GST_STATES } from '@/lib/gst-states'
 import { countryOptions } from '@/lib/countries'
 
 const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js'
+
+const inlineLink = 'font-semibold text-ink underline underline-offset-4 hover:decoration-2'
 
 // Single shared in-flight load: concurrent callers (mount preload + submit
 // precheck) await the same promise instead of tearing down each other's
@@ -203,95 +207,111 @@ function CheckoutContent() {
 
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="max-w-md text-center bg-white rounded-lg shadow-md p-10">
-          <div className="text-4xl mb-3">{verified ? '✅' : '📬'}</div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            {verified ? 'Payment received' : 'Payment is being confirmed'}
-          </h1>
-          <p className="text-muted-foreground">
-            {verified
-              ? <>Your download link is on its way to <strong>{done}</strong>. It can take a moment to
-                arrive. Check your inbox (and spam).</>
-              : <>Your payment went through and is being confirmed. The download link will arrive
-                at <strong>{done}</strong> shortly - check your inbox (and spam).</>}
-          </p>
-          <Link href="/" className="inline-block mt-6 text-blue-600 font-medium hover:underline">Back to home</Link>
+      <main id="main" className="pb-16 text-[17px]">
+        <div className="wrap pt-10 sm:pt-14">
+          <div role="status" className="max-w-[560px] border-2 border-ink bg-sheet p-6 sm:p-8">
+            <h1 className="display-2">
+              {verified ? 'Payment received' : 'Payment is being confirmed'}
+            </h1>
+            <p className="mt-4 leading-relaxed text-subtle [overflow-wrap:anywhere]">
+              {verified
+                ? <>Your download link is on its way to <strong className="text-ink">{done}</strong>. It can take a moment to
+                  arrive. Check your inbox (and spam).</>
+                : <>Your payment went through and is being confirmed. The download link will arrive
+                  at <strong className="text-ink">{done}</strong> shortly - check your inbox (and spam).</>}
+            </p>
+            <Link href="/" className="btn-primary mt-6">Back to home</Link>
+          </div>
         </div>
-      </div>
+      </main>
     )
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-4">Checkout</h1>
-          <p className="text-lg text-muted-foreground">Complete your purchase and get your ebook by email</p>
-        </div>
+  const style = ebook ? bookStyle(ebook.id) : null
 
-        <div className="grid lg:grid-cols-2 gap-8">
+  return (
+    <main id="main" className="pb-16 text-[17px]">
+      <div className="wrap pt-8 sm:pt-10">
+        <header className="pb-8 sm:pb-10">
+          <h1 className="display-1">Checkout</h1>
+          <p className="mt-4 text-[18px] leading-normal sm:text-[20px]">Complete your purchase and get your ebook by email</p>
+        </header>
+
+        <div className="grid grid-cols-1 items-start gap-x-6 gap-y-8 lg:grid-cols-12">
           {/* Order Summary */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-foreground mb-6">Order Summary</h2>
-            <div className="space-y-4 mb-6">
-              <div>
-                <h3 className="font-semibold text-foreground">{ebookTitle}</h3>
-                <p className="text-sm text-muted-foreground mt-2">Format: PDF</p>
-              </div>
-              <div className="border-t pt-4">
-                <div className="flex justify-between mb-2">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-semibold">{priceDisplay}</span>
-                </div>
-                <div className="flex justify-between text-lg font-bold border-t pt-2 mt-2">
-                  <span>Total</span>
-                  <span>{priceDisplay}</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {country
-                    ? `You'll be charged ${priceDisplay} via ${gatewayName}${isIndia ? ' (GST-inclusive)' : ''}.`
-                    : 'Select your country to see the exact amount. India is billed in INR via Razorpay (GST-inclusive); elsewhere in USD via PayPal.'}
-                </p>
+          <section aria-labelledby="summary-heading" className="min-w-0 border-2 border-ink bg-sheet p-5 sm:p-6 lg:col-span-5">
+            <h2 id="summary-heading" className="display-3">Order Summary</h2>
+            <div className="mt-5 flex gap-4">
+              {ebook && (
+                <Image
+                  src={ebook.coverUrl}
+                  alt=""
+                  width={1024}
+                  height={1536}
+                  sizes="72px"
+                  className="aspect-[2/3] w-[72px] shrink-0 self-start object-cover"
+                />
+              )}
+              <div className="min-w-0">
+                {style && <span className={`chip ${style.fill}`}>{style.label}</span>}
+                <h3 className="mt-2 font-semibold leading-snug">{ebookTitle}</h3>
+                <p className="mt-1 text-[14px] text-subtle">Format: PDF</p>
               </div>
             </div>
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-              <h4 className="font-semibold text-blue-900 mb-1">What happens after you pay</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
+            <dl className="mt-5 border-t-2 border-ink">
+              <div className="flex justify-between gap-4 border-b border-hair py-2.5">
+                <dt className="text-subtle">Subtotal</dt>
+                <dd className="font-semibold tabular-nums">{priceDisplay}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 py-3">
+                <dt className="text-[18px] font-bold">Total</dt>
+                <dd className="price">{priceDisplay}</dd>
+              </div>
+            </dl>
+            <p className="text-[14px] leading-normal text-subtle">
+              {country
+                ? `You'll be charged ${priceDisplay} via ${gatewayName}${isIndia ? ' (GST-inclusive)' : ''}.`
+                : 'Select your country to see the exact amount. India is billed in INR via Razorpay (GST-inclusive); elsewhere in USD via PayPal.'}
+            </p>
+            <div className="mt-6 border-l-[6px] border-ink bg-paper px-4 py-4">
+              <h4 className="font-semibold">What happens after you pay</h4>
+              <ul className="mt-2 space-y-1.5 text-[14px] leading-normal">
                 <li>A download link is emailed as soon as the payment is confirmed (PDF plus the free Interview-Day Playbook).</li>
                 <li>The link stays valid for 3 days; reply to the email to get a fresh one.</li>
-                <li>Problems or a duplicate charge? <Link href="/contact" className="underline">Contact us</Link>. Digital downloads are final once accessed; see the <Link href="/refunds" className="underline">refund policy</Link>.</li>
+                <li>Problems or a duplicate charge? <Link href="/contact" className={inlineLink}>Contact us</Link>. Digital downloads are final once accessed; see the <Link href="/refunds" className={inlineLink}>refund policy</Link>.</li>
               </ul>
             </div>
-          </div>
+          </section>
 
           {/* Checkout Form */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-foreground mb-6">Your details</h2>
+          <section aria-labelledby="details-heading" className="min-w-0 border-2 border-ink bg-sheet p-5 sm:p-6 lg:col-span-7">
+            <h2 id="details-heading" className="display-3">Your details</h2>
             {paypalCancelled && !error && (
-              <div className="bg-amber-50 border-l-4 border-amber-500 text-amber-900 text-sm p-3 rounded mb-4">
+              <div role="status" className="mt-5 border-l-[6px] border-ink bg-paper px-4 py-3 text-[15px] leading-normal">
                 Your PayPal payment was cancelled - you have not been charged. You can try again below.
               </div>
             )}
-            {error && <div className="bg-red-50 border-l-4 border-red-500 text-red-800 text-sm p-3 rounded mb-4">{error}</div>}
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            {error && <div role="alert" className="mt-5 border-l-[6px] border-book-red bg-paper px-4 py-3 text-[15px] font-medium leading-normal">{error}</div>}
+            <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">Email Address *</label>
+                <label htmlFor="email" className="field-label">Email Address *</label>
                 <input type="email" id="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                <p className="text-xs text-muted-foreground mt-1">Your download link is sent here.</p>
+                  className="field" />
+                <p className="field-help">Your download link is sent here.</p>
+                <p className="field-error">Enter a valid email address.</p>
               </div>
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">Full Name {isExport ? '*' : <span className="font-normal text-muted-foreground">(optional)</span>}</label>
+                <label htmlFor="name" className="field-label">Full Name {isExport ? '*' : <span className="font-normal text-subtle">(optional)</span>}</label>
                 <input type="text" id="name" required={isExport} value={name} onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="field" />
+                <p className="field-error">Enter your full name.</p>
               </div>
               <div>
-                <label htmlFor="country" className="block text-sm font-medium text-foreground mb-2">Country *</label>
+                <label htmlFor="country" className="field-label">Country *</label>
                 <select id="country" required value={country} onChange={(e) => setCountry(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  className="field">
                   <option value="">Select Country</option>
                   <option value="IN">India</option>
                   <option value="US">United States</option>
@@ -300,65 +320,69 @@ function CheckoutContent() {
                     <option key={c.code} value={c.code}>{c.name}</option>
                   ))}
                 </select>
+                <p className="field-error">Select your country.</p>
               </div>
               {isExport && (
                 <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-foreground mb-2">Billing address *</label>
+                  <label htmlFor="address" className="field-label">Billing address *</label>
                   <textarea id="address" required minLength={5} maxLength={300} rows={2} value={address} onChange={(e) => setAddress(e.target.value)}
                     placeholder="Street, city, postal code"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                  <p className="mt-1 text-xs text-muted-foreground">Printed on your invoice.</p>
+                    className="field" />
+                  <p className="field-help">Printed on your invoice.</p>
+                  <p className="field-error">Enter your billing address.</p>
                 </div>
               )}
               {isIndia && (
                 <div>
-                  <label htmlFor="gst-state" className="block text-sm font-medium text-foreground mb-2">State *</label>
+                  <label htmlFor="gst-state" className="field-label">State *</label>
                   <select id="gst-state" required value={gstState} onChange={(e) => setGstState(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    className="field">
                     <option value="">Select State</option>
                     {GST_STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
                   </select>
-                  <p className="mt-1 text-xs text-muted-foreground">Used for your GST invoice.</p>
+                  <p className="field-help">Used for your GST invoice.</p>
+                  <p className="field-error">Select your state.</p>
                 </div>
               )}
               {isIndia && rzpScript === 'blocked' && (
-                <div className="bg-amber-50 border-l-4 border-amber-500 text-amber-900 text-sm p-3 rounded">
+                <div role="alert" className="border-l-[6px] border-book-red bg-paper px-4 py-3 text-[15px] leading-normal">
                   Your browser is blocking the payment window (usually an ad-blocker).
                   Please allow it for this site or use an incognito window, or{' '}
-                  <a href="/contact" className="underline font-medium">contact us</a> for a
+                  <a href="/contact" className={inlineLink}>contact us</a> for a
                   direct payment link.
                 </div>
               )}
-              <div className="flex items-start space-x-2 pt-2">
-                <input type="checkbox" id="terms" className="mt-1" checked={agree} onChange={(e) => setAgree(e.target.checked)} required />
-                <label htmlFor="terms" className="text-sm text-muted-foreground">
-                  I agree to the <a href="/terms" className="text-blue-600 hover:underline">Terms of Service</a> and{' '}
-                  <a href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</a>
+              <div className="flex flex-wrap items-start gap-x-3 pt-1">
+                <input type="checkbox" id="terms" className="check mt-0.5" checked={agree} onChange={(e) => setAgree(e.target.checked)} required />
+                <label htmlFor="terms" className="min-w-0 flex-1 text-[15px] leading-normal">
+                  I agree to the <a href="/terms" className={inlineLink}>Terms of Service</a> and{' '}
+                  <a href="/privacy" className={inlineLink}>Privacy Policy</a>
                 </label>
+                <p className="field-error basis-full pl-8">Tick the box to accept the Terms and Privacy Policy.</p>
               </div>
-              <div className="pt-2">
+              <div className="pt-1">
                 <button type="submit" disabled={loading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white py-3 px-4 rounded-lg font-semibold">
+                  className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60">
                   {loading ? 'Starting secure checkout…' : country ? `Pay ${priceDisplay} via ${gatewayName}` : 'Pay & get instant access'}
                 </button>
               </div>
             </form>
-          </div>
+          </section>
         </div>
 
-        <div className="text-center mt-8">
-          <Link href="/#ebooks" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+        <p className="mt-8">
+          <Link href="/#ebooks" className={inlineLink}>
             ← Back to Ebooks
           </Link>
-        </div>
+        </p>
       </div>
-    </div>
+    </main>
   )
 }
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading…</div>}>
+    <Suspense fallback={<div className="wrap py-16 text-subtle">Loading…</div>}>
       <CheckoutContent />
     </Suspense>
   )

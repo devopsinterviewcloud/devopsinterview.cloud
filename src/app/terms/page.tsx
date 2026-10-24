@@ -9,16 +9,16 @@ export const metadata: Metadata = createPageMetadata({
 
 export default function TermsOfService() {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">Terms of Service</h1>
-          <p className="text-lg text-muted-foreground">Last updated: June 15, 2026</p>
+    <main id="main" className="bg-sheet text-[17px]">
+      <div className="mx-auto w-[min(680px,100%_-_32px)] pt-10 pb-16 sm:pt-14 sm:pb-20">
+        <div className="mb-10">
+          <h1 className="display-2 text-[40px] sm:text-[56px]">Terms of Service</h1>
+          <p className="meta mt-5 text-subtle">Last updated: June 15, 2026</p>
         </div>
 
-        <div className="prose prose-lg max-w-none text-foreground">
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Acceptance of Terms</h2>
+        <div className="prose-article">
+          <section>
+            <h2>Acceptance of Terms</h2>
             <p>
               By accessing and using DevOpsInterview.Cloud, you accept and agree to be bound by the 
               terms and provision of this agreement. If you do not agree to abide by these terms, 
@@ -26,12 +26,12 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Description of Service</h2>
-            <p className="mb-4">
+          <section>
+            <h2>Description of Service</h2>
+            <p>
               DevOpsInterview.Cloud provides:
             </p>
-            <ul className="list-disc pl-6 mb-4">
+            <ul>
               <li>Digital ebooks covering DevOps, Cloud, AWS, Azure, GCP, Kubernetes, and related technologies</li>
               <li>Interview preparation materials for DevOps and Cloud engineering roles</li>
               <li>Educational content and resources for professional development</li>
@@ -40,12 +40,12 @@ export default function TermsOfService() {
             </ul>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Purchase Terms</h2>
-            <p className="mb-4">
+          <section>
+            <h2>Purchase Terms</h2>
+            <p>
               When you purchase digital ebooks from our platform:
             </p>
-            <ul className="list-disc pl-6 mb-4">
+            <ul>
               <li>All sales are final upon successful download</li>
               <li>You receive a personal, non-transferable license to use the content</li>
               <li>Ebooks are delivered as PDF files with a fixed, print-quality layout</li>
@@ -54,12 +54,12 @@ export default function TermsOfService() {
             </ul>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Intellectual Property Rights</h2>
-            <p className="mb-4">
+          <section>
+            <h2>Intellectual Property Rights</h2>
+            <p>
               All content on DevOpsInterview.Cloud, including ebooks, articles, videos, and materials are:
             </p>
-            <ul className="list-disc pl-6 mb-4">
+            <ul>
               <li>Protected by copyright and other intellectual property laws</li>
               <li>Owned by DevOpsInterview.Cloud or our content partners</li>
               <li>Licensed to you for personal, non-commercial use only</li>
@@ -67,10 +67,10 @@ export default function TermsOfService() {
             </ul>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">User Conduct</h2>
-            <p className="mb-4">You agree not to:</p>
-            <ul className="list-disc pl-6 mb-4">
+          <section>
+            <h2>User Conduct</h2>
+            <p>You agree not to:</p>
+            <ul>
               <li>Share purchased ebooks with others or distribute them publicly</li>
               <li>Use our content for commercial purposes without authorization</li>
               <li>Attempt to reverse engineer or extract content from our materials</li>
@@ -79,8 +79,8 @@ export default function TermsOfService() {
             </ul>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Disclaimer of Warranties</h2>
+          <section>
+            <h2>Disclaimer of Warranties</h2>
             <p>
               Our educational materials are provided "as is" without any warranty. While we strive 
               for accuracy and quality, we cannot guarantee that our content will meet your specific 
@@ -88,8 +88,8 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Limitation of Liability</h2>
+          <section>
+            <h2>Limitation of Liability</h2>
             <p>
               DevOpsInterview.Cloud shall not be liable for any indirect, incidental, special, 
               consequential, or punitive damages resulting from your use of our services or materials, 
@@ -97,8 +97,8 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Account Termination</h2>
+          <section>
+            <h2>Account Termination</h2>
             <p>
               We reserve the right to terminate or suspend your account and access to our services 
               at our sole discretion, without notice, for conduct that violates these Terms of Service 
@@ -106,8 +106,8 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Changes to Terms</h2>
+          <section>
+            <h2>Changes to Terms</h2>
             <p>
               We reserve the right to modify these terms at any time. Changes will be effective 
               immediately upon posting on this page. Your continued use of our services after 
@@ -116,7 +116,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Contact Information</h2>
+            <h2>Contact Information</h2>
             <p>
               If you have questions about these Terms of Service, please contact us at 
               devopsinterview.cloud@gmail.com or through our contact page.
@@ -124,6 +124,6 @@ export default function TermsOfService() {
           </section>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

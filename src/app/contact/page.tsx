@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail, MessageSquare, Send, CheckCircle } from 'lucide-react'
 
 export default function ContactUs() {
   const [formData, setFormData] = useState({
@@ -37,111 +36,99 @@ export default function ContactUs() {
     })
   }
 
-  return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">Contact Us</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Have questions about our DevOps and Cloud ebooks? Need help with your order? 
-            We're here to help you advance your career.
-          </p>
-        </div>
+  const faqs = [
+    {
+      q: 'How do I download my ebook after purchase?',
+      a: "You'll receive an email with download links immediately after purchase. Check your spam folder if you don't see it within 5 minutes.",
+    },
+    {
+      q: 'What formats are the ebooks available in?',
+      a: 'All ebooks are available in PDF format for maximum compatibility with your devices.',
+    },
+    {
+      q: 'Do you offer bulk discounts for teams?',
+      a: 'Yes! Contact us at devopsinterview.cloud@gmail.com for team pricing and volume discounts.',
+    },
+  ]
 
-        <div className="grid lg:grid-cols-2 gap-12">
+  return (
+    <main id="main" className="pb-16 text-[17px]">
+      <div className="wrap pt-8 sm:pt-10">
+        <header className="pb-10 sm:pb-12">
+          <span className="chip">Contact</span>
+          <h1 className="display-1 mt-5">Contact Us</h1>
+          <p className="mt-5 max-w-[40em] text-[18px] leading-normal sm:text-[20px]">
+            Have questions about our DevOps and Cloud ebooks? Need help with your order?
+          </p>
+        </header>
+
+        <div className="grid grid-cols-1 items-start gap-x-6 gap-y-12 lg:grid-cols-12">
           {/* Contact Information */}
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-semibold text-foreground mb-6">Get in Touch</h2>
-              <p className="text-muted-foreground mb-8">
+          <div className="min-w-0 lg:col-span-5">
+            <div className="border-t-2 border-ink pt-3.5">
+              <h2 className="display-3">Get in Touch</h2>
+              <p className="mt-3 text-[16px] leading-relaxed text-subtle">
                 Whether you need technical support, have questions about our content, or want to 
                 suggest new topics, we'd love to hear from you.
               </p>
             </div>
 
-            <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <div className="bg-blue-100 p-3 rounded-lg">
-                  <Mail className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Email Support</h3>
-                  <p className="text-muted-foreground">devopsinterview.cloud@gmail.com</p>
-                  <p className="text-sm text-muted-foreground">Response within 24 hours</p>
-                </div>
+            <div className="mt-6 border-t-2 border-ink">
+              <div className="border-b border-hair py-4">
+                <h3 className="font-semibold">Email Support</h3>
+                <p className="mt-1 text-[16px] [overflow-wrap:anywhere]">devopsinterview.cloud@gmail.com</p>
+                <p className="mt-0.5 text-[14px] text-subtle">Response within 24 hours</p>
               </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="bg-purple-100 p-3 rounded-lg">
-                  <MessageSquare className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Business Inquiries</h3>
-                  <p className="text-muted-foreground">devopsinterview.cloud@gmail.com</p>
-                  <p className="text-sm text-muted-foreground">Partnerships & collaboration</p>
-                </div>
+              <div className="border-b border-hair py-4">
+                <h3 className="font-semibold">Business Inquiries</h3>
+                <p className="mt-1 text-[16px] [overflow-wrap:anywhere]">devopsinterview.cloud@gmail.com</p>
+                <p className="mt-0.5 text-[14px] text-subtle">Partnerships & collaboration</p>
               </div>
             </div>
 
-            <div className="bg-slate-50 p-6 rounded-lg">
-              <h3 className="font-semibold text-foreground mb-4">Frequently Asked Questions</h3>
-              <div className="space-y-3">
-                <details className="group">
-                  <summary className="cursor-pointer text-sm font-medium text-foreground group-open:text-blue-600">
-                    How do I download my ebook after purchase?
-                  </summary>
-                  <p className="mt-2 text-sm text-muted-foreground pl-4">
-                    You'll receive an email with download links immediately after purchase. 
-                    Check your spam folder if you don't see it within 5 minutes.
-                  </p>
-                </details>
-                <details className="group">
-                  <summary className="cursor-pointer text-sm font-medium text-foreground group-open:text-blue-600">
-                    What formats are the ebooks available in?
-                  </summary>
-                  <p className="mt-2 text-sm text-muted-foreground pl-4">
-                    All ebooks are available in PDF format for maximum compatibility
-                    with your devices.
-                  </p>
-                </details>
-                <details className="group">
-                  <summary className="cursor-pointer text-sm font-medium text-foreground group-open:text-blue-600">
-                    Do you offer bulk discounts for teams?
-                  </summary>
-                  <p className="mt-2 text-sm text-muted-foreground pl-4">
-                    Yes! Contact us at devopsinterview.cloud@gmail.com for team pricing
-                    and volume discounts.
-                  </p>
-                </details>
+            <div className="mt-10">
+              <h3 className="display-3">Frequently Asked Questions</h3>
+              <div className="mt-4 border-t-2 border-ink">
+                {faqs.map((f) => (
+                  <details key={f.q} className="group border-b border-hair">
+                    <summary className="flex cursor-pointer list-none items-baseline justify-between gap-4 py-3 text-[16px] font-semibold leading-snug [&::-webkit-details-marker]:hidden">
+                      {f.q}
+                      <span className="relative size-3 shrink-0" aria-hidden="true">
+                        <span className="absolute inset-x-0 top-[5px] h-0.5 bg-ink" />
+                        <span className="absolute inset-y-0 left-[5px] w-0.5 bg-ink group-open:hidden" />
+                      </span>
+                    </summary>
+                    <p className="pb-4 text-[15px] leading-relaxed text-subtle [overflow-wrap:anywhere]">{f.a}</p>
+                  </details>
+                ))}
               </div>
             </div>
           </div>
 
           {/* Contact Form */}
-          <div className="bg-slate-50 p-8 rounded-lg">
+          <div className="min-w-0 border-2 border-ink bg-sheet p-5 sm:p-8 lg:col-span-6 lg:col-start-7">
             {status === 'success' ? (
-              <div className="text-center py-8">
-                <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">Message Sent!</h3>
-                <p className="text-muted-foreground">
+              <div role="status" className="py-4">
+                <h3 className="display-3">Message Sent!</h3>
+                <p className="mt-3 text-subtle">
                   Thank you for contacting us. We'll get back to you within 24 hours.
                 </p>
               </div>
             ) : (
               <>
-                <h2 className="text-2xl font-semibold text-foreground mb-6">Send us a Message</h2>
+                <h2 className="display-3">Send us a Message</h2>
                 {status === 'error' && (
-                  <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  <div role="alert" className="mt-5 border-l-[6px] border-book-red bg-paper px-4 py-3 text-[15px] leading-normal [overflow-wrap:anywhere]">
                     Something went wrong sending your message. Please try again, or email us directly at{' '}
-                    <a href="mailto:devopsinterview.cloud@gmail.com" className="font-semibold underline">
+                    <a href="mailto:devopsinterview.cloud@gmail.com" className="font-semibold underline underline-offset-4">
                       devopsinterview.cloud@gmail.com
                     </a>.
                   </div>
                 )}
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+                  <div className="grid gap-5 md:grid-cols-2">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                      <label htmlFor="name" className="field-label">
                         Full Name
                       </label>
                       <input
@@ -151,12 +138,13 @@ export default function ContactUs() {
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="field"
                         placeholder="Your full name"
                       />
+                      <p className="field-error">Enter your name.</p>
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                      <label htmlFor="email" className="field-label">
                         Email Address
                       </label>
                       <input
@@ -166,14 +154,15 @@ export default function ContactUs() {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="field"
                         placeholder="your@email.com"
                       />
+                      <p className="field-error">Enter a valid email address.</p>
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-2">
+                    <label htmlFor="subject" className="field-label">
                       Subject
                     </label>
                     <select
@@ -182,7 +171,7 @@ export default function ContactUs() {
                       value={formData.subject}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="field"
                     >
                       <option value="">Select a subject</option>
                       <option value="technical-support">Technical Support</option>
@@ -191,10 +180,11 @@ export default function ContactUs() {
                       <option value="partnership">Business Partnership</option>
                       <option value="other">Other</option>
                     </select>
+                    <p className="field-error">Choose a subject.</p>
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
+                    <label htmlFor="message" className="field-label">
                       Message
                     </label>
                     <textarea
@@ -204,24 +194,18 @@ export default function ContactUs() {
                       value={formData.message}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="field"
                       placeholder="Tell us how we can help you..."
                     ></textarea>
+                    <p className="field-error">Write a message.</p>
                   </div>
 
                   <button
                     type="submit"
                     disabled={status === 'loading'}
-                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                    className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {status === 'loading' ? (
-                      <span>Sending...</span>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4" />
-                        <span>Send Message</span>
-                      </>
-                    )}
+                    {status === 'loading' ? 'Sending...' : 'Send Message'}
                   </button>
                 </form>
               </>
@@ -229,6 +213,6 @@ export default function ContactUs() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

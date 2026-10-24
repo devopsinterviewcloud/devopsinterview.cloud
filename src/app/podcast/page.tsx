@@ -11,30 +11,30 @@ export const metadata: Metadata = createPageMetadata({
 
 export default function PodcastPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-3xl mx-auto px-4 py-16 sm:px-6 lg:px-8 text-center">
-        <p className="text-sm font-semibold uppercase tracking-wide text-purple-700 mb-3">Podcast</p>
-        <h1 className="text-4xl font-bold text-foreground mb-6">DevOps &amp; Cloud Interview Prep: Real Scenarios &amp; Answers</h1>
-        <p className="text-lg text-muted-foreground mb-10">
-          Real DevOps and cloud interview scenarios, broken down the way a senior engineer would answer them:
-          Kubernetes, AWS, Terraform, CI/CD, observability and incident response, with the trade-offs
-          interviewers actually probe for.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-          <a href={SPOTIFY_URL} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold text-white bg-green-700 hover:bg-green-800 transition-colors">
-            Listen on Spotify
-          </a>
-          <a href={AMAZON_MUSIC_URL} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold text-white bg-slate-900 hover:bg-slate-700 transition-colors">
-            Listen on Amazon Music
-          </a>
+    <main id="main" className="pb-16 text-[17px]">
+      <div className="wrap pt-8 sm:pt-10">
+        <div className="max-w-[46em]">
+          <span className="chip">Podcast</span>
+          <h1 className="display-1 mt-5">DevOps &amp; Cloud Interview Prep: Real Scenarios &amp; Answers</h1>
+          <p className="mt-6 max-w-[40em] text-[18px] leading-normal sm:text-[20px]">
+            Real DevOps and cloud interview scenarios, broken down the way a senior engineer would answer them:
+            Kubernetes, AWS, Terraform, CI/CD, observability and incident response, with the trade-offs
+            interviewers actually probe for.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <a href={SPOTIFY_URL} target="_blank" rel="noopener noreferrer" className="btn-primary">
+              Listen on Spotify
+            </a>
+            <a href={AMAZON_MUSIC_URL} target="_blank" rel="noopener noreferrer" className="btn-secondary">
+              Listen on Amazon Music
+            </a>
+          </div>
+          <p className="mt-12 border-t-2 border-ink pt-4 text-[16px] leading-relaxed text-subtle">
+            Want the full answers in writing? The <Link href="/ebooks" className="font-semibold text-ink underline underline-offset-4 hover:decoration-2">DevOps Interview Mastery ebooks</Link> cover
+            252 senior-level questions across cloud, Kubernetes, Terraform, CI/CD and SRE.
+          </p>
         </div>
-        <p className="text-muted-foreground">
-          Want the full answers in writing? The <Link href="/ebooks" className="font-semibold text-blue-700 hover:underline">DevOps Interview Mastery ebooks</Link> cover
-          252 senior-level questions across cloud, Kubernetes, Terraform, CI/CD and SRE.
-        </p>
       </div>
-    </div>
+    </main>
   )
 }

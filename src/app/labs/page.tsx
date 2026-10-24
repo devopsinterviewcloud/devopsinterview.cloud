@@ -1,15 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  ArrowRight,
-  CheckCircle2,
-  Clock3,
-  FileSearch,
-  FileText,
-  FlaskConical,
-  Gauge,
-  SquareTerminal,
-} from "lucide-react";
 import SampleSignup from "@/components/SampleSignup";
 import { createPageMetadata } from "@/config/site";
 
@@ -32,257 +22,197 @@ const steps = [
     title: "Investigate the evidence",
     description:
       "Read the timeline, inspect telemetry, and separate useful signals from noise.",
-    icon: FileSearch,
   },
   {
     title: "Run controlled experiments",
     description:
       "Test one variable at a time and use the results to challenge your hypothesis.",
-    icon: FlaskConical,
   },
   {
     title: "Write the postmortem",
     description:
       "Turn the evidence into a clear causal chain, remediation, and follow-up actions.",
-    icon: FileText,
   },
 ];
 
 export default function LabsPage() {
   return (
-    <main className="min-h-screen overflow-hidden bg-background text-foreground">
-      <section
-        aria-labelledby="labs-heading"
-        className="relative border-b border-border px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-28"
-      >
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-0 top-0 -z-10 h-72 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:40px_40px] opacity-35 [mask-image:linear-gradient(to_bottom,black,transparent)]"
-        />
-        <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.75fr)] lg:gap-20">
-          <div>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-800">
-              <span className="h-2 w-2 rounded-full bg-blue-600" aria-hidden="true" />
-              Interactive interview practice
-            </div>
-            <h1
-              id="labs-heading"
-              className="max-w-4xl text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl lg:leading-[1.05]"
-            >
+    <main id="main" className="text-[17px]">
+      <section aria-labelledby="labs-heading" className="on-ink bg-ink text-white">
+        <div className="wrap grid items-center gap-10 py-14 lg:grid-cols-12 lg:gap-x-6 lg:py-20">
+          <div className="lg:col-span-7">
+            <span className="chip bg-paper text-ink">Interactive interview practice</span>
+            <h1 id="labs-heading" className="display-1 mt-5 max-w-[11em] max-[389px]:text-[44px]">
               Practice incident troubleshooting like it&apos;s the real interview.
             </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
+            <p className="mt-6 max-w-[34em] text-[18px] leading-relaxed text-ink-subtle sm:text-[20px]">
               Investigate realistic incidents directly in your browser. Follow the
               evidence, test your theory, and explain the root cause the way you
               would in a senior DevOps or SRE interview.
             </p>
             {/* The lab is a static SPA served from public/ via a rewrite, so keep this as a plain anchor. */}
-            <a
-              href="/labs/token-cost/"
-              className="btn-primary mt-9 inline-flex min-h-12 items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
+            <a href="/labs/token-cost/" className="btn-primary mt-8">
               Explore the first lab
-              <ArrowRight className="h-5 w-5" aria-hidden="true" />
             </a>
           </div>
 
-          <div className="relative">
-            <div className="absolute -inset-4 -z-10 rotate-2 rounded-3xl bg-blue-100" aria-hidden="true" />
-            <div className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 text-slate-100 shadow-2xl shadow-slate-900/20">
-              <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4 font-mono text-xs uppercase tracking-[0.16em] text-slate-400">
-                <span className="inline-flex items-center gap-2">
-                  <SquareTerminal className="h-4 w-4 text-blue-400" aria-hidden="true" />
-                  Incident 01
-                </span>
-                <span className="text-amber-300">Investigating</span>
-              </div>
-              <div className="p-5 sm:p-6">
-                <div className="flex items-end justify-between gap-5">
-                  <div>
-                    <p className="font-mono text-xs uppercase tracking-[0.16em] text-slate-400">
-                      Token cost / 24h
-                    </p>
-                    <p className="mt-2 font-mono text-3xl font-semibold tabular-nums text-slate-50">
-                      $1,847.20
-                    </p>
-                  </div>
-                  <span className="rounded-md border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 font-mono text-sm font-semibold text-amber-300">
-                    +43.8%
-                  </span>
-                </div>
-                <svg
-                  viewBox="0 0 360 112"
-                  className="mt-7 h-28 w-full"
-                  role="img"
-                  aria-label="Token cost rises sharply while traffic stays flat"
-                >
-                  <path d="M0 87H360M0 54H360M0 21H360" stroke="currentColor" className="text-slate-800" />
-                  <path
-                    d="M0 82 C45 79 66 81 103 78 S157 76 184 74 S212 72 229 67 S249 33 270 28 S317 22 360 17"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    className="text-amber-300"
-                  />
-                  <path
-                    d="M0 87 C58 84 108 86 163 83 S265 85 360 82"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeDasharray="5 6"
-                    className="text-blue-400"
-                  />
-                </svg>
-                <div className="mt-5 grid grid-cols-2 gap-3 border-t border-slate-800 pt-5 text-sm">
-                  <div className="rounded-lg bg-slate-900 p-3">
-                    <span className="block text-slate-400">Traffic</span>
-                    <strong className="mt-1 block font-mono font-medium text-blue-300">Unchanged</strong>
-                  </div>
-                  <div className="rounded-lg bg-slate-900 p-3">
-                    <span className="block text-slate-400">Your task</span>
-                    <strong className="mt-1 block font-mono font-medium text-slate-100">Find the cause</strong>
-                  </div>
-                </div>
-              </div>
+          <div className="border-2 border-ink-rule p-6 sm:p-8 lg:col-span-5">
+            <div className="meta flex items-center justify-between border-b border-ink-rule pb-3 text-ink-subtle">
+              <span>Incident 01</span>
+              <span className="text-highlight">Investigating</span>
             </div>
+            <div className="mt-6 flex items-end justify-between gap-5">
+              <div>
+                <p className="meta text-ink-subtle">Token cost / 24h</p>
+                <p className="display-2 mt-2 tabular-nums">$1,847.20</p>
+              </div>
+              <span className="border-2 border-highlight px-2 py-1 text-[15px] font-semibold tabular-nums text-highlight">
+                +43.8%
+              </span>
+            </div>
+            <svg
+              viewBox="0 0 360 112"
+              className="mt-7 h-28 w-full"
+              role="img"
+              aria-label="Token cost rises sharply while traffic stays flat"
+            >
+              <path d="M0 87H360M0 54H360M0 21H360" stroke="currentColor" className="text-ink-rule" />
+              <path
+                d="M0 82 C45 79 66 81 103 78 S157 76 184 74 S212 72 229 67 S249 33 270 28 S317 22 360 17"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                className="text-highlight"
+              />
+              <path
+                d="M0 87 C58 84 108 86 163 83 S265 85 360 82"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeDasharray="5 6"
+                className="text-ink-subtle"
+              />
+            </svg>
+            <dl className="mt-6 border-t border-ink-rule">
+              <div className="flex items-center justify-between border-b border-ink-rule py-3 text-[15px]">
+                <dt className="text-ink-subtle">Traffic</dt>
+                <dd className="font-semibold">Unchanged</dd>
+              </div>
+              <div className="flex items-center justify-between border-b border-ink-rule py-3 text-[15px]">
+                <dt className="text-ink-subtle">Your task</dt>
+                <dd className="font-semibold">Find the cause</dd>
+              </div>
+            </dl>
           </div>
         </div>
       </section>
 
-      <section id="available-labs" aria-labelledby="available-labs-heading" className="px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <section id="available-labs" aria-labelledby="available-labs-heading" className="py-14 sm:py-16">
+        <div className="wrap">
+          <div className="mb-8 sm:flex sm:items-end sm:justify-between sm:gap-6">
             <div>
-              <p className="font-mono text-sm font-semibold uppercase tracking-[0.16em] text-blue-700">
-                Available now
-              </p>
-              <h2 id="available-labs-heading" className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+              <span className="chip">Available now</span>
+              <h2 id="available-labs-heading" className="display-2 mt-4">
                 Start with the signal, not the answer
               </h2>
             </div>
-            <p className="max-w-md text-base leading-7 text-muted-foreground sm:text-right">
+            <p className="mt-3.5 max-w-[30em] text-[15px] leading-[1.55] text-subtle sm:mt-0 sm:text-right">
               No setup, cloud account, or local tooling required. Your progress stays in the browser.
             </p>
           </div>
 
-          <article className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow duration-200 hover:shadow-xl">
-            <div className="grid lg:grid-cols-[220px_minmax(0,1fr)_auto]">
-              <div className="flex min-h-48 flex-col justify-between border-b border-border bg-slate-950 p-6 text-slate-100 lg:border-b-0 lg:border-r lg:border-slate-800">
-                <div className="flex items-center justify-between gap-3 lg:block">
-                  <span className="font-mono text-xs uppercase tracking-[0.18em] text-blue-300">Lesson 01</span>
-                  <span className="rounded-full bg-emerald-400 px-2.5 py-1 text-xs font-bold tracking-wide text-emerald-950 lg:mt-4 lg:inline-flex">
-                    FREE
-                  </span>
-                </div>
-                <Gauge className="h-10 w-10 text-amber-300" strokeWidth={1.5} aria-hidden="true" />
-              </div>
+          <article className="grid gap-x-6 gap-y-5 border-t-2 border-b border-ink border-b-hair py-8 lg:grid-cols-12">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 lg:col-span-3 lg:flex-col lg:items-start">
+              <span className="chip">Lesson 01</span>
+              <span className="meta">Free</span>
+              <p className="meta text-subtle">~20 min · Runs in your browser</p>
+            </div>
 
-              <div className="p-6 sm:p-8 lg:p-10">
-                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium text-muted-foreground">
-                  <span className="inline-flex items-center gap-2">
-                    <Clock3 className="h-4 w-4" aria-hidden="true" />
-                    ~20 min
-                  </span>
-                  <span className="inline-flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                    Runs in your browser
-                  </span>
-                </div>
-                <h3 className="mt-5 max-w-3xl text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
-                  Token Cost Increased Without Traffic Growth
-                </h3>
-                <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
-                  Production spend jumped, but request volume did not. Inspect the evidence,
-                  isolate the change, and build a defensible explanation before the review.
-                </p>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Build the underlying observability and incident-response theory with the{" "}
-                  <Link href="/ebooks/senior-devops-handbook" className="font-semibold text-blue-700 underline-offset-4 hover:underline">
-                    SRE &amp; Production Operations ebook
-                  </Link>.
-                </p>
-              </div>
+            <div className="lg:col-span-6">
+              <h3 className="display-3 text-[32px] sm:text-[40px]">
+                Token Cost Increased Without Traffic Growth
+              </h3>
+              <p className="mt-4 max-w-[38em] text-[16px] leading-relaxed text-subtle">
+                Production spend jumped, but request volume did not. Inspect the evidence,
+                isolate the change, and build a defensible explanation before the review.
+              </p>
+              <p className="mt-4 text-[15px] text-subtle">
+                Build the underlying observability and incident-response theory with the{" "}
+                <Link href="/ebooks/senior-devops-handbook" className="font-semibold text-ink underline underline-offset-4 hover:decoration-2">
+                  SRE &amp; Production Operations ebook
+                </Link>.
+              </p>
+            </div>
 
-              <div className="flex items-center border-t border-border p-6 lg:border-l lg:border-t-0 lg:p-8">
-                <a
-                  href="/labs/token-cost/"
-                  className="btn-primary inline-flex min-h-12 w-full items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 lg:w-auto"
-                >
-                  Start lab
-                  <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
-                </a>
-              </div>
+            <div className="lg:col-span-3 lg:justify-self-end">
+              <a href="/labs/token-cost/" className="btn-primary w-full sm:w-auto">
+                Start lab
+              </a>
             </div>
           </article>
         </div>
       </section>
 
-      <section aria-labelledby="how-it-works-heading" className="border-y border-border bg-muted px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-        <div className="mx-auto max-w-7xl">
-          <div className="max-w-2xl">
-            <p className="font-mono text-sm font-semibold uppercase tracking-[0.16em] text-blue-700">
-              How it works
-            </p>
-            <h2 id="how-it-works-heading" className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-              Practice the full incident narrative
-            </h2>
-            <p className="mt-4 text-lg leading-8 text-muted-foreground">
-              The lab rewards disciplined reasoning—not guessing the right answer early.
-            </p>
-          </div>
+      <section aria-labelledby="how-it-works-heading" className="border-t-2 border-ink py-14 sm:py-16">
+        <div className="wrap">
+          <span className="chip">How it works</span>
+          <h2 id="how-it-works-heading" className="display-2 mt-4">
+            Practice the full incident narrative
+          </h2>
+          <p className="mt-4 max-w-[40em] text-[18px] leading-relaxed text-subtle">
+            The lab rewards disciplined reasoning, not guessing the right answer early.
+          </p>
 
-          <ol className="mt-12 grid gap-6 lg:grid-cols-3">
-            {steps.map((step, index) => {
-              const Icon = step.icon;
-              return (
-                <li key={step.title} className="relative rounded-2xl border border-border bg-card p-7 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm font-semibold text-blue-700">0{index + 1}</span>
-                    <span className="grid h-11 w-11 place-items-center rounded-xl bg-blue-50 text-blue-700">
-                      <Icon className="h-5 w-5" strokeWidth={1.8} aria-hidden="true" />
-                    </span>
-                  </div>
-                  <h3 className="mt-8 text-xl font-bold">{step.title}</h3>
-                  <p className="mt-3 leading-7 text-muted-foreground">{step.description}</p>
-                </li>
-              );
-            })}
+          <ol className="mt-10 grid gap-x-6 gap-y-10 lg:grid-cols-3">
+            {steps.map((step, index) => (
+              <li key={step.title} className="border-t-2 border-ink pt-3.5">
+                <span className="font-display text-[40px] font-extrabold leading-none tabular-nums" aria-hidden="true">
+                  0{index + 1}
+                </span>
+                <h3 className="mt-4 text-[19px] font-bold leading-snug">{step.title}</h3>
+                <p className="mt-2 text-[16px] leading-relaxed text-subtle">{step.description}</p>
+              </li>
+            ))}
           </ol>
         </div>
       </section>
 
-      <section aria-labelledby="labs-signup-heading" className="px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-        <div className="mx-auto max-w-4xl rounded-3xl border border-blue-200 bg-blue-50 px-6 py-12 text-center shadow-sm sm:px-10 sm:py-14">
-          <p className="font-mono text-sm font-semibold uppercase tracking-[0.16em] text-blue-700">
-            More incidents are being staged
-          </p>
-          <h2 id="labs-signup-heading" className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            Get notified when new labs ship
-          </h2>
-          <p className="mx-auto mb-8 mt-4 max-w-2xl text-lg leading-8 text-slate-700">
-            Join the list for new browser-based incident scenarios and get the free interview sample today.
-          </p>
-          <SampleSignup
-            source="labs-notifications"
-            ctaLabel="Notify me about new labs"
-            helperText="New browser-based incident scenarios. No spam, unsubscribe anytime."
-            successMessage="You are on the list — new labs land in your inbox first."
-          />
-          <Link
-            href="/privacy"
-            className="mt-4 inline-block text-xs font-medium text-blue-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
-            Privacy policy
-          </Link>
+      <section aria-labelledby="labs-signup-heading" className="border-t-2 border-ink py-14 sm:py-16">
+        <div className="wrap">
+          <div className="grid grid-cols-1 items-end gap-x-6 border-l-[6px] border-ink py-1 pl-5 sm:pl-7 lg:grid-cols-12">
+            <div className="lg:col-span-7">
+              <span className="chip">More incidents are being staged</span>
+              <h2 id="labs-signup-heading" className="display-2 mt-4">
+                Get notified when new labs ship
+              </h2>
+              <p className="mt-3.5 max-w-[34em]">
+                Join the list for new browser-based incident scenarios and get the free interview sample today.
+              </p>
+            </div>
+            <div className="mt-6 lg:col-span-5 lg:mt-0">
+              <SampleSignup
+                source="labs-notifications"
+                ctaLabel="Notify me about new labs"
+                helperText="New browser-based incident scenarios. No spam, unsubscribe anytime."
+                successMessage="You are on the list. New labs land in your inbox first."
+              />
+              <Link
+                href="/privacy"
+                className="mt-3 inline-block text-[14px] font-medium underline underline-offset-4 hover:decoration-2"
+              >
+                Privacy policy
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
-      <div className="border-t border-border px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 text-sm text-muted-foreground">
+      <div className="border-t border-hair">
+        <div className="wrap flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-6 text-[15px] text-subtle">
           <span>Incident Labs by DevOpsInterview.Cloud</span>
           <Link
             href="/"
-            className="inline-flex min-h-11 items-center gap-2 font-semibold text-blue-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="font-semibold text-ink underline-offset-4 hover:underline"
           >
             Browse interview resources
           </Link>

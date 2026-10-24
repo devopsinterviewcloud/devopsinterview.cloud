@@ -56,16 +56,16 @@ export default function SampleSignup({
 
   if (status === 'success') {
     return (
-      <div className="max-w-xl mx-auto text-center bg-emerald-50 border border-emerald-200 rounded-xl p-6">
-        <p className="text-emerald-800 font-semibold">✅ {message}</p>
-        {successNote && <p className="text-emerald-700 text-sm mt-2">{successNote}</p>}
+      <div className="max-w-xl mx-auto border-2 border-ink bg-sheet p-5 text-ink">
+        <p className="font-semibold">{message}</p>
+        {successNote && <p className="mt-2 text-sm text-subtle">{successNote}</p>}
       </div>
     )
   }
 
   return (
     <form onSubmit={onSubmit} className="max-w-xl mx-auto">
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row">
         <input
           type="email"
           required
@@ -73,20 +73,20 @@ export default function SampleSignup({
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@company.com"
           aria-label="Email address"
-          className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground"
+          className="h-12 min-w-0 flex-1 border-2 border-b-0 border-ink bg-sheet px-3.5 text-base text-ink placeholder:text-subtle sm:border-r-0 sm:border-b-2"
         />
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="btn-primary whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="btn-primary whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === 'loading' ? 'Sending…' : ctaLabel}
         </button>
       </div>
       {status === 'error' && (
-        <p className="text-red-600 text-sm mt-3 text-center">{message}</p>
+        <p className="mt-3 text-sm font-medium text-book-red">{message}</p>
       )}
-      <p className="text-muted-foreground text-xs mt-3 text-center">
+      <p className="mt-2.5 text-sm text-subtle">
         {helperText}
       </p>
     </form>

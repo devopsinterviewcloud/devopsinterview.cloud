@@ -27,32 +27,35 @@ export default function GlobalError({
           alignItems: 'center',
           justifyContent: 'center',
           fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
-          background: '#f8fafc',
-          color: '#0f172a',
+          // Cover-system paper and ink; the app's CSS is not loaded here.
+          background: '#f1ede4',
+          color: '#15171c',
           padding: '1rem',
         }}
       >
-        <div style={{ maxWidth: '32rem', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+        <div style={{ maxWidth: '32rem' }}>
+          <h1 style={{ fontSize: '2.25rem', fontWeight: 800, lineHeight: 1, textTransform: 'uppercase', marginBottom: '1rem' }}>
             Something went wrong
           </h1>
-          <p style={{ color: '#475569', marginBottom: '1.5rem' }}>
+          <p style={{ color: '#4a4d55', lineHeight: 1.6, marginBottom: '1.5rem' }}>
             An unexpected error occurred. Please try again. Your payment and
             account data are safe.
           </p>
           {error.digest && (
-            <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: '0.8125rem', color: '#4a4d55', marginBottom: '1.5rem' }}>
               Reference: {error.digest}
             </p>
           )}
           <button
             onClick={reset}
             style={{
-              background: '#2563eb',
+              background: '#15171c',
               color: '#fff',
-              border: 'none',
-              padding: '0.75rem 1.5rem',
-              borderRadius: '0.75rem',
+              border: '2px solid #15171c',
+              minHeight: '48px',
+              padding: '0 22px',
+              borderRadius: 0,
+              fontSize: '1rem',
               fontWeight: 600,
               cursor: 'pointer',
             }}

@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { createPageMetadata, siteConfig } from '@/config/site'
 import { getContents, singleBooks } from '@/lib/catalog'
 import SampleSignup from '@/components/SampleSignup'
+import BookCallout from '@/components/BookCallout'
+import { bookStyle } from '@/lib/book-style'
 
 const PATH = '/ai-infrastructure-interview-questions'
 
@@ -85,7 +87,7 @@ const AI_TOPIC = /\b(AI|ML|GPU|MLOps|AIOps)\b|machine learning/
 // AI and ML questions the existing books already answer in full.
 const inTheBooks = singleBooks.flatMap((book) =>
   (getContents(book.slug)?.chapters ?? []).flatMap((ch) =>
-    ch.questions.filter((q) => AI_TOPIC.test(q)).map((q) => ({ q, slug: book.slug, book: book.title.split(':')[0] })),
+    ch.questions.filter((q) => AI_TOPIC.test(q)).map((q) => ({ q, id: book.id, slug: book.slug, book: book.title.split(':')[0] })),
   ),
 )
 
@@ -102,83 +104,93 @@ export default function AiInfrastructurePage() {
   }
 
   return (
-    <main id="main" className="container mx-auto px-4 py-12 max-w-3xl">
+    <main id="main" className="bg-sheet text-[17px]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }}
       />
 
-      <nav className="text-sm text-muted-foreground mb-8" aria-label="Breadcrumb">
-        <Link href="/" className="hover:underline">Home</Link>
-        <span className="mx-2">/</span>
-        <Link href="/questions" className="hover:underline">Interview Questions</Link>
-        <span className="mx-2">/</span>
-        <span className="text-foreground">AI Infrastructure</span>
-      </nav>
+      <div className="wrap pt-5 pb-16 sm:pb-20">
+        <div className="mx-auto max-w-[680px]">
+          <nav className="text-[14px] font-medium" aria-label="Breadcrumb">
+            <Link href="/" className="underline-offset-4 hover:underline">Home</Link>
+            <span className="mx-2 text-subtle" aria-hidden="true">/</span>
+            <Link href="/questions" className="underline-offset-4 hover:underline">Interview Questions</Link>
+            <span className="mx-2 text-subtle" aria-hidden="true">/</span>
+            <span className="text-subtle">AI Infrastructure</span>
+          </nav>
 
-      <header className="mb-10">
-        <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-4">AI Infrastructure &amp; MLOps Interview Questions</h1>
-        <p className="text-lg text-muted-foreground">
-          Platform and DevOps interviews now often include a round on running AI workloads: GPUs on Kubernetes,
-          model serving, and the cost and reliability problems that come with them. These six come up a lot.
-          Each answer is the short version a senior engineer would give, followed by what the interviewer is
-          listening for.
-        </p>
-      </header>
+          <header className="pt-8 pb-9 sm:pt-12 sm:pb-10">
+            <span className="chip">AI Infrastructure</span>
+            <h1 className="display-2 mt-5 text-[40px] sm:text-[56px]">AI Infrastructure &amp; MLOps Interview Questions</h1>
+            <p className="mt-5 text-[18px] leading-relaxed sm:text-[20px] sm:leading-normal">
+              Platform and DevOps interviews now often include a round on running AI workloads: GPUs on Kubernetes,
+              model serving, and the cost and reliability problems that come with them. These six come up a lot.
+              Each answer is the short version a senior engineer would give, followed by what the interviewer is
+              listening for.
+            </p>
+          </header>
 
-      <div className="blog-prose">
-        {QUESTIONS.map(({ q, a, listen }, i) => (
-          <section key={q}>
-            <h2>{i + 1}. {q}</h2>
-            {a.map((p) => <p key={p.slice(0, 40)}>{p}</p>)}
-            <p><strong>What they listen for:</strong> {listen}</p>
+          <div className="prose-article">
+            {QUESTIONS.map(({ q, a, listen }, i) => (
+              <section key={q}>
+                <h2>{i + 1}. {q}</h2>
+                {a.map((p) => <p key={p.slice(0, 40)}>{p}</p>)}
+                <p><strong>What they listen for:</strong> {listen}</p>
+              </section>
+            ))}
+          </div>
+
+          <section className="mt-14 border-t-2 border-ink pt-3.5">
+            <h2 className="display-3">Already answered in full in the books</h2>
+            <p className="mt-3 text-[16px] text-subtle">
+              These AI and ML questions are in the current series, each with the deep dive, trade-offs and follow-ups.
+            </p>
+            <ul className="mt-4 text-[16px] leading-snug">
+              {inTheBooks.map(({ q, id, slug, book }) => (
+                <li key={q} className="flex gap-3 border-b border-hair py-3">
+                  <span className={`mt-[5px] size-3 shrink-0 ${bookStyle(id).square}`} aria-hidden="true" />
+                  <span className="min-w-0">
+                    {q}{' '}
+                    <Link href={`/ebooks/${slug}`} className="whitespace-nowrap text-[15px] font-semibold underline underline-offset-4 hover:decoration-2">
+                      {book}
+                    </Link>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </section>
-        ))}
+
+          <section className="mt-12 border-t-2 border-ink pt-3.5">
+            <h2 className="display-3">Related free questions</h2>
+            <ul className="mt-3 text-[16px] leading-snug">
+              {RELATED.map((r) => (
+                <li key={r.slug} className="border-b border-hair py-2.5">
+                  <Link href={`/questions/${r.slug}`} className="underline-offset-4 hover:underline">{r.title}</Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <BookCallout className="mt-14 bg-paper">
+            <h2 className="text-[22px] font-bold leading-snug">Want a full book on AI infrastructure?</h2>
+            <p className="mt-2.5 mb-5 text-[16px] leading-relaxed text-subtle">
+              We&apos;re deciding whether to write one: around 50 questions on GPUs, model serving, MLOps pipelines and
+              LLM operations, answered like the rest of the series. Leave your email and we&apos;ll tell you if it goes
+              ahead. That&apos;s the only email this list gets.
+            </p>
+            <div className="max-w-xl">
+              <SampleSignup
+                source="ai-infra-waitlist"
+                ctaLabel="Tell me if it goes ahead"
+                helperText="One email if the book happens. Nothing else."
+                successMessage="You're on the list. We'll email you if the book goes ahead."
+                successNote={null}
+              />
+            </div>
+          </BookCallout>
+        </div>
       </div>
-
-      <section className="mt-12">
-        <h2 className="text-xl font-semibold mb-2">Already answered in full in the books</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          These AI and ML questions are in the current series, each with the deep dive, trade-offs and follow-ups.
-        </p>
-        <ul className="space-y-3">
-          {inTheBooks.map(({ q, slug, book }) => (
-            <li key={q}>
-              <span className="text-slate-800">{q}</span>{' '}
-              <Link href={`/ebooks/${slug}`} className="text-sm font-semibold text-blue-700 underline-offset-4 hover:underline whitespace-nowrap">
-                {book}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold mb-4">Related free questions</h2>
-        <ul className="space-y-2">
-          {RELATED.map((r) => (
-            <li key={r.slug}>
-              <Link href={`/questions/${r.slug}`} className="text-blue-700 underline-offset-4 hover:underline">{r.title}</Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="mt-12 rounded-xl border border-blue-200 bg-blue-50 p-6 text-center">
-        <h2 className="text-lg font-semibold mb-2">Want a full book on AI infrastructure?</h2>
-        <p className="text-sm text-slate-700 mb-5">
-          We&apos;re deciding whether to write one: around 50 questions on GPUs, model serving, MLOps pipelines and
-          LLM operations, answered like the rest of the series. Leave your email and we&apos;ll tell you if it goes
-          ahead. That&apos;s the only email this list gets.
-        </p>
-        <SampleSignup
-          source="ai-infra-waitlist"
-          ctaLabel="Tell me if it goes ahead"
-          helperText="One email if the book happens. Nothing else."
-          successMessage="You're on the list. We'll email you if the book goes ahead."
-          successNote={null}
-        />
-      </section>
     </main>
   )
 }
