@@ -9,6 +9,7 @@ import TrackedLink from "@/components/TrackedLink";
 import BundleSavings from "@/components/BundleSavings";
 import { bundleSavings, getContents, sampleHrefFor, totalQuestions } from "@/lib/catalog";
 import { ArrowRight, Clock3, Gift, SquareTerminal } from "lucide-react";
+import { SPOTIFY_URL } from "@/lib/podcast";
 
 export default function Home() {
   const savings = bundleSavings();
@@ -571,23 +572,21 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-foreground">DevOps Podcast</h3>
                 <p className="text-muted-foreground mb-6">
-                  Listen to interviews with senior DevOps engineers, cloud architects, and SRE professionals sharing their career journeys, 
-                  interview experiences, salary negotiations, and expert advice on landing DevOps and cloud roles.
+                  Real DevOps and cloud interview scenarios, broken down the way a senior engineer would answer them,
+                  with the trade-offs interviewers actually probe for.
                 </p>
                 <ul className="text-left text-sm text-muted-foreground mb-6 space-y-2">
-                  <li>✅ Expert interviews & career stories</li>
-                  <li>✅ DevOps & Cloud industry insights</li>
-                  <li>✅ Interview success strategies</li>
-                  <li>✅ Salary negotiation tips</li>
-                  <li>✅ Technology trend discussions</li>
+                  <li>✅ Kubernetes, AWS and Terraform scenarios</li>
+                  <li>✅ CI/CD, observability and incident response</li>
+                  <li>✅ On Spotify and Amazon Music</li>
                 </ul>
                 <a
-                  href="https://www.podbean.com/pw/pbblog-323ju-143aa2b"
+                  href={SPOTIFY_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-primary w-full bg-purple-600 hover:bg-purple-700 text-white inline-flex items-center justify-center"
                 >
-                  Listen to Podcast
+                  Listen on Spotify
                   <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
