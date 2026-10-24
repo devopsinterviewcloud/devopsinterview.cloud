@@ -13,7 +13,7 @@ export default function CurrencySwitcher({ className = '' }: { className?: strin
         value={currency}
         onChange={(e) => changeCurrency(e.target.value)}
         aria-label="Select currency"
-        className="appearance-none cursor-pointer rounded-md border border-slate-300 bg-white py-1.5 pl-2 pr-6 text-xs font-medium text-slate-700 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:pl-3 sm:pr-8 sm:text-sm"
+        className="h-10 cursor-pointer appearance-none border-2 border-ink bg-transparent pl-2 pr-7 text-[14px] font-semibold text-ink hover:bg-highlight sm:pl-3 sm:pr-8 sm:text-[15px]"
       >
         {Object.values(CURRENCIES).map((c) => (
           <option key={c.code} value={c.code}>
@@ -22,13 +22,13 @@ export default function CurrencySwitcher({ className = '' }: { className?: strin
         ))}
       </select>
       <svg
-        className="pointer-events-none absolute right-2 h-4 w-4 text-slate-400"
+        className="pointer-events-none absolute right-2 h-4 w-4 text-ink"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
         aria-hidden="true"
       >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
       </svg>
     </label>
   )

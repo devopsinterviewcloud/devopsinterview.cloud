@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 // Vercel Web Analytics is cookieless, so we run it un-gated (the consent gate
 // hid essentially all real traffic). Keep custom event payloads free of
 // personal data (no emails / order ids).
@@ -125,6 +126,7 @@ export default function RootLayout({
         <CurrencyProvider>
           <SiteHeader />
           {children}
+          <SiteFooter />
           <SiteAnalytics />
         </CurrencyProvider>
       </body>
