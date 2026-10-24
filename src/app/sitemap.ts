@@ -58,6 +58,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly' as const,
       priority: 0.3,
     },
+    {
+      url: `${baseUrl}/podcast`,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    },
     // /checkout is a transactional page; intentionally NOT in the sitemap (and noindex on the page).
   ]
 
