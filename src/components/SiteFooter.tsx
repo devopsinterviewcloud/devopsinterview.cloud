@@ -19,7 +19,7 @@ const policyLinks = [
 
 export default function SiteFooter() {
   return (
-    <footer className="on-ink bg-ink text-white">
+    <footer className="on-ink mt-auto bg-ink text-white">
       <div className="wrap pt-7 pb-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between sm:gap-x-12">
           <Link href="/" className="wordmark">

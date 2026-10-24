@@ -112,7 +112,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={`${inter.variable} ${bigShoulders.variable}`}>
-      <body className="antialiased">
+      <body className="flex min-h-dvh flex-col antialiased">
         <script
           id="structured-data-organization"
           type="application/ld+json"
