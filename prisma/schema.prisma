@@ -146,9 +146,11 @@ model Order {
   status            OrderStatus @default(PENDING)
   fulfilledAt       DateTime?
 
-  // GST invoicing: buyer's state (GST state code) for INR sales, country for exports
+  // GST invoicing: buyer's state (GST state code) for INR sales; country and
+  // billing address for exports, which the invoice must show
   buyerState        String?
   buyerCountry      String?
+  billingAddress    String?
   invoiceNumber     String?     @unique
   invoiceDate       DateTime?
 

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { safeTrack } from '@/lib/analytics'
 import ebooksData from '@/data/ebooks.json'
 import { GST_STATES } from '@/lib/gst-states'
+import { countryOptions } from '@/lib/countries'
 
 const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js'
 
@@ -68,6 +69,7 @@ function CheckoutContent() {
   const [name, setName] = useState('')
   const [country, setCountry] = useState('')
   const [gstState, setGstState] = useState('')
+  const [address, setAddress] = useState('')
   const [agree, setAgree] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -98,6 +100,7 @@ function CheckoutContent() {
   // by country (India -> INR/Razorpay, everywhere else -> USD/PayPal), so derive
   // the displayed price from country too -- not from the header display switcher.
   const isIndia = country === 'IN'
+  const isExport = country !== '' && !isIndia // an export invoice needs the buyer's name and address
   const priceDisplay = isIndia
     ? `₹${(ebook?.priceINR ?? 899).toLocaleString('en-IN')}`
     : `$${(ebook?.price ?? 9.99).toFixed(2)}`
@@ -124,7 +127,7 @@ function CheckoutContent() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: ebook.id, currency, email, name, country, ...(currency === 'INR' ? { state: gstState } : {}) }),
+        body: JSON.stringify({ productId: ebook.id, currency, email, name, country, ...(currency === 'INR' ? { state: gstState } : { address }) }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -280,8 +283,8 @@ function CheckoutContent() {
                 <p className="text-xs text-muted-foreground mt-1">Your download link is sent here.</p>
               </div>
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">Full Name <span className="font-normal text-muted-foreground">(optional)</span></label>
-                <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)}
+                <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">Full Name {isExport ? '*' : <span className="font-normal text-muted-foreground">(optional)</span>}</label>
+                <input type="text" id="name" required={isExport} value={name} onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
@@ -292,9 +295,21 @@ function CheckoutContent() {
                   <option value="">Select Country</option>
                   <option value="IN">India</option>
                   <option value="US">United States</option>
-                  <option value="OTHER">Other</option>
+                  <option disabled>──────────</option>
+                  {countryOptions().filter((c) => c.code !== 'IN' && c.code !== 'US').map((c) => (
+                    <option key={c.code} value={c.code}>{c.name}</option>
+                  ))}
                 </select>
               </div>
+              {isExport && (
+                <div>
+                  <label htmlFor="address" className="block text-sm font-medium text-foreground mb-2">Billing address *</label>
+                  <textarea id="address" required minLength={5} maxLength={300} rows={2} value={address} onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Street, city, postal code"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <p className="mt-1 text-xs text-muted-foreground">Printed on your invoice.</p>
+                </div>
+              )}
               {isIndia && (
                 <div>
                   <label htmlFor="gst-state" className="block text-sm font-medium text-foreground mb-2">State *</label>

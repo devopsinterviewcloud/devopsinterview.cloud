@@ -4,11 +4,11 @@
  * Called from the payment webhooks (the source of truth), never from the browser.
  */
 import { Resend } from 'resend'
-import type { Order } from '@prisma/client'
+import type { Order, PaymentStatus } from '@prisma/client'
 import { db } from '@/lib/db'
 import { getEbook } from '@/lib/catalog'
 import { createDownloadToken } from '@/lib/download-token'
-import { assignInvoiceNumber, countryName, gstSupplier, invoiceHtml, taxSplit } from '@/lib/gst'
+import { claimWithInvoice, countryName, gstSupplier, invoiceHtml, taxSplit } from '@/lib/gst'
 import { gstStateName } from '@/lib/gst-states'
 import { getPayPalOrder } from '@/lib/payments/paypal'
 
@@ -82,16 +82,39 @@ export async function fulfillByGatewayOrderId(
   // capture proves the money actually moved (e.g. buyer retried after a declined
   // funding source). Without `paid` we never resurrect a FAILED row.
   const fulfilledAt = new Date()
-  const claim = await db.order.updateMany({
-    where: { id: order.id, paymentStatus: { in: paid ? ['PENDING', 'FAILED'] : ['PENDING'] } },
-    data: {
-      paymentStatus: 'SUCCEEDED',
-      status: 'PROCESSING',
-      gatewayPaymentId,
-      fulfilledAt,
-    },
-  })
-  if (claim.count === 0) {
+  const claimable: PaymentStatus[] = paid ? ['PENDING', 'FAILED'] : ['PENDING']
+  const plainClaim = async () => {
+    const r = await db.order.updateMany({
+      where: { id: order.id, paymentStatus: { in: claimable } },
+      data: {
+        paymentStatus: 'SUCCEEDED',
+        status: 'PROCESSING',
+        gatewayPaymentId,
+        fulfilledAt,
+      },
+    })
+    return r.count === 0 ? null : order
+  }
+  // With GST details configured, the invoice number is taken in the same transaction
+  // that claims the order, so no other delivery ever sees it paid without its invoice
+  // (and every retried email carries the same one). If that transaction fails, the
+  // order is still claimed and delivered; the owner's sale email says to invoice by hand.
+  const supplier = gstSupplier()
+  let claimed: Order | null
+  let invoiceProblem: string | undefined
+  if (supplier) {
+    try {
+      claimed = await claimWithInvoice(order.id, claimable, { gatewayPaymentId, fulfilledAt }, supplier.prefix, await payerDetails(order))
+    } catch (e) {
+      console.error('invoice: claim with invoice failed, claiming without one', { orderId: order.id, error: e })
+      invoiceProblem = `invoice numbering failed (${e instanceof Error ? e.message : String(e)})`
+      claimed = await plainClaim()
+    }
+  } else {
+    invoiceProblem = 'GST details are not configured (GSTIN, GST_TRADE_NAME, GST_ADDRESS)'
+    claimed = await plainClaim()
+  }
+  if (!claimed) {
     // Another delivery won the race between our read and our claim. Its email may
     // still have failed, so re-run ONCE against the fresh row: the SUCCEEDED +
     // PROCESSING branch at the top retries the send (Resend's idempotency key
@@ -100,10 +123,10 @@ export async function fulfillByGatewayOrderId(
     return { ok: true, alreadyFulfilled: true as const }
   }
 
-  // Number the invoice before the download email so the email carries it. Only the
-  // delivery that won the claim does this; retries reuse what it stored. A failure
-  // never blocks delivery: the owner's sale email says to issue the invoice by hand.
-  const { order: invoiced, problem } = await issueInvoice(order, fulfilledAt)
+  // Render from the row as claimed (a state corrected at checkout after our first
+  // read is what the invoice, the report and any retry all use).
+  const invoiced = claimed
+  const problem = invoiceProblem
 
   if (order.ebookSlug && order.customerEmail) {
     try {
@@ -132,32 +155,23 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
 }
 
 /**
- * Give a paid order its invoice number. For PayPal (export) orders the payer's name
- * and country come from PayPal, which is better evidence of the place of supply
- * than the checkout's country menu; if PayPal doesn't answer the checkout data stands.
+ * For a PayPal (export) order about to be invoiced, the payer's name and country from
+ * PayPal: better evidence of the place of supply than the checkout menu. If PayPal
+ * doesn't answer in 5s the checkout data stands.
  */
-async function issueInvoice(order: Order, at: Date): Promise<{ order: Order; problem?: string }> {
-  const s = gstSupplier()
-  if (!s) return { order, problem: 'GST details are not configured (GSTIN, GST_TRADE_NAME, GST_ADDRESS)' }
-  if (order.invoiceNumber) return { order }
-  const extra: { customerName?: string; buyerCountry?: string } = {}
-  if (order.gateway === 'paypal' && order.gatewayOrderId) {
-    try {
-      const pp = await withTimeout(getPayPalOrder(order.gatewayOrderId), 5000)
-      const name = [pp?.payer?.name?.given_name, pp?.payer?.name?.surname].filter(Boolean).join(' ').trim()
-      if (!order.customerName && name) extra.customerName = name.slice(0, 120)
-      const cc = pp?.payer?.address?.country_code
-      if (typeof cc === 'string' && /^[A-Z]{2}$/.test(cc)) extra.buyerCountry = cc
-    } catch (e) {
-      console.error('invoice: PayPal payer lookup failed, using checkout data', { orderId: order.id, error: e })
-    }
-  }
+async function payerDetails(order: Order): Promise<{ customerName?: string; buyerCountry?: string }> {
+  if (order.gateway !== 'paypal' || !order.gatewayOrderId || order.invoiceNumber) return {}
   try {
-    const { invoiceNumber, invoiceDate } = await assignInvoiceNumber(order.id, at, s.prefix, extra)
-    return { order: { ...order, ...extra, invoiceNumber, invoiceDate } }
+    const pp = await withTimeout(getPayPalOrder(order.gatewayOrderId), 5000)
+    const out: { customerName?: string; buyerCountry?: string } = {}
+    const name = [pp?.payer?.name?.given_name, pp?.payer?.name?.surname].filter(Boolean).join(' ').trim()
+    if (name) out.customerName = name.slice(0, 120)
+    const cc = pp?.payer?.address?.country_code
+    if (typeof cc === 'string' && /^[A-Z]{2}$/.test(cc)) out.buyerCountry = cc
+    return out
   } catch (e) {
-    console.error('invoice: numbering failed, delivering without an invoice', { orderId: order.id, error: e })
-    return { order, problem: `invoice numbering failed (${e instanceof Error ? e.message : String(e)})` }
+    console.error('invoice: PayPal payer lookup failed, using checkout data', { orderId: order.id, error: e })
+    return {}
   }
 }
 
@@ -170,11 +184,12 @@ function invoiceBlock(order: Order): string {
 function invoiceNote(order: Order, problem?: string): string {
   const s = gstSupplier()
   if (!s || !order.invoiceNumber) return `Invoice: NOT ISSUED, ${problem ?? 'unknown reason'}. Issue one by hand.`
-  const t = taxSplit(order, s.gstin.slice(0, 2))
-  if (t.kind === 'export') {
+  const t = taxSplit(order, s.gstin.slice(0, 2), Boolean(s.lutRef))
+  if (t.kind === 'export' || t.kind === 'export-igst') {
     const where = countryName(order.buyerCountry) ?? 'country not recorded'
     const warn = order.buyerCountry === 'IN' ? ' WARNING: PayPal says the payer is in India, so this is not an export; it needs IGST.' : ''
-    return `Invoice: ${order.invoiceNumber}, export to ${where}${s.lutRef ? ' under LUT' : ', NO LUT configured (GST_LUT_REF)'}.${warn}`
+    const treatment = t.kind === 'export' ? 'under LUT' : `no LUT configured, IGST ${t.igst.toFixed(2)} ${t.currency} payable`
+    return `Invoice: ${order.invoiceNumber}, export to ${where}, ${treatment}.${warn}`
   }
   const state = `${gstStateName(order.buyerState) ?? 'unknown state'} (${order.buyerState ?? '--'})`
   const tax = t.kind === 'intra' ? `CGST ${t.cgst.toFixed(2)} + SGST ${t.sgst.toFixed(2)}` : `IGST ${t.igst.toFixed(2)}`

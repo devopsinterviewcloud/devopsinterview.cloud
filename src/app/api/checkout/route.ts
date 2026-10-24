@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { quote, gatewayForCurrency } from '@/lib/pricing'
 import { filesForSlug } from '@/lib/storage'
 import { gstStateName } from '@/lib/gst-states'
+import { isCountryCode } from '@/lib/countries'
 import { createRazorpayOrder, fetchRazorpayOrder, razorpayConfigured } from '@/lib/payments/razorpay'
 import { createPayPalOrder, getPayPalOrder, paypalApprovalUrl, paypalConfigured } from '@/lib/payments/paypal'
 
@@ -16,7 +17,8 @@ const Body = z.object({
   email: z.string().email(),
   name: z.string().max(120).optional(),
   state: z.string().regex(/^\d{2}$/).optional(),   // GST state code, required for INR (place of supply)
-  country: z.string().max(8).optional(),           // checkout menu value; PayPal's payer country wins at fulfilment
+  country: z.string().max(8).optional(),           // ISO code; PayPal's payer country wins at fulfilment
+  address: z.string().trim().max(300).optional(),  // billing address, required for exports (on the invoice)
 })
 
 // Reuse a buyer's recent unpaid order instead of minting a new gateway order per
@@ -31,9 +33,13 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
-  const { productId, currency, email, name, state, country } = parsed
+  const { productId, currency, email, name, state, country, address } = parsed
   if (currency === 'INR' && !gstStateName(state)) {
     return NextResponse.json({ error: 'Select your state' }, { status: 400 })
+  }
+  // An export invoice has to name the buyer and show their address and country.
+  if (currency === 'USD' && (!isCountryCode(country) || country === 'IN' || !name?.trim() || !address || address.length < 5)) {
+    return NextResponse.json({ error: 'Enter your name, billing address and country' }, { status: 400 })
   }
 
   const q = quote(productId)
@@ -139,7 +145,7 @@ export async function POST(req: NextRequest) {
         gateway, gatewayOrderId: ppOrder.id, ebookSlug: q.slug,
         customerEmail: email, customerName: name,
         subtotal: q.usdAmount, tax: 0, total: q.usdAmount, currency: 'USD',
-        paymentMethod: 'paypal', buyerCountry: country && /^[A-Z]{2}$/.test(country) && country !== 'IN' ? country : null,
+        paymentMethod: 'paypal', buyerCountry: country, billingAddress: address,
       },
     })
     const approval = ppOrder.links?.find((l) => l.rel === 'payer-action' || l.rel === 'approve')?.href

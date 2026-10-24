@@ -4,16 +4,18 @@
 // GST invoicing rules: financial-year numbering, the CGST/SGST vs IGST split by
 // place of supply, what an invoice must show, and the monthly filing summary.
 const queryRaw = jest.fn()
+const findUnique = jest.fn()
 const update = jest.fn()
+beforeEach(() => update.mockImplementation((a: { data: object }) => Promise.resolve({ id: 'ord_1', ...a.data })))
 jest.mock('@/lib/db', () => ({
-  db: { $transaction: (fn: (tx: unknown) => unknown) => fn({ $queryRaw: (...a: unknown[]) => queryRaw(...a), order: { update: (...a: unknown[]) => update(...a) } }) },
+  db: { $transaction: (fn: (tx: unknown) => unknown) => fn({ $queryRaw: (...a: unknown[]) => queryRaw(...a), order: { findUnique: (...a: unknown[]) => findUnique(...a), update: (...a: unknown[]) => update(...a) } }) },
 }))
 
-import { assignInvoiceNumber, financialYear, gstSupplier, invoiceHtml, monthRange, monthlyReport, previousMonth, taxSplit } from './gst'
+import { claimWithInvoice, financialYear, gstSupplier, invoiceHtml, monthRange, monthlyReport, previousMonth, taxSplit } from './gst'
 
 const supplier = { gstin: '33ABCDE1234F1Z5', tradeName: 'Test Traders', address: '1 Main Road, Chennai 600001', prefix: 'PE' }
 const inr = (state: string) => ({ subtotal: 761.86, tax: 137.14, total: 899, currency: 'INR', buyerState: state, buyerCountry: 'IN' })
-const base = { customerName: null, customerEmail: 'buyer@example.com', invoiceNumber: 'PE/2627/00001', invoiceDate: new Date('2026-10-24T05:00:00Z'), ebookSlug: 'cloud-interview-mastery' }
+const base = { customerName: null, billingAddress: null, customerEmail: 'buyer@example.com', invoiceNumber: 'PE/2627/00001', invoiceDate: new Date('2026-10-24T05:00:00Z'), ebookSlug: 'cloud-interview-mastery' }
 
 beforeEach(() => jest.clearAllMocks())
 
@@ -32,32 +34,43 @@ test('supplier details come from env and are validated', () => {
     expect(gstSupplier()).toMatchObject({ prefix: 'PE', lutRef: undefined })
     process.env.GSTIN = 'not-a-gstin'
     expect(gstSupplier()).toBeUndefined()
-    Object.assign(process.env, { GSTIN: '33ABCDE1234F1Z5', GST_INVOICE_PREFIX: 'TOOLONGX' })
-    expect(gstSupplier()).toBeUndefined() // would push the number past GST's 16 characters
+    Object.assign(process.env, { GSTIN: '33ABCDE1234F1Z5', GST_INVOICE_PREFIX: 'EBOOKS' })
+    expect(gstSupplier()).toBeUndefined() // EBOOKS/2627/00001 is 17 characters, over GST's 16
+    process.env.GST_INVOICE_PREFIX = 'EBOOK'
+    expect(gstSupplier()?.prefix).toBe('EBOOK')
   } finally {
     process.env = keep
   }
 })
 
-test('the seller state pays CGST + SGST, other states IGST, exports nothing', () => {
-  expect(taxSplit(inr('33'), '33')).toMatchObject({ kind: 'intra', cgst: 68.57, sgst: 68.57, igst: 0, taxable: 761.86, total: 899 })
-  expect(taxSplit({ ...inr('33'), tax: 137.15 }, '33')).toMatchObject({ cgst: 68.58, sgst: 68.57 }) // halves still add up
-  expect(taxSplit(inr('29'), '33')).toMatchObject({ kind: 'inter', igst: 137.14, cgst: 0, sgst: 0 })
-  expect(taxSplit({ subtotal: 9.99, tax: 0, total: 9.99, currency: 'USD', buyerState: null }, '33')).toMatchObject({ kind: 'export', taxable: 9.99, igst: 0 })
+test('the seller state pays CGST + SGST, other states IGST; exports are zero-rated only under an LUT', () => {
+  expect(taxSplit(inr('33'), '33', true)).toMatchObject({ kind: 'intra', cgst: 68.57, sgst: 68.57, igst: 0, taxable: 761.86, total: 899 })
+  expect(taxSplit({ ...inr('33'), tax: 137.15 }, '33', true)).toMatchObject({ cgst: 68.58, sgst: 68.57 }) // halves still add up
+  expect(taxSplit(inr('29'), '33', false)).toMatchObject({ kind: 'inter', igst: 137.14, cgst: 0, sgst: 0 })
+  const usd = { subtotal: 31.99, tax: 0, total: 31.99, currency: 'USD', buyerState: null }
+  expect(taxSplit(usd, '33', true)).toMatchObject({ kind: 'export', taxable: 31.99, igst: 0, total: 31.99 })
+  expect(taxSplit(usd, '33', false)).toMatchObject({ kind: 'export-igst', taxable: 27.11, igst: 4.88, total: 31.99 }) // IGST out of the fixed price
 })
 
-test('numbering takes the next counter value under a row lock, and only once per order', async () => {
-  queryRaw.mockResolvedValueOnce([{ invoiceNumber: null, invoiceDate: null }]).mockResolvedValueOnce([{ last: 7 }])
+test('the claim and the invoice number are written together, under a row lock', async () => {
   const at = new Date('2026-10-24T05:00:00Z')
-  await expect(assignInvoiceNumber('ord_1', at, 'PE', { buyerCountry: 'DE' })).resolves.toEqual({ invoiceNumber: 'PE/2627/00007', invoiceDate: at })
+  queryRaw.mockResolvedValueOnce([]).mockResolvedValueOnce([{ last: 7 }])
+  findUnique.mockResolvedValueOnce({ id: 'ord_1', paymentStatus: 'PENDING', invoiceNumber: null, customerName: null })
+  const row = await claimWithInvoice('ord_1', ['PENDING'], { gatewayPaymentId: 'pay_1', fulfilledAt: at }, 'PE', { buyerCountry: 'DE', customerName: 'Ada' })
   expect(queryRaw.mock.calls[0][0].join('?')).toContain('FOR UPDATE')
   expect(queryRaw.mock.calls[1][0].join('?')).toContain('ON CONFLICT (fy) DO UPDATE')
-  expect(update).toHaveBeenCalledWith({ where: { id: 'ord_1' }, data: { invoiceNumber: 'PE/2627/00007', invoiceDate: at, buyerCountry: 'DE' } })
+  expect(update).toHaveBeenCalledWith({ where: { id: 'ord_1' }, data: {
+    paymentStatus: 'SUCCEEDED', status: 'PROCESSING', gatewayPaymentId: 'pay_1', fulfilledAt: at,
+    invoiceNumber: 'PE/2627/00007', invoiceDate: at, customerName: 'Ada', buyerCountry: 'DE' } })
+  expect(row).toMatchObject({ invoiceNumber: 'PE/2627/00007', paymentStatus: 'SUCCEEDED' })
+})
 
-  const first = new Date('2026-10-01T00:00:00Z')
-  queryRaw.mockResolvedValueOnce([{ invoiceNumber: 'PE/2627/00003', invoiceDate: first }])
-  await expect(assignInvoiceNumber('ord_1', at, 'PE')).resolves.toEqual({ invoiceNumber: 'PE/2627/00003', invoiceDate: first })
-  expect(queryRaw).toHaveBeenCalledTimes(3) // no counter bump for an order that already has a number
+test('a delivery that finds the order already claimed takes no number', async () => {
+  queryRaw.mockResolvedValueOnce([])
+  findUnique.mockResolvedValueOnce({ id: 'ord_1', paymentStatus: 'SUCCEEDED', invoiceNumber: 'PE/2627/00003' })
+  await expect(claimWithInvoice('ord_1', ['PENDING'], { gatewayPaymentId: 'pay_1', fulfilledAt: new Date() }, 'PE')).resolves.toBeNull()
+  expect(queryRaw).toHaveBeenCalledTimes(1) // the lock only: no counter bump
+  expect(update).not.toHaveBeenCalled()
 })
 
 test('a domestic invoice shows the seller, number, place of supply and the tax split', () => {
@@ -70,15 +83,19 @@ test('a domestic invoice shows the seller, number, place of supply and the tax s
   expect(inter).not.toContain('CGST')
 })
 
-test('an export invoice names the country and carries the LUT line only when an LUT is configured', () => {
-  const usd = { ...base, subtotal: 31.99, tax: 0, total: 31.99, currency: 'USD', buyerState: null, buyerCountry: 'DE', customerName: 'Ada <b>' }
+test('an export invoice shows the buyer, address and country, zero-rated under an LUT or with IGST without one', () => {
+  const usd = { ...base, subtotal: 31.99, tax: 0, total: 31.99, currency: 'USD', buyerState: null, buyerCountry: 'DE', customerName: 'Ada <b>', billingAddress: 'Hauptstr. 1\n10115 Berlin' }
+  const lut = invoiceHtml(usd, 'Bundle', { ...supplier, lutRef: 'AD3310260000001' })
+  expect(lut).toContain('Invoice (export of services)')
+  expect(lut).toContain('Billed to: Ada &lt;b&gt;, Hauptstr. 1, 10115 Berlin, Germany, buyer@example.com') // buyer text escaped
+  expect(lut).toContain('Outside India (Germany)')
+  expect(lut).toContain('under Letter of Undertaking (AD3310260000001) without payment of integrated tax')
+  expect(lut).not.toContain('IGST')
   const noLut = invoiceHtml(usd, 'Bundle', supplier)
-  expect(noLut).toContain('Invoice (export of services)')
-  expect(noLut).toContain('Outside India (Germany)')
-  expect(noLut).toContain('USD 31.99')
-  expect(noLut).toContain('Ada &lt;b&gt;') // buyer-supplied text is escaped
+  expect(noLut).toContain('IGST 18%')
+  expect(noLut).toContain('USD 4.88')
+  expect(noLut).toContain('Supply meant for export on payment of integrated tax.')
   expect(noLut).not.toContain('Letter of Undertaking')
-  expect(invoiceHtml(usd, 'Bundle', { ...supplier, lutRef: 'AD3310260000001' })).toContain('under Letter of Undertaking (AD3310260000001) without payment of integrated tax')
   expect(invoiceHtml({ ...usd, invoiceNumber: null }, 'Bundle', supplier)).toBe('')
 })
 
@@ -94,11 +111,12 @@ test('the monthly report groups consumer sales by state and lists exports', () =
   expect(r.html).toContain('Tamil Nadu (33) intra-state</td><td style="padding:4px 8px;border:1px solid #e2e8f0;font-size:13px">2</td>')
   expect(r.html).toContain('137.14') // CGST for the two Tamil Nadu sales
   expect(r.html).toContain('United States')
-  expect(r.html).toContain('No LUT reference is configured')
+  expect(r.html).toContain('No LUT is configured')
+  expect(r.html).toContain('PayPal\'s payout is net of its fees')
   const lines = r.csv.trim().split('\n')
   expect(lines).toHaveLength(5)
   expect(lines[3]).toBe('PE/2627/00003,24-10-2026,B2C,29,Karnataka,IN,INR,761.86,0.00,0.00,137.14,899.00,cloud-interview-mastery')
-  expect(lines[4]).toContain(',EXPORT,,,US,USD,9.99,0.00,0.00,0.00,9.99,')
+  expect(lines[4]).toContain(',EXPORT-IGST,,,US,USD,8.47,0.00,0.00,1.52,9.99,')
 })
 
 test('month boundaries are IST calendar months', () => {
@@ -107,4 +125,6 @@ test('month boundaries are IST calendar months', () => {
   expect(end.toISOString()).toBe('2026-10-31T18:30:00.000Z')
   expect(previousMonth(new Date('2026-11-01T03:30:00Z'))).toBe('2026-10') // the cron run on 1 Nov, 09:00 IST
   expect(previousMonth(new Date('2027-01-01T03:30:00Z'))).toBe('2026-12')
+  expect(() => monthRange('2026-13')).toThrow()
+  expect(() => monthRange('2026-00')).toThrow()
 })

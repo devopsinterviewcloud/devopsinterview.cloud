@@ -10,7 +10,8 @@ const updateMany = jest.fn()
 jest.mock('@/lib/db', () => ({ db: { order: { findFirst: (...a: unknown[]) => findFirst(...a), create: (...a: unknown[]) => create(...a), updateMany: (...a: unknown[]) => updateMany(...a) } } }))
 const createRz = jest.fn(); const fetchRz = jest.fn()
 jest.mock('@/lib/payments/razorpay', () => ({ razorpayConfigured: () => true, createRazorpayOrder: (...a: unknown[]) => createRz(...a), fetchRazorpayOrder: (...a: unknown[]) => fetchRz(...a) }))
-jest.mock('@/lib/payments/paypal', () => ({ paypalConfigured: () => true, createPayPalOrder: jest.fn(), getPayPalOrder: jest.fn(), paypalApprovalUrl: (id: string) => `https://www.paypal.com/checkoutnow?token=${id}` }))
+const createPp = jest.fn()
+jest.mock('@/lib/payments/paypal', () => ({ paypalConfigured: () => true, createPayPalOrder: (...a: unknown[]) => createPp(...a), getPayPalOrder: jest.fn(), paypalApprovalUrl: (id: string) => `https://www.paypal.com/checkoutnow?token=${id}` }))
 
 import { NextRequest } from 'next/server'
 import { POST } from './route'
@@ -82,4 +83,18 @@ test('a reused unpaid order picks up a corrected state', async () => {
   const res = await post({ productId: '1', currency: 'INR', state: '29', email: 'buyer@example.com' })
   expect((await res.json()).orderId).toBe('order_existing')
   expect(updateMany).toHaveBeenCalledWith({ where: { id: 'ord_1', paymentStatus: 'PENDING' }, data: { buyerState: '29' } })
+})
+
+test('an international checkout needs the name, billing address and a real country for the export invoice', async () => {
+  const ok = { productId: '1', currency: 'USD', email: 'buyer@example.com', name: 'Ada Lovelace', country: 'DE', address: 'Hauptstr. 1, 10115 Berlin' }
+  for (const bad of [{ name: undefined }, { name: '  ' }, { address: undefined }, { address: 'x' }, { country: 'OTHER' }, { country: 'IN' }, { country: undefined }]) {
+    expect((await post({ ...ok, ...bad })).status).toBe(400)
+  }
+  expect(createPp).not.toHaveBeenCalled()
+  findFirst.mockResolvedValue(null)
+  createPp.mockResolvedValue({ id: 'PP1', status: 'CREATED', links: [{ rel: 'approve', href: 'https://paypal.test/approve' }] })
+  create.mockResolvedValue({})
+  const res = await post(ok)
+  expect(res.status).toBe(200)
+  expect(create.mock.calls[0][0].data).toMatchObject({ currency: 'USD', tax: 0, buyerCountry: 'DE', billingAddress: 'Hauptstr. 1, 10115 Berlin', customerName: 'Ada Lovelace' })
 })
