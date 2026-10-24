@@ -18,9 +18,9 @@ export default function EbookPrice({ usdPrice, originalUsdPrice }: EbookPricePro
     return (
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <span className="text-2xl font-bold text-foreground">₹{inrPrice.toLocaleString('en-IN')}</span>
+          <span className="price">₹{inrPrice.toLocaleString('en-IN')}</span>
           {originalInrPrice && (
-            <span className="text-sm text-muted-foreground line-through">₹{originalInrPrice.toLocaleString('en-IN')}</span>
+            <span className="text-sm text-subtle line-through">₹{originalInrPrice.toLocaleString('en-IN')}</span>
           )}
         </div>
       </div>
@@ -33,9 +33,9 @@ export default function EbookPrice({ usdPrice, originalUsdPrice }: EbookPricePro
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
-        <span className="text-2xl font-bold text-foreground">{currentPrice}</span>
+        <span className="price">{currentPrice}</span>
         {originalPrice && (
-          <span className="text-sm text-muted-foreground line-through">{originalPrice}</span>
+          <span className="text-sm text-subtle line-through">{originalPrice}</span>
         )}
       </div>
     </div>
