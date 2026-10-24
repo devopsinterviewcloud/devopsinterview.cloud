@@ -33,6 +33,12 @@ export default function QuestionsIndexPage() {
           you the answer interviewers are listening for, why they ask it, and the follow-ups they use
           to find the edge of your knowledge.
         </p>
+        <p className="mt-3 text-sm">
+          New:{' '}
+          <Link href="/ai-infrastructure-interview-questions" className="font-semibold text-blue-700 underline-offset-4 hover:underline">
+            AI infrastructure and MLOps interview questions
+          </Link>
+        </p>
       </header>
 
       {categories.map(([category, list]) => (

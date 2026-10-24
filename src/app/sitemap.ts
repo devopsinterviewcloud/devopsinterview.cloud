@@ -63,6 +63,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
+    {
+      url: `${baseUrl}/ai-infrastructure-interview-questions`,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
     // /checkout is a transactional page; intentionally NOT in the sitemap (and noindex on the page).
   ]
 
