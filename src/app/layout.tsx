@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { CurrencyProvider } from "@/components/CurrencyProvider";
 import SiteHeader from "@/components/SiteHeader";
@@ -9,14 +10,18 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteAnalytics from "@/components/SiteAnalytics";
 import { absoluteUrl, siteConfig } from "@/config/site";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+// The cover face. next/font/google only lists the merged "Big Shoulders" family,
+// whose opsz=72 cut sets about 3% wider, so the Display cut is self-hosted
+// (latin subset from Google Fonts, SIL OFL, license alongside).
+const bigShoulders = localFont({
+  src: "./fonts/BigShouldersDisplay-latin.woff2",
+  variable: "--font-big-shoulders",
+  weight: "100 900",
 });
 
 export const metadata: Metadata = {
@@ -105,10 +110,8 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" className={`${inter.variable} ${bigShoulders.variable}`}>
+      <body className="antialiased">
         <script
           id="structured-data-organization"
           type="application/ld+json"

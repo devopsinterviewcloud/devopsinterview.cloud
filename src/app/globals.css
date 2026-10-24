@@ -1,23 +1,59 @@
 @import "tailwindcss";
 
+/*
+ * Direction A, "Cover System": the palette, type and shapes come from the book
+ * covers. Shadows and radii are cleared so they can't creep back by habit. The
+ * default colour palette stays for now because the pages not yet redesigned
+ * (blog, questions, checkout, labs, legal) still use slate and blue utilities.
+ */
+@theme {
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --radius-*: initial;
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+  --radius-4xl: 0;
+
+  --color-ink: #15171c;
+  --color-paper: #f1ede4;
+  --color-sheet: #ffffff;
+  --color-subtle: #4a4d55;
+  --color-hair: #d8d2c4;
+  --color-highlight: #ffd23f;
+  --color-ink-subtle: #b9bcc4;
+  --color-ink-rule: #3a3d45;
+  --color-book-blue: #2b78d0;
+  --color-book-orange: #f26a2e;
+  --color-book-purple: #6a4bc4;
+  --color-book-lime: #c5d93a;
+  --color-book-red: #b3262e;
+}
+
+/* Older semantic names, still used by the pages not yet redesigned. */
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
+  --background: #f1ede4;
+  --foreground: #15171c;
   --card: #ffffff;
-  --card-foreground: #000000;
-  --primary: #2563eb;
+  --card-foreground: #15171c;
+  --primary: #15171c;
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #000000;
-  --muted: #f8fafc;
-  --muted-foreground: #64748b;
-  --accent: #f59e0b;
-  --accent-foreground: #ffffff;
-  --destructive: #dc2626;
+  --secondary: #f1ede4;
+  --secondary-foreground: #15171c;
+  --muted: #ffffff;
+  --muted-foreground: #4a4d55;
+  --accent: #ffd23f;
+  --accent-foreground: #15171c;
+  --destructive: #b3262e;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #2563eb;
+  --border: #d8d2c4;
+  --input: #15171c;
+  --ring: #15171c;
 }
 
 @theme inline {
@@ -38,113 +74,156 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --border-radius: 0.75rem;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-big-shoulders), "Arial Narrow", sans-serif;
 }
 
-/* Tailwind utilities for theme colors */
-.text-foreground {
-  color: var(--foreground);
-}
-
-.text-muted-foreground {
-  color: var(--muted-foreground);
-}
-
-.bg-background {
-  background-color: var(--background);
-}
-
-.bg-muted {
-  background-color: var(--muted);
-}
-
-/* Dark mode removed - using light mode only */
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Ensure proper text color inheritance */
-
-/* Modern animations */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+@layer base {
+  html {
+    scroll-behavior: smooth;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-inter), system-ui, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Two-tone ring: ink against light fills, highlight against ink and colour. */
+  :focus-visible {
+    outline: 3px solid var(--color-highlight);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--color-ink);
   }
 }
 
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out;
-}
+@layer components {
+  .wrap {
+    width: min(1200px, 100% - 32px);
+    margin-inline: auto;
+  }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
+  .display-1,
+  .display-2,
+  .display-3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    line-height: 0.92;
+    overflow-wrap: break-word;
+  }
+  .display-1 { font-size: 52px; }
+  .display-2 { font-size: 36px; }
+  .display-3 { font-size: 24px; }
+  @media (min-width: 640px) {
+    .display-1 { font-size: 72px; }
+    .display-2 { font-size: 56px; }
+    .display-3 { font-size: 28px; }
+  }
+  @media (min-width: 1280px) {
+    .display-1 { font-size: 88px; }
+  }
 
-/* Modern button styles */
-.btn-primary {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  border: none;
-  border-radius: var(--border-radius);
-  padding: 0.75rem 2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.2);
-}
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  @media (min-width: 1024px) {
+    .wordmark { font-size: 26px; }
+  }
 
-.btn-primary:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px 0 rgba(37, 99, 235, 0.3);
-}
+  /* The cover's "INTERVIEW Q&A" label box. */
+  .chip {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--color-ink);
+    color: #ffffff;
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
 
-.btn-secondary {
-  background: var(--secondary);
-  color: var(--secondary-foreground);
-  border: 2px solid var(--secondary);
-  border-radius: var(--border-radius);
-  padding: 0.75rem 2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
+  .meta {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
 
-.btn-secondary:hover {
-  background: transparent;
-  color: var(--primary);
-  border-color: var(--primary);
-}
+  .price {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
 
-/* Card styles */
-.card {
-  background: var(--background);
-  border: 1px solid #e2e8f0;
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
+  .btn-primary,
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 12px 22px;
+    border: 2px solid var(--color-ink);
+    border-radius: 0;
+    font-family: var(--font-inter), system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 20px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: var(--color-ink);
+    color: #ffffff;
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-ink);
+  }
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    background: var(--color-highlight);
+    color: var(--color-ink);
+  }
+  .btn-primary:disabled:hover {
+    background: var(--color-ink);
+    color: #ffffff;
+  }
 
-.card:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  transform: translateY(-4px);
+  /* On ink the primary turns highlight, per the cover system. */
+  .on-ink .btn-primary {
+    background: var(--color-highlight);
+    border-color: var(--color-highlight);
+    color: var(--color-ink);
+  }
+  .on-ink .btn-primary:hover {
+    background: #ffffff;
+    border-color: #ffffff;
+  }
+  .on-ink .btn-secondary {
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+  .on-ink .btn-secondary:hover {
+    background: var(--color-highlight);
+    border-color: var(--color-highlight);
+    color: var(--color-ink);
+  }
 }
-
 
 /* Text color handling */
 .text-foreground {
@@ -163,11 +242,6 @@ html {
 .bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6, .bg-white p, .bg-white li, .bg-white span,
 .bg-slate-50 h1, .bg-slate-50 h2, .bg-slate-50 h3, .bg-slate-50 h4, .bg-slate-50 h5, .bg-slate-50 h6, .bg-slate-50 p, .bg-slate-50 li, .bg-slate-50 span {
   color: var(--foreground);
-}
-
-/* Footer on dark background keeps white text */
-footer.bg-slate-900 * {
-  color: inherit;
 }
 
 /* Muted text should use muted foreground */
