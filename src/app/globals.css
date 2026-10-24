@@ -281,7 +281,8 @@
     color: var(--color-ink);
     overflow-wrap: break-word;
   }
-  .prose-article > :first-child { margin-top: 0; }
+  .prose-article > :first-child,
+  .prose-article > section:first-child > h2:first-child { margin-top: 0; }
   .prose-article h2 {
     margin: 48px 0 16px;
     padding-top: 14px;

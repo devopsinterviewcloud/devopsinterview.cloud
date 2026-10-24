@@ -9,20 +9,20 @@ export const metadata: Metadata = createPageMetadata({
 
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">Privacy Policy</h1>
-          <p className="text-lg text-muted-foreground">Last updated: September 14, 2026</p>
+    <main id="main" className="bg-sheet text-[17px]">
+      <div className="mx-auto w-[min(680px,100%_-_32px)] pt-10 pb-16 sm:pt-14 sm:pb-20">
+        <div className="mb-10">
+          <h1 className="display-2 text-[40px] sm:text-[56px]">Privacy Policy</h1>
+          <p className="meta mt-5 text-subtle">Last updated: September 14, 2026</p>
         </div>
 
-        <div className="prose prose-lg max-w-none text-foreground">
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Information We Collect</h2>
-            <p className="mb-4">
+        <div className="prose-article">
+          <section>
+            <h2>Information We Collect</h2>
+            <p>
               At DevOpsInterview.Cloud, we collect information you provide directly to us, such as when you:
             </p>
-            <ul className="list-disc pl-6 mb-4">
+            <ul>
               <li>Purchase our DevOps and Cloud ebooks</li>
               <li>Subscribe to our newsletter for DevOps insights</li>
               <li>Contact us for support or inquiries</li>
@@ -33,10 +33,10 @@ export default function PrivacyPolicy() {
             </p>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">How We Use Your Information</h2>
-            <p className="mb-4">We use the information we collect to:</p>
-            <ul className="list-disc pl-6 mb-4">
+          <section>
+            <h2>How We Use Your Information</h2>
+            <p>We use the information we collect to:</p>
+            <ul>
               <li>Process your ebook purchases and deliver digital content</li>
               <li>Send you DevOps and Cloud interview preparation materials</li>
               <li>Provide customer support and respond to your inquiries</li>
@@ -46,12 +46,12 @@ export default function PrivacyPolicy() {
             </ul>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Information Sharing</h2>
-            <p className="mb-4">
+          <section>
+            <h2>Information Sharing</h2>
+            <p>
               We do not sell, trade, or otherwise transfer your personal information to third parties except:
             </p>
-            <ul className="list-disc pl-6 mb-4">
+            <ul>
               <li>With your explicit consent</li>
               <li>To trusted service providers who help us operate our website and deliver services</li>
               <li>When required by law or to protect our rights</li>
@@ -59,8 +59,8 @@ export default function PrivacyPolicy() {
             </ul>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Data Security</h2>
+          <section>
+            <h2>Data Security</h2>
             <p>
               We implement appropriate security measures to protect your personal information against 
               unauthorized access, alteration, disclosure, or destruction. All payment processing is 
@@ -68,10 +68,10 @@ export default function PrivacyPolicy() {
             </p>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Your Rights</h2>
-            <p className="mb-4">You have the right to:</p>
-            <ul className="list-disc pl-6 mb-4">
+          <section>
+            <h2>Your Rights</h2>
+            <p>You have the right to:</p>
+            <ul>
               <li>Access and update your personal information</li>
               <li>Request deletion of your data</li>
               <li>Opt out of marketing communications</li>
@@ -80,8 +80,8 @@ export default function PrivacyPolicy() {
             </ul>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Cookies and Tracking</h2>
+          <section>
+            <h2>Cookies and Tracking</h2>
             <p>
               We use cookieless Vercel Web Analytics to understand aggregate site traffic and
               conversion events. These events do not include the email address or payment details
@@ -89,8 +89,8 @@ export default function PrivacyPolicy() {
             </p>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
+          <section>
+            <h2>Contact Us</h2>
             <p>
               If you have any questions about this Privacy Policy or our data practices, 
               please contact us at devopsinterview.cloud@gmail.com or through our contact page.
@@ -98,7 +98,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Changes to This Policy</h2>
+            <h2>Changes to This Policy</h2>
             <p>
               We may update this Privacy Policy from time to time. We will notify you of any 
               material changes by posting the new policy on this page and updating the 
@@ -107,6 +107,6 @@ export default function PrivacyPolicy() {
           </section>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

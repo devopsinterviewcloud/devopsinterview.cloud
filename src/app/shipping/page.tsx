@@ -9,21 +9,21 @@ export const metadata: Metadata = createPageMetadata({
 
 export default function ShippingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white shadow-sm rounded-lg p-8 md:p-12">
-          <h1 className="text-4xl font-bold text-foreground mb-8">
+    <main id="main" className="bg-sheet text-[17px]">
+      <div className="mx-auto w-[min(680px,100%_-_32px)] pt-10 pb-16 sm:pt-14 sm:pb-20">
+        <div>
+          <h1 className="display-2 mb-5 text-[40px] sm:text-[56px]">
             Shipping &amp; Delivery Policy
           </h1>
 
-          <div className="prose prose-slate max-w-none space-y-6 text-muted-foreground">
-            <p className="text-lg">
-              <strong className="text-foreground">Last Updated:</strong> June 2026
+          <div className="prose-article">
+            <p className="meta mb-10 text-subtle">
+              <strong>Last Updated:</strong> June 2026
             </p>
 
             {/* Digital Products - No Physical Shipping */}
-            <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground mt-8 mb-4">
+            <section>
+              <h2>
                 Digital Product Delivery
               </h2>
               <p>
@@ -33,13 +33,13 @@ export default function ShippingPage() {
             </section>
 
             {/* How Delivery Works */}
-            <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground mt-8 mb-4">
+            <section>
+              <h2>
                 How Delivery Works
               </h2>
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <h3 className="text-lg font-semibold text-foreground mb-2">Instant Digital Delivery</h3>
-                <ol className="list-decimal list-inside space-y-2 ml-2">
+              <div className="mb-5 border-l-[6px] border-ink bg-paper px-5 py-4 [&>:last-child]:mb-0">
+                <h3 className="mt-0">Instant Digital Delivery</h3>
+                <ol>
                   <li><strong>Complete Your Purchase:</strong> After successful payment processing</li>
                   <li><strong>Receive Confirmation Email:</strong> Within 5-10 minutes to your registered email</li>
                   <li><strong>Download Your Ebooks:</strong> Click secure download links in the email</li>
@@ -49,33 +49,33 @@ export default function ShippingPage() {
             </section>
 
             {/* Delivery Timeframe */}
-            <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground mt-8 mb-4">
+            <section>
+              <h2>
                 Delivery Timeframe
               </h2>
-              <ul className="list-disc list-inside space-y-2 ml-4">
+              <ul>
                 <li>
-                  <strong className="text-foreground">Standard Delivery:</strong> Within 5-10 minutes of purchase completion
+                  <strong>Standard Delivery:</strong> Within 5-10 minutes of purchase completion
                 </li>
                 <li>
-                  <strong className="text-foreground">Peak Times:</strong> May take up to 30 minutes during high traffic periods
+                  <strong>Peak Times:</strong> May take up to 30 minutes during high traffic periods
                 </li>
                 <li>
-                  <strong className="text-foreground">Download Link Validity:</strong> 72 hours from email receipt
+                  <strong>Download Link Validity:</strong> 72 hours from email receipt
                 </li>
                 <li>
-                  <strong className="text-foreground">Multiple Downloads:</strong> Allowed within the 72-hour window
+                  <strong>Multiple Downloads:</strong> Allowed within the 72-hour window
                 </li>
               </ul>
             </section>
 
             {/* Delivery Issues */}
-            <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground mt-8 mb-4">
+            <section>
+              <h2>
                 Didn&apos;t Receive Your Email?
               </h2>
               <p>If you haven&apos;t received your download email within 30 minutes:</p>
-              <ol className="list-decimal list-inside space-y-2 ml-4">
+              <ol>
                 <li><strong>Check Your Spam/Junk Folder:</strong> Our emails may be filtered</li>
                 <li><strong>Verify Email Address:</strong> Ensure you entered the correct email during checkout</li>
                 <li><strong>Check Promotions Tab:</strong> Gmail users should check the Promotions tab</li>
@@ -85,22 +85,22 @@ export default function ShippingPage() {
             </section>
 
             {/* File Formats */}
-            <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground mt-8 mb-4">
+            <section>
+              <h2>
                 File Formats &amp; Compatibility
               </h2>
               <p>Our ebooks are delivered as:</p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong className="text-foreground">PDF:</strong> Compatible with all devices (Adobe Reader, browsers, and mobile apps), with a fixed, print-quality layout</li>
+              <ul>
+                <li><strong>PDF:</strong> Compatible with all devices (Adobe Reader, browsers, and mobile apps), with a fixed, print-quality layout</li>
               </ul>
-              <p className="mt-4">
+              <p>
                 All files are DRM-free, allowing you to read them on any device without restrictions.
               </p>
             </section>
 
             {/* International Delivery */}
-            <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground mt-8 mb-4">
+            <section>
+              <h2>
                 International Availability
               </h2>
               <p>
@@ -108,83 +108,83 @@ export default function ShippingPage() {
                 Customers from any country can purchase and receive instant access to our ebooks.
               </p>
               <p>
-                <strong className="text-foreground">No Customs, No Duties, No Delays:</strong> Digital delivery means no international shipping
+                <strong>No Customs, No Duties, No Delays:</strong> Digital delivery means no international shipping
                 complications or additional fees.
               </p>
             </section>
 
             {/* Redelivery */}
-            <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground mt-8 mb-4">
+            <section>
+              <h2>
                 Redelivery &amp; Lost Access
               </h2>
               <p>
                 If your download links have expired or you&apos;ve lost access to your purchased ebooks:
               </p>
-              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
-                <p className="font-semibold text-foreground">📧 Contact Support for Redelivery</p>
-                <p className="mt-2">Email: <a href="mailto:devopsinterview.cloud@gmail.com" className="text-blue-600 hover:underline">devopsinterview.cloud@gmail.com</a></p>
-                <p className="mt-2">Provide:</p>
-                <ul className="list-disc list-inside ml-4 mt-1">
+              <div className="mb-5 border-l-[6px] border-ink bg-paper px-5 py-4 [&>:last-child]:mb-0">
+                <p className="font-semibold">📧 Contact Support for Redelivery</p>
+                <p>Email: <a href="mailto:devopsinterview.cloud@gmail.com">devopsinterview.cloud@gmail.com</a></p>
+                <p>Provide:</p>
+                <ul>
                   <li>Your order confirmation email or order ID</li>
                   <li>Email address used during purchase</li>
                   <li>Date of purchase (approximate)</li>
                 </ul>
-                <p className="mt-2 text-sm">We typically respond within 24 hours and will resend your download links.</p>
+                <p className="text-[15px]">We typically respond within 24 hours and will resend your download links.</p>
               </div>
             </section>
 
             {/* Technical Support */}
-            <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground mt-8 mb-4">
+            <section>
+              <h2>
                 Technical Support
               </h2>
               <p>
                 If you experience any technical issues with downloading or accessing your ebooks, our support team is here to help:
               </p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Email: <a href="mailto:devopsinterview.cloud@gmail.com" className="text-blue-600 hover:underline">devopsinterview.cloud@gmail.com</a></li>
+              <ul>
+                <li>Email: <a href="mailto:devopsinterview.cloud@gmail.com">devopsinterview.cloud@gmail.com</a></li>
               </ul>
             </section>
 
             {/* No Physical Address */}
-            <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground mt-8 mb-4">
+            <section>
+              <h2>
                 No Physical Shipping
               </h2>
               <p>
-                <strong className="text-foreground">Important:</strong> We do not offer physical shipping or printed versions of our ebooks.
+                <strong>Important:</strong> We do not offer physical shipping or printed versions of our ebooks.
                 All products are digital downloads only. If you require a printed version, you may print the PDF files for personal use in
                 accordance with our Terms of Service.
               </p>
             </section>
 
             {/* Contact Information */}
-            <section className="space-y-4 mt-12 pt-8 border-t">
-              <h2 className="text-2xl font-semibold text-foreground mb-4">
+            <section>
+              <h2>
                 Contact Information
               </h2>
-              <div className="bg-slate-50 p-6 rounded-lg">
+              <div className="mb-5 bg-paper px-5 py-4 [&>:last-child]:mb-0">
                 <p>
-                  <strong>Email:</strong> <a href="mailto:devopsinterview.cloud@gmail.com" className="text-blue-600 hover:underline">devopsinterview.cloud@gmail.com</a>
+                  <strong>Email:</strong> <a href="mailto:devopsinterview.cloud@gmail.com">devopsinterview.cloud@gmail.com</a>
                 </p>
               </div>
             </section>
 
             {/* Footer Note */}
-            <section className="mt-12 pt-8 border-t">
-              <p className="text-sm text-muted-foreground">
+            <section className="mt-12 border-t border-hair pt-6">
+              <p className="text-[15px] text-subtle">
                 This Shipping &amp; Delivery Policy applies to all purchases made through DevOpsInterview.Cloud.
                 We reserve the right to update this policy at any time. Please review this page periodically for changes.
               </p>
-              <p className="text-sm text-muted-foreground mt-4">
+              <p className="text-[15px] text-subtle">
                 For refund and cancellation policies, please visit our{' '}
-                <a href="/refunds" className="text-blue-600 hover:underline">Refund Policy</a> page.
+                <a href="/refunds">Refund Policy</a> page.
               </p>
             </section>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
