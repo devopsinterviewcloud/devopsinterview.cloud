@@ -283,7 +283,7 @@ export default async function EbookPage({
                     <TrackedLink
                       href={`/checkout?ebook=${bundle.id}`}
                       eventName="checkout_started"
-                      eventProperties={{ product: bundle.id, location: "product_page" }}
+                      eventProperties={{ product: bundle.id, location: "product_page_bundle_row" }}
                       className="btn-primary min-w-[76px]"
                     >
                       Buy<span className="sr-only"> all five books</span>
