@@ -5,6 +5,7 @@ import { getAllPosts, getPost } from '@/lib/blog'
 import { siteConfig, truncateMetadataText } from '@/config/site'
 import TrackedLink from '@/components/TrackedLink'
 import { getContents, productForArticle, sampleHrefFor, totalQuestions, BUNDLE_SLUG } from '@/lib/catalog'
+import { YOUTUBE_URL } from '@/lib/podcast'
 
 const SITE_URL = siteConfig.url
 
@@ -120,6 +121,14 @@ export default async function BlogPostPage({
 
         <div className="blog-prose" dangerouslySetInnerHTML={{ __html: post.html }} />
       </article>
+
+      <p className="mt-10 text-sm text-slate-600">
+        Prefer to watch or listen? Answers like these are walked through on{' '}
+        <TrackedLink href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" eventName="blog_channel_clicked" eventProperties={{ destination: 'youtube', article: post.slug }} className="font-semibold text-blue-700 underline-offset-4 hover:underline">YouTube</TrackedLink>{' '}
+        and on the{' '}
+        <TrackedLink href="/podcast" eventName="blog_channel_clicked" eventProperties={{ destination: 'podcast', article: post.slug }} className="font-semibold text-blue-700 underline-offset-4 hover:underline">podcast</TrackedLink>,
+        on Spotify and Amazon Music.
+      </p>
 
       <aside className="mt-12 rounded-xl border border-blue-200 bg-blue-50 p-6">
         {product && contents ? (
