@@ -13,6 +13,10 @@ const Body = z.object({
   source: z.string().max(60).optional(),
 })
 
+// Interest lists for books that don't exist yet. The page promises one email if the
+// book goes ahead, so these signups get no sample and stay out of the broadcast audience.
+const WAITLISTS = new Set(['ai-infra-waitlist'])
+
 export async function POST(req: NextRequest) {
   // Abuse protection: throttle by IP.
   const limited = await checkRateLimit(req, 'subscribe')
@@ -27,17 +31,34 @@ export async function POST(req: NextRequest) {
   const email = parsed.email.trim().toLowerCase()
   const source = parsed.source || 'free-sample'
 
+  const waitlist = WAITLISTS.has(source)
+
   // Capture the lead first so we keep it even if the email vendor hiccups.
   try {
-    await db.subscriber.upsert({
-      where: { email },
-      update: { isActive: true, unsubscribedAt: null },
-      create: { email, name: parsed.name, source },
-    })
+    if (waitlist) {
+      // Joining a waitlist is consent to that one email only: an existing row keeps its
+      // subscription state, and gets the tag appended (once, in one statement) so the
+      // list can be counted and mailed by tag.
+      await db.subscriber.upsert({ where: { email }, update: {}, create: { email, name: parsed.name, source } })
+      await db.$executeRaw`
+        UPDATE subscribers
+        SET source = CASE WHEN coalesce(source, '') = '' THEN ${source} ELSE source || '+' || ${source} END
+        WHERE email = ${email} AND NOT (${source} = ANY (string_to_array(coalesce(source, ''), '+')))`
+    } else {
+      await db.subscriber.upsert({
+        where: { email },
+        update: { isActive: true, unsubscribedAt: null },
+        create: { email, name: parsed.name, source },
+      })
+    }
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Subscriber upsert failed:', err)
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
+  }
+
+  if (waitlist) {
+    return NextResponse.json({ ok: true, message: "You're on the list. We'll email you if the book goes ahead." })
   }
 
   // Add to the Resend Audience for future broadcasts (newsletter/funnel).

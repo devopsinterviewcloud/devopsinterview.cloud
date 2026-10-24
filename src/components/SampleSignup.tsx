@@ -10,6 +10,8 @@ type SampleSignupProps = {
   ctaLabel?: string
   helperText?: string
   successMessage?: string
+  /** Shown under the success message; null for signups that send no email. */
+  successNote?: string | null
 }
 
 export default function SampleSignup({
@@ -17,6 +19,7 @@ export default function SampleSignup({
   ctaLabel = 'Email me the free sample',
   helperText = '8 real questions, one per chapter. No spam, unsubscribe anytime.',
   successMessage = 'Check your inbox for the free sample.',
+  successNote = "It can take a minute to arrive. Check spam if you don't see it.",
 }: SampleSignupProps) {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<Status>('idle')
@@ -55,9 +58,7 @@ export default function SampleSignup({
     return (
       <div className="max-w-xl mx-auto text-center bg-emerald-50 border border-emerald-200 rounded-xl p-6">
         <p className="text-emerald-800 font-semibold">✅ {message}</p>
-        <p className="text-emerald-700 text-sm mt-2">
-          It can take a minute to arrive. Check spam if you don&apos;t see it.
-        </p>
+        {successNote && <p className="text-emerald-700 text-sm mt-2">{successNote}</p>}
       </div>
     )
   }
