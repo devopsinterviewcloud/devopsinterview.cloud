@@ -5,6 +5,10 @@ import { getAllQuestions, getQuestion, relatedQuestions, categoryLabel, productF
 import { siteConfig, truncateMetadataText } from '@/config/site'
 import TrackedLink from '@/components/TrackedLink'
 import { getContents, sampleHrefFor, totalQuestions } from '@/lib/catalog'
+import { bookStyle } from '@/lib/book-style'
+import BookCallout from '@/components/BookCallout'
+
+const inlineLink = 'font-semibold text-ink underline underline-offset-4 hover:decoration-2'
 
 const SITE_URL = siteConfig.url
 
@@ -57,6 +61,7 @@ export default async function QuestionPage({
   const product = productForCategory(question.category)
   const contents = product ? getContents(product.slug) : undefined
   const related = relatedQuestions(question)
+  const style = bookStyle(product?.id ?? 'bundle')
 
   const url = `${SITE_URL}/questions/${question.slug}`
   const jsonLd = {
@@ -85,7 +90,7 @@ export default async function QuestionPage({
   }
 
   return (
-    <main id="main" className="container mx-auto px-4 py-12 max-w-3xl">
+    <main id="main" className="bg-sheet text-[17px]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
@@ -95,97 +100,100 @@ export default async function QuestionPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
 
-      <nav className="text-sm text-muted-foreground mb-8" aria-label="Breadcrumb">
-        <Link href="/" className="hover:underline">Home</Link>
-        <span className="mx-2">/</span>
-        <Link href="/questions" className="hover:underline">Interview Questions</Link>
-        <span className="mx-2">/</span>
-        <span className="text-foreground">{question.title.length > 40 ? question.title.slice(0, 40) + '…' : question.title}</span>
-      </nav>
+      <div className="wrap pt-5 pb-16 sm:pb-20">
+        <div className="mx-auto max-w-[680px]">
+          <nav className="text-[14px] font-medium" aria-label="Breadcrumb">
+            <Link href="/" className="underline-offset-4 hover:underline">Home</Link>
+            <span className="mx-2 text-subtle" aria-hidden="true">/</span>
+            <Link href="/questions" className="underline-offset-4 hover:underline">Interview Questions</Link>
+            <span className="mx-2 text-subtle" aria-hidden="true">/</span>
+            <span className="text-subtle">{question.title.length > 40 ? question.title.slice(0, 40) + '…' : question.title}</span>
+          </nav>
 
-      <article>
-        <header className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-4">{question.title}</h1>
-          <div className="text-sm text-muted-foreground">
-            <span>{categoryLabel(question.category)}</span>
-            <span className="mx-2">·</span>
-            {question.readingMinutes} min read
-          </div>
-        </header>
+          <article>
+            <header className="pt-8 pb-9 sm:pt-12 sm:pb-10">
+              <span className={`chip ${style.fill}`}>{categoryLabel(question.category)}</span>
+              <h1 className="display-2 mt-5 text-[40px] sm:text-[56px]">{question.title}</h1>
+              <p className="meta mt-5 text-subtle">{question.readingMinutes} min read</p>
+            </header>
 
-        <div className="blog-prose" dangerouslySetInnerHTML={{ __html: question.html }} />
+            <div className="prose-article" dangerouslySetInnerHTML={{ __html: question.html }} />
 
-        {question.youtubeId && (
-          <p className="mt-6 text-sm text-muted-foreground">
-            Prefer it spoken?{' '}
-            <TrackedLink
-              href={`https://www.youtube.com/watch?v=${question.youtubeId}`}
-              target="_blank"
-              eventName="questions_cta_clicked"
-              eventProperties={{ destination: 'youtube', question: question.slug }}
-              className="font-semibold text-blue-700 underline-offset-4 hover:underline"
-            >
-              Watch the 30-second answer on YouTube
-            </TrackedLink>
-          </p>
-        )}
-      </article>
-
-      <aside className="mt-12 rounded-xl border border-blue-200 bg-blue-50 p-6">
-        {product && contents ? (
-          <>
-            <h2 className="text-lg font-semibold mb-2">
-              Preparing for {categoryLabel(question.category)} interviews? The matching ebook is {product.title}
-            </h2>
-            <p className="text-sm text-slate-700 mb-4">
-              {contents.questionCount} questions in {contents.chapters.length} chapters. Each one is answered the way a
-              senior engineer would: a 30-second answer, the deep dive, the tradeoffs and the follow-ups.
-              Read a sample answer free before deciding. Every purchase includes the free Interview-Day Playbook.
-            </p>
-            <div className="flex flex-wrap items-center gap-4">
-              <TrackedLink href={`/ebooks/${product.slug}`} eventName="questions_cta_clicked" eventProperties={{ destination: 'product', product: product.id, question: question.slug }} className="btn-primary inline-block">
-                See the {contents.questionCount} questions
-              </TrackedLink>
-              <TrackedLink href={sampleHrefFor(product.slug)} eventName="questions_cta_clicked" eventProperties={{ destination: 'sample', product: product.id, question: question.slug }} className="font-semibold text-blue-700 underline-offset-4 hover:underline">
-                Read a free sample question
-              </TrackedLink>
-            </div>
-          </>
-        ) : (
-          <>
-            <h2 className="text-lg font-semibold mb-2">Preparing for DevOps interviews?</h2>
-            <p className="text-sm text-slate-700 mb-4">
-              Our five-book series covers cloud, Kubernetes, Terraform, CI/CD and SRE with {totalQuestions} interview
-              questions and worked answers. Every purchase includes the free Interview-Day Playbook.
-            </p>
-            {/* categories mapped to the bundle (it has no single-book contents) go straight to it */}
-            {product ? (
-              <TrackedLink href={`/ebooks/${product.slug}`} eventName="questions_cta_clicked" eventProperties={{ destination: 'product', product: product.id, question: question.slug }} className="btn-primary inline-block">
-                See the five-book bundle
-              </TrackedLink>
-            ) : (
-              <TrackedLink href="/ebooks" eventName="questions_cta_clicked" eventProperties={{ destination: 'ebooks', question: question.slug }} className="btn-primary inline-block">
-                Browse the DevOps ebooks
-              </TrackedLink>
+            {question.youtubeId && (
+              <p className="mt-8 border-t border-hair pt-5 text-[16px] text-subtle">
+                Prefer it spoken?{' '}
+                <TrackedLink
+                  href={`https://www.youtube.com/watch?v=${question.youtubeId}`}
+                  target="_blank"
+                  eventName="questions_cta_clicked"
+                  eventProperties={{ destination: 'youtube', question: question.slug }}
+                  className={inlineLink}
+                >
+                  Watch the 30-second answer on YouTube
+                </TrackedLink>
+              </p>
             )}
-          </>
-        )}
-      </aside>
+          </article>
 
-      {related.length > 0 && (
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold mb-4">More {categoryLabel(question.category)} questions</h2>
-          <ul className="space-y-2">
-            {related.map((r) => (
-              <li key={r.slug}>
-                <Link href={`/questions/${r.slug}`} className="text-blue-700 underline-offset-4 hover:underline">
-                  {r.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+          <BookCallout book={product} className="mt-10 bg-paper">
+            {product && contents ? (
+              <>
+                <span className="chip">{style.label}</span>
+                <h2 className="mt-3 text-[22px] font-bold leading-snug">
+                  Preparing for {categoryLabel(question.category)} interviews? The matching ebook is {product.title}
+                </h2>
+                <p className="mt-2.5 text-[16px] leading-relaxed text-subtle">
+                  {contents.questionCount} questions in {contents.chapters.length} chapters. Each one is answered the way a
+                  senior engineer would: a 30-second answer, the deep dive, the tradeoffs and the follow-ups.
+                  Read a sample answer free before deciding. Every purchase includes the free Interview-Day Playbook.
+                </p>
+                <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
+                  <TrackedLink href={`/ebooks/${product.slug}`} eventName="questions_cta_clicked" eventProperties={{ destination: 'product', product: product.id, question: question.slug }} className="btn-primary">
+                    See the {contents.questionCount} questions
+                  </TrackedLink>
+                  <TrackedLink href={sampleHrefFor(product.slug)} eventName="questions_cta_clicked" eventProperties={{ destination: 'sample', product: product.id, question: question.slug }} className={inlineLink}>
+                    Read a free sample question
+                  </TrackedLink>
+                </div>
+              </>
+            ) : (
+              <>
+                {product && <span className="chip">{style.label}</span>}
+                <h2 className={`text-[22px] font-bold leading-snug ${product ? 'mt-3' : ''}`}>Preparing for DevOps interviews?</h2>
+                <p className="mt-2.5 text-[16px] leading-relaxed text-subtle">
+                  Our five-book series covers cloud, Kubernetes, Terraform, CI/CD and SRE with {totalQuestions} interview
+                  questions and worked answers. Every purchase includes the free Interview-Day Playbook.
+                </p>
+                {/* categories mapped to the bundle (it has no single-book contents) go straight to it */}
+                {product ? (
+                  <TrackedLink href={`/ebooks/${product.slug}`} eventName="questions_cta_clicked" eventProperties={{ destination: 'product', product: product.id, question: question.slug }} className="btn-primary mt-5">
+                    See the five-book bundle
+                  </TrackedLink>
+                ) : (
+                  <TrackedLink href="/ebooks" eventName="questions_cta_clicked" eventProperties={{ destination: 'ebooks', question: question.slug }} className="btn-primary mt-5">
+                    Browse the DevOps ebooks
+                  </TrackedLink>
+                )}
+              </>
+            )}
+          </BookCallout>
+
+          {related.length > 0 && (
+            <section className="mt-14 border-t-2 border-ink pt-3.5">
+              <h2 className="display-3">More {categoryLabel(question.category)} questions</h2>
+              <ul className="mt-3 text-[16px] leading-snug">
+                {related.map((r) => (
+                  <li key={r.slug} className="border-b border-hair py-2.5">
+                    <Link href={`/questions/${r.slug}`} className="underline-offset-4 hover:underline">
+                      {r.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+      </div>
     </main>
   )
 }
