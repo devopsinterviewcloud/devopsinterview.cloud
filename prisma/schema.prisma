@@ -146,6 +146,17 @@ model Order {
   status            OrderStatus @default(PENDING)
   fulfilledAt       DateTime?
 
+  // GST invoicing: buyer's state (GST state code) for INR sales; country and
+  // billing address for exports, which the invoice must show
+  buyerState        String?
+  buyerCountry      String?
+  billingAddress    String?
+  invoiceNumber     String?     @unique
+  // LUT ARN an export was invoiced under; exports invoiced without one carry IGST
+  // in subtotal/tax. Fixed at invoicing so a later LUT never rewrites a past invoice.
+  exportLutRef      String?
+  invoiceDate       DateTime?
+
   // Metadata
   ipAddress         String?
   userAgent         String?
@@ -295,4 +306,13 @@ enum OrderStatus {
   FAILED
   REFUNDED
   CANCELLED
+}
+
+// One invoice series per Indian financial year ("2627" = Apr 2026 to Mar 2027);
+// fulfilment takes the next number under a row lock so numbers never repeat.
+model InvoiceCounter {
+  fy   String @id
+  last Int    @default(0)
+
+  @@map("invoice_counters")
 }

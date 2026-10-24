@@ -6,12 +6,25 @@
 //  - a lost atomic claim never sends a second email,
 //  - a capture that does not match the stored amount/currency is never delivered,
 //  - an email failure keeps the order paid+PROCESSING for a retry,
-//  - the owner gets one sale email per claimed order, and its failure changes nothing.
+//  - the owner gets one sale email per claimed order, and its failure changes nothing,
+//  - a GST invoice is numbered once, rides in the download email, and never blocks delivery.
 const sendMock = jest.fn()
 jest.mock('resend', () => ({ Resend: jest.fn().mockImplementation(() => ({ emails: { send: (...a: unknown[]) => sendMock(...a) } })) }))
 const findUnique = jest.fn()
 const updateMany = jest.fn()
-jest.mock('@/lib/db', () => ({ db: { order: { findUnique: (...a: unknown[]) => findUnique(...a), updateMany: (...a: unknown[]) => updateMany(...a) } } }))
+const txQuery = jest.fn()
+const txFind = jest.fn()
+const txUpdate = jest.fn()
+const transaction = jest.fn((fn: (tx: unknown) => unknown) => fn({
+  $queryRaw: (...a: unknown[]) => txQuery(...a),
+  order: { findUnique: (...a: unknown[]) => txFind(...a), update: (...a: unknown[]) => txUpdate(...a) },
+}))
+jest.mock('@/lib/db', () => ({ db: {
+  order: { findUnique: (...a: unknown[]) => findUnique(...a), updateMany: (...a: unknown[]) => updateMany(...a) },
+  $transaction: (fn: (tx: unknown) => unknown) => transaction(fn),
+} }))
+const getPayPalOrder = jest.fn()
+jest.mock('@/lib/payments/paypal', () => ({ getPayPalOrder: (...a: unknown[]) => getPayPalOrder(...a) }))
 
 process.env.DOWNLOAD_TOKEN_SECRET = 'test-secret'
 
@@ -114,4 +127,92 @@ test('a paid PROCESSING order retries the email on redelivery and then completes
   expect(sendMock).toHaveBeenCalledTimes(1) // buyer only: the owner was told when the order was claimed
   expect(sendMock.mock.calls[0][1]).toEqual({ idempotencyKey: 'purchase-email/ord_1' })
   expect(updateMany.mock.calls[0][0].data).toEqual({ status: 'COMPLETED' })
+})
+
+describe('GST invoice', () => {
+  const env = { ...process.env }
+  beforeEach(() => Object.assign(process.env, { GSTIN: '33ABCDE1234F1Z5', GST_TRADE_NAME: 'Test Traders', GST_ADDRESS: 'Chennai' }))
+  afterEach(() => { process.env = { ...env } })
+  const karnataka = { ...pending, subtotal: 761.86, tax: 137.14, buyerState: '29', buyerCountry: 'IN', billingAddress: null, exportLutRef: null, invoiceNumber: null, invoiceDate: null }
+  // The locked row inside the claim transaction, then the counter, then the update returns the claimed row.
+  const claimInTx = (row: object, last = 7) => {
+    txQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([{ last }])
+    txFind.mockResolvedValueOnce(row)
+    txUpdate.mockImplementationOnce((a: { data: object }) => Promise.resolve({ ...row, ...a.data }))
+  }
+
+  test('the claim and the invoice number land together, and the email carries the invoice', async () => {
+    findUnique.mockResolvedValueOnce(karnataka)
+    claimInTx(karnataka)
+    updateMany.mockResolvedValue({ count: 1 })
+    const r = await fulfillByGatewayOrderId('order_gw', 'pay_1', { amount: 899, currency: 'INR' })
+    expect(r).toEqual({ ok: true, alreadyFulfilled: false })
+    expect(txUpdate.mock.calls[0][0].data).toMatchObject({ paymentStatus: 'SUCCEEDED', status: 'PROCESSING', invoiceNumber: expect.stringMatching(/^PE\/\d{4}\/00007$/) })
+    expect(updateMany).toHaveBeenCalledTimes(1) // only the COMPLETED flip; the claim was the transaction
+    const purchase = sendMock.mock.calls[0][0]
+    expect(purchase.html).toMatch(/PE\/\d{4}\/00007/)
+    expect(purchase.html).toContain('Karnataka (29)')
+    expect(purchase.html).toContain('IGST 18%')
+    expect(sendMock.mock.calls[1][0].text).toMatch(/Invoice: PE\/\d{4}\/00007, Karnataka \(29\), taxable 761\.86, IGST 137\.14/)
+    expect(getPayPalOrder).not.toHaveBeenCalled()
+  })
+
+  test('the invoice uses the row as claimed, so a state corrected at checkout is what it shows', async () => {
+    findUnique.mockResolvedValueOnce({ ...karnataka, buyerState: '33' }) // stale first read
+    claimInTx(karnataka) // the locked row has the corrected state
+    updateMany.mockResolvedValue({ count: 1 })
+    await fulfillByGatewayOrderId('order_gw', 'pay_1', { amount: 899, currency: 'INR' })
+    expect(sendMock.mock.calls[0][0].html).toContain('Karnataka (29)')
+    expect(sendMock.mock.calls[0][0].html).not.toContain('CGST')
+  })
+
+  test('a concurrent delivery that lost the claim resends with the stored invoice', async () => {
+    findUnique.mockResolvedValueOnce(karnataka)
+    txQuery.mockResolvedValueOnce([])
+    txFind.mockResolvedValueOnce({ ...karnataka, paymentStatus: 'SUCCEEDED' }) // the other delivery got there first
+    findUnique.mockResolvedValueOnce({ ...karnataka, paymentStatus: 'SUCCEEDED', status: 'PROCESSING', fulfilledAt: new Date('2026-10-24T05:00:00Z'), invoiceNumber: 'PE/2627/00009', invoiceDate: new Date('2026-10-24T05:00:00Z') })
+    updateMany.mockResolvedValue({ count: 1 })
+    const r = await fulfillByGatewayOrderId('order_gw', 'pay_1', { amount: 899, currency: 'INR' })
+    expect(r).toEqual({ ok: true, alreadyFulfilled: true })
+    expect(txUpdate).not.toHaveBeenCalled()
+    expect(sendMock).toHaveBeenCalledTimes(1)
+    expect(sendMock.mock.calls[0][0].html).toContain('PE/2627/00009')
+  })
+
+  test('a PayPal order takes the payer name and country from PayPal for its export invoice', async () => {
+    const usd = { ...pending, gateway: 'paypal', currency: 'USD', total: 31.99, subtotal: 31.99, tax: 0, buyerState: null, buyerCountry: 'FR', billingAddress: '1 Rue X, Paris', exportLutRef: null, customerName: null, invoiceNumber: null, invoiceDate: null }
+    findUnique.mockResolvedValueOnce(usd)
+    getPayPalOrder.mockResolvedValueOnce({ payer: { name: { given_name: 'Ada', surname: 'Lovelace' }, address: { country_code: 'DE' } } })
+    claimInTx(usd, 1)
+    updateMany.mockResolvedValue({ count: 1 })
+    await fulfillByGatewayOrderId('order_gw', 'pay_1', { amount: 31.99, currency: 'USD' })
+    const data = txUpdate.mock.calls[0][0].data
+    expect(data).toMatchObject({ customerName: 'Ada Lovelace', subtotal: 27.11, tax: 4.88 }) // no LUT: IGST fixed now
+    expect(data).not.toHaveProperty('buyerCountry') // the typed billing country stands
+    const purchase = sendMock.mock.calls[0][0]
+    expect(purchase.html).toContain('Invoice (export of services)')
+    expect(purchase.html).toContain('Billed to: Ada Lovelace, 1 Rue X, Paris, France')
+    expect(purchase.html).toContain('export on payment of integrated tax')
+    expect(sendMock.mock.calls[1][0].text).toContain("export to France, no LUT configured, IGST 4.88 USD payable. Note: PayPal's payer country is Germany, not the billing country.")
+  })
+
+  test('if the claim transaction fails the order is still claimed and delivered, and the owner is told', async () => {
+    findUnique.mockResolvedValueOnce(karnataka)
+    transaction.mockImplementationOnce(() => Promise.reject(new Error('db down')))
+    updateMany.mockResolvedValue({ count: 1 })
+    const r = await fulfillByGatewayOrderId('order_gw', 'pay_1', { amount: 899, currency: 'INR' })
+    expect(r).toEqual({ ok: true, alreadyFulfilled: false })
+    expect(updateMany.mock.calls[0][0].data).toMatchObject({ paymentStatus: 'SUCCEEDED', status: 'PROCESSING' }) // plain claim
+    expect(updateMany.mock.calls[1][0].data).toEqual({ status: 'COMPLETED' })
+    expect(sendMock.mock.calls[0][0].html).not.toContain('Tax Invoice')
+    expect(sendMock.mock.calls[1][0].text).toContain('Invoice: NOT ISSUED, invoice numbering failed (db down). Issue one by hand.')
+  })
+
+  test('an email retry reuses the stored invoice and never takes a new number', async () => {
+    findUnique.mockResolvedValueOnce({ ...karnataka, paymentStatus: 'SUCCEEDED', status: 'PROCESSING', fulfilledAt: new Date('2026-10-24T05:00:00Z'), invoiceNumber: 'PE/2627/00003', invoiceDate: new Date('2026-10-24T05:00:00Z') })
+    updateMany.mockResolvedValueOnce({ count: 1 })
+    await fulfillByGatewayOrderId('order_gw', 'pay_1')
+    expect(transaction).not.toHaveBeenCalled()
+    expect(sendMock.mock.calls[0][0].html).toContain('PE/2627/00003')
+  })
 })

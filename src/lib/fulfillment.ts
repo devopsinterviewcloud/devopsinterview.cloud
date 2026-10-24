@@ -1,13 +1,16 @@
 /**
- * Idempotent fulfilment: mark a paid order complete, email the download link and
- * tell the store owner about the sale.
+ * Idempotent fulfilment: mark a paid order complete, issue its GST invoice, email
+ * the download link with the invoice, and tell the store owner about the sale.
  * Called from the payment webhooks (the source of truth), never from the browser.
  */
 import { Resend } from 'resend'
-import type { Order } from '@prisma/client'
+import type { Order, PaymentStatus } from '@prisma/client'
 import { db } from '@/lib/db'
 import { getEbook } from '@/lib/catalog'
 import { createDownloadToken } from '@/lib/download-token'
+import { claimWithInvoice, countryName, gstSupplier, invoiceHtml, taxSplit } from '@/lib/gst'
+import { gstStateName } from '@/lib/gst-states'
+import { getPayPalOrder } from '@/lib/payments/paypal'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 // Fall back to the production domain, never localhost: a missing env var must not
@@ -38,7 +41,7 @@ export async function fulfillByGatewayOrderId(
     // from concurrent redeliveries into one delivered email.
     if (order.status === 'PROCESSING' && order.ebookSlug && order.customerEmail) {
       try {
-        await sendPurchaseEmail(order.customerEmail, order.id, order.ebookSlug, order.fulfilledAt ?? new Date())
+        await sendPurchaseEmail(order.customerEmail, order.id, order.ebookSlug, order.fulfilledAt ?? new Date(), invoiceBlock(order))
         await db.order.updateMany({ where: { id: order.id }, data: { status: 'COMPLETED' } })
         return { ok: true, alreadyFulfilled: true as const }
       } catch (e) {
@@ -79,16 +82,43 @@ export async function fulfillByGatewayOrderId(
   // capture proves the money actually moved (e.g. buyer retried after a declined
   // funding source). Without `paid` we never resurrect a FAILED row.
   const fulfilledAt = new Date()
-  const claim = await db.order.updateMany({
-    where: { id: order.id, paymentStatus: { in: paid ? ['PENDING', 'FAILED'] : ['PENDING'] } },
-    data: {
-      paymentStatus: 'SUCCEEDED',
-      status: 'PROCESSING',
-      gatewayPaymentId,
-      fulfilledAt,
-    },
-  })
-  if (claim.count === 0) {
+  const claimable: PaymentStatus[] = paid ? ['PENDING', 'FAILED'] : ['PENDING']
+  const plainClaim = async () => {
+    const r = await db.order.updateMany({
+      where: { id: order.id, paymentStatus: { in: claimable } },
+      data: {
+        paymentStatus: 'SUCCEEDED',
+        status: 'PROCESSING',
+        gatewayPaymentId,
+        fulfilledAt,
+      },
+    })
+    return r.count === 0 ? null : order
+  }
+  // With GST details configured, the invoice number is taken in the same transaction
+  // that claims the order, so no other delivery ever sees it paid without its invoice
+  // (and every retried email carries the same one). If that transaction fails, the
+  // order is still claimed and delivered; the owner's sale email says to invoice by hand.
+  const supplier = gstSupplier()
+  let claimed: Order | null
+  let invoiceProblem: string | undefined
+  const payer = supplier ? await payerDetails(order) : {}
+  if (supplier) {
+    try {
+      // PayPal's name/country only fill gaps: the invoice keeps the billing details the
+      // buyer typed together, and a disagreement is flagged to the owner instead.
+      claimed = await claimWithInvoice(order.id, claimable, { gatewayPaymentId, fulfilledAt }, supplier,
+        { customerName: payer.name, buyerCountry: payer.country })
+    } catch (e) {
+      console.error('invoice: claim with invoice failed, claiming without one', { orderId: order.id, error: e })
+      invoiceProblem = `invoice numbering failed (${e instanceof Error ? e.message : String(e)})`
+      claimed = await plainClaim()
+    }
+  } else {
+    invoiceProblem = 'GST details are not configured (GSTIN, GST_TRADE_NAME, GST_ADDRESS)'
+    claimed = await plainClaim()
+  }
+  if (!claimed) {
     // Another delivery won the race between our read and our claim. Its email may
     // still have failed, so re-run ONCE against the fresh row: the SUCCEEDED +
     // PROCESSING branch at the top retries the send (Resend's idempotency key
@@ -97,22 +127,81 @@ export async function fulfillByGatewayOrderId(
     return { ok: true, alreadyFulfilled: true as const }
   }
 
+  // Render from the row as claimed (a state corrected at checkout after our first
+  // read is what the invoice, the report and any retry all use).
+  const invoiced = claimed
+  const problem = invoiceProblem
+
   if (order.ebookSlug && order.customerEmail) {
     try {
-      await sendPurchaseEmail(order.customerEmail, order.id, order.ebookSlug, fulfilledAt)
+      await sendPurchaseEmail(order.customerEmail, order.id, order.ebookSlug, fulfilledAt, invoiceBlock(invoiced))
     } catch (e) {
       // Order stays paid + PROCESSING; the webhook route returns 5xx so the gateway
       // redelivers and the retry branch above resends. Log enough to do it by hand too.
       console.error('fulfillment: DOWNLOAD EMAIL FAILED - will retry on redelivery', {
         orderId: order.id, email: order.customerEmail, slug: order.ebookSlug, error: e,
       })
-      await notifySale(order, false)
+      await notifySale(invoiced, false, problem, payer.country)
       return { ok: true, alreadyFulfilled: false as const, emailFailed: true as const }
     }
   }
   await db.order.updateMany({ where: { id: order.id }, data: { status: 'COMPLETED' } })
-  await notifySale(order, Boolean(order.ebookSlug && order.customerEmail))
+  await notifySale(invoiced, Boolean(order.ebookSlug && order.customerEmail), problem, payer.country)
   return { ok: true, alreadyFulfilled: false as const }
+}
+
+const productTitle = (slug: string | null) => (slug && getEbook(slug)?.title) || slug || 'unknown product'
+
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error(`timed out after ${ms}ms`)), ms) })
+  return Promise.race([p, timeout]).finally(() => clearTimeout(timer))
+}
+
+/**
+ * For a PayPal (export) order about to be invoiced, the payer's name and country from
+ * PayPal: better evidence of the place of supply than the checkout menu. If PayPal
+ * doesn't answer in 5s the checkout data stands.
+ */
+async function payerDetails(order: Order): Promise<{ name?: string; country?: string }> {
+  if (order.gateway !== 'paypal' || !order.gatewayOrderId || order.invoiceNumber) return {}
+  try {
+    const pp = await withTimeout(getPayPalOrder(order.gatewayOrderId), 5000)
+    const out: { name?: string; country?: string } = {}
+    const name = [pp?.payer?.name?.given_name, pp?.payer?.name?.surname].filter(Boolean).join(' ').trim()
+    if (name) out.name = name.slice(0, 120)
+    const cc = pp?.payer?.address?.country_code
+    if (typeof cc === 'string' && /^[A-Z]{2}$/.test(cc)) out.country = cc
+    return out
+  } catch (e) {
+    console.error('invoice: PayPal payer lookup failed, using checkout data', { orderId: order.id, error: e })
+    return {}
+  }
+}
+
+function invoiceBlock(order: Order): string {
+  const s = gstSupplier()
+  return s ? invoiceHtml(order, productTitle(order.ebookSlug), s) : ''
+}
+
+/** One line for the owner: the invoice, or why there isn't one. */
+function invoiceNote(order: Order, problem?: string, payerCountry?: string): string {
+  const s = gstSupplier()
+  if (!s || !order.invoiceNumber) return `Invoice: NOT ISSUED, ${problem ?? 'unknown reason'}. Issue one by hand.`
+  const t = taxSplit(order, s.gstin.slice(0, 2))
+  if (t.kind === 'export' || t.kind === 'export-igst') {
+    const where = countryName(order.buyerCountry) ?? 'country not recorded'
+    const warn = payerCountry === 'IN'
+      ? ' WARNING: PayPal says the payer is in India, so this may not be an export; check it before filing.'
+      : payerCountry && payerCountry !== order.buyerCountry
+        ? ` Note: PayPal's payer country is ${countryName(payerCountry) ?? payerCountry}, not the billing country.`
+        : ''
+    const treatment = t.kind === 'export' ? 'under LUT' : `no LUT configured, IGST ${t.igst.toFixed(2)} ${t.currency} payable`
+    return `Invoice: ${order.invoiceNumber}, export to ${where}, ${treatment}.${warn}`
+  }
+  const state = `${gstStateName(order.buyerState) ?? 'unknown state'} (${order.buyerState ?? '--'})`
+  const tax = t.kind === 'intra' ? `CGST ${t.cgst.toFixed(2)} + SGST ${t.sgst.toFixed(2)}` : `IGST ${t.igst.toFixed(2)}`
+  return `Invoice: ${order.invoiceNumber}, ${state}, taxable ${t.taxable.toFixed(2)}, ${tax}`
 }
 
 /**
@@ -120,14 +209,15 @@ export async function fulfillByGatewayOrderId(
  * a failure is logged and never fails fulfilment or makes the gateway redeliver,
  * and a slow Resend call is abandoned after 5s so it can't hold up the response.
  */
-async function notifySale(order: Order, downloadEmailSent: boolean) {
-  const product = (order.ebookSlug && getEbook(order.ebookSlug)?.title) || order.ebookSlug || 'unknown product'
+async function notifySale(order: Order, downloadEmailSent: boolean, invoiceProblem?: string, payerCountry?: string) {
+  const product = productTitle(order.ebookSlug)
   const text = [
     `Product: ${product}`,
     `Amount: ${order.total} ${order.currency}${order.gateway ? ` via ${order.gateway}` : ''}`,
     `Buyer: ${order.customerEmail}`,
     `Order: ${order.id}`,
     downloadEmailSent ? 'Download email: sent' : 'Download email: FAILED (a webhook redelivery will retry it)',
+    invoiceNote(order, invoiceProblem, payerCountry),
   ].join('\n')
   let timer: ReturnType<typeof setTimeout> | undefined
   try {
@@ -156,7 +246,7 @@ async function notifySale(order: Order, downloadEmailSent: boolean) {
  * `anchor` must be stable per order (fulfilledAt): it pins the download-token
  * expiry so retried sends are byte-identical and dedupe under the idempotency key.
  */
-async function sendPurchaseEmail(email: string, orderId: string, slug: string, anchor: Date) {
+async function sendPurchaseEmail(email: string, orderId: string, slug: string, anchor: Date, invoice = '') {
   const token = createDownloadToken(orderId, slug, undefined, anchor)
   const link = `${APP_URL}/api/download/${token}`
   const html = `
@@ -172,6 +262,7 @@ async function sendPurchaseEmail(email: string, orderId: string, slug: string, a
            padding:14px 28px;border-radius:8px;font-weight:600;display:inline-block">Download your ebook + bonus</a>
       </p>
       <p style="color:#64748b;font-size:13px">If the button doesn't work, copy this link:<br>${link}</p>
+      ${invoice}
       <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0">
       <p style="color:#94a3b8;font-size:12px">DevOpsInterview.Cloud &middot; Order ${orderId}</p>
     </div>`

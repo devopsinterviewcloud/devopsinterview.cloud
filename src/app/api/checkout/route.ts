@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { quote, gatewayForCurrency } from '@/lib/pricing'
 import { filesForSlug } from '@/lib/storage'
+import { gstStateName } from '@/lib/gst-states'
+import { isCountryCode } from '@/lib/countries'
 import { createRazorpayOrder, fetchRazorpayOrder, razorpayConfigured } from '@/lib/payments/razorpay'
 import { createPayPalOrder, getPayPalOrder, paypalApprovalUrl, paypalConfigured } from '@/lib/payments/paypal'
 
@@ -14,6 +16,9 @@ const Body = z.object({
   currency: z.enum(['INR', 'USD']),      // the only two we charge; also picks the gateway
   email: z.string().email(),
   name: z.string().max(120).optional(),
+  state: z.string().regex(/^\d{2}$/).optional(),   // GST state code, required for INR (place of supply)
+  country: z.string().max(8).optional(),           // ISO code; PayPal's payer country wins at fulfilment
+  address: z.string().trim().max(300).optional(),  // billing address, required for exports (on the invoice)
 })
 
 // Reuse a buyer's recent unpaid order instead of minting a new gateway order per
@@ -28,7 +33,14 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
-  const { productId, currency, email, name } = parsed
+  const { productId, currency, email, name, state, country, address } = parsed
+  if (currency === 'INR' && !gstStateName(state)) {
+    return NextResponse.json({ error: 'Select your state' }, { status: 400 })
+  }
+  // An export invoice has to name the buyer and show their address and country.
+  if (currency === 'USD' && (!isCountryCode(country) || country === 'IN' || !name?.trim() || !address || address.length < 5)) {
+    return NextResponse.json({ error: 'Enter your name, billing address and country' }, { status: 400 })
+  }
 
   const q = quote(productId)
   if (!q) return NextResponse.json({ error: 'Unknown product' }, { status: 404 })
@@ -56,6 +68,10 @@ export async function POST(req: NextRequest) {
       if (existing?.gatewayOrderId) {
         try {
           const gw = await fetchRazorpayOrder(existing.gatewayOrderId)
+          // The buyer may have corrected their state since; the invoice uses the latest.
+          if (gw.status !== 'paid' && existing.buyerState !== state) {
+            await db.order.updateMany({ where: { id: existing.id, paymentStatus: 'PENDING' }, data: { buyerState: state } })
+          }
           // Already paid at the gateway (webhook still in flight): a fresh order
           // here would let the buyer pay twice. Tell them it's done instead.
           if (gw.status === 'paid') {
@@ -78,7 +94,7 @@ export async function POST(req: NextRequest) {
           gateway, gatewayOrderId: rzpOrder.id, ebookSlug: q.slug,
           customerEmail: email, customerName: name,
           subtotal: q.inrTaxable, tax: q.inrGst, total: q.inrAmount, currency: 'INR',
-          paymentMethod: 'razorpay',
+          paymentMethod: 'razorpay', buyerState: state, buyerCountry: 'IN',
         },
       })
       return NextResponse.json({
@@ -101,6 +117,11 @@ export async function POST(req: NextRequest) {
       try {
         const gw = await getPayPalOrder(existingPp.gatewayOrderId)
         if (gw.status === 'CREATED' || gw.status === 'PAYER_ACTION_REQUIRED' || gw.status === 'APPROVED') {
+          // The invoice prints these, so keep the buyer's latest corrections.
+          await db.order.updateMany({
+            where: { id: existingPp.id, paymentStatus: 'PENDING' },
+            data: { customerName: name, billingAddress: address, buyerCountry: country },
+          })
           // Send the buyer (back) through PayPal approval. For APPROVED orders
           // this lets a declined funding source be replaced (PayPal's documented
           // INSTRUMENT_DECLINED recovery); the return lands on /checkout/success,
@@ -129,7 +150,7 @@ export async function POST(req: NextRequest) {
         gateway, gatewayOrderId: ppOrder.id, ebookSlug: q.slug,
         customerEmail: email, customerName: name,
         subtotal: q.usdAmount, tax: 0, total: q.usdAmount, currency: 'USD',
-        paymentMethod: 'paypal',
+        paymentMethod: 'paypal', buyerCountry: country, billingAddress: address,
       },
     })
     const approval = ppOrder.links?.find((l) => l.rel === 'payer-action' || l.rel === 'approve')?.href
