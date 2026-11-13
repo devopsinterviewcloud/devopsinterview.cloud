@@ -2,7 +2,7 @@ import TrackedLink from '@/components/TrackedLink'
 import { DynamicPriceText } from '@/components/DynamicPriceText'
 import { bundle, totalQuestions } from '@/lib/catalog'
 
-// Every sale so far has been the bundle, so single-book callouts offer it too.
+// Single-book callouts also offer the bundle, the better deal for most readers.
 export default function BundleLine({
   eventName,
   eventProperties,
