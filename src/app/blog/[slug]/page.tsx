@@ -4,10 +4,12 @@ import { notFound } from 'next/navigation'
 import { getAllPosts, getPost } from '@/lib/blog'
 import { siteConfig, truncateMetadataText } from '@/config/site'
 import TrackedLink from '@/components/TrackedLink'
-import { getContents, productForArticle, sampleHrefFor, totalQuestions, BUNDLE_SLUG } from '@/lib/catalog'
+import { bundle, getContents, productForArticle, sampleHrefFor, totalQuestions, BUNDLE_SLUG } from '@/lib/catalog'
 import { YOUTUBE_URL } from '@/lib/podcast'
 import { bookStyle, topicLine } from '@/lib/book-style'
 import BookCallout from '@/components/BookCallout'
+import BundleLine from '@/components/BundleLine'
+import SampleSignupSection from '@/components/SampleSignupSection'
 
 const inlineLink = 'font-semibold text-ink underline underline-offset-4 hover:decoration-2'
 
@@ -62,10 +64,11 @@ export default async function BlogPostPage({
   const { slug } = await params
   const post = getPost(slug)
   if (!post) notFound()
-  const product = productForArticle(post.slug)
-  const contents = product ? getContents(product.slug) : undefined
-  const style = bookStyle(product?.id ?? 'bundle')
-  const topic = product && !product.isBundle ? topicLine(product.title) : 'Blog'
+  const mapped = productForArticle(post.slug)
+  const product = mapped ?? bundle
+  const contents = getContents(product.slug)
+  const style = bookStyle(product.id)
+  const topic = mapped && !mapped.isBundle ? topicLine(mapped.title) : 'Blog'
 
   const url = `${SITE_URL}/blog/${post.slug}`
   const jsonLd = {
@@ -140,7 +143,7 @@ export default async function BlogPostPage({
           </p>
 
           <BookCallout book={product} className="mt-10 bg-paper">
-            {product && contents ? (
+            {contents ? (
               <>
                 <span className="chip">{style.label}</span>
                 <h2 className="mt-3 text-[22px] font-bold leading-snug">Preparing for this interview? The matching ebook is {product.title}</h2>
@@ -157,8 +160,9 @@ export default async function BlogPostPage({
                     Read a free sample question
                   </TrackedLink>
                 </div>
+                <BundleLine eventName="blog_cta_clicked" eventProperties={{ product: product.id, article: post.slug }} />
               </>
-            ) : product ? (
+            ) : (
               <>
                 <span className="chip">{style.label}</span>
                 <h2 className="mt-3 text-[22px] font-bold leading-snug">Preparing across the whole DevOps stack? Start with the five-book bundle</h2>
@@ -175,17 +179,6 @@ export default async function BlogPostPage({
                   </TrackedLink>
                 </div>
               </>
-            ) : (
-              <>
-                <h2 className="text-[22px] font-bold leading-snug">Preparing for DevOps interviews?</h2>
-                <p className="mt-2.5 text-[16px] leading-relaxed text-subtle">
-                  Our five-book series covers cloud, Kubernetes, Terraform, CI/CD and SRE with {totalQuestions} interview
-                  questions and worked answers. Every purchase includes the free Interview-Day Playbook.
-                </p>
-                <div className="mt-5 flex flex-wrap items-center gap-4">
-                  <TrackedLink href="/ebooks" eventName="blog_cta_clicked" eventProperties={{ destination: 'ebooks', article: post.slug }} className="btn-primary">Browse the DevOps ebooks</TrackedLink>
-                </div>
-              </>
             )}
             <p className="mt-5 text-[15px]">
               <TrackedLink href="/labs" eventName="blog_cta_clicked" eventProperties={{ destination: 'labs', article: post.slug }} className={inlineLink}>
@@ -193,6 +186,8 @@ export default async function BlogPostPage({
               </TrackedLink>
             </p>
           </BookCallout>
+
+          <SampleSignupSection source="blog-sample" className="mt-14" />
         </div>
       </div>
     </main>

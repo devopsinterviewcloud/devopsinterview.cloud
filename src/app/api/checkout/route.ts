@@ -7,6 +7,7 @@ import { gstStateName } from '@/lib/gst-states'
 import { isCountryCode } from '@/lib/countries'
 import { createRazorpayOrder, fetchRazorpayOrder, razorpayConfigured } from '@/lib/payments/razorpay'
 import { createPayPalOrder, getPayPalOrder, paypalApprovalUrl, paypalConfigured } from '@/lib/payments/paypal'
+import { parseAttribution } from '@/lib/attribution'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -19,6 +20,7 @@ const Body = z.object({
   state: z.string().regex(/^\d{2}$/).optional(),   // GST state code, required for INR (place of supply)
   country: z.string().max(8).optional(),           // ISO code; PayPal's payer country wins at fulfilment
   address: z.string().trim().max(300).optional(),  // billing address, required for exports (on the invoice)
+  attribution: z.unknown().optional(),             // where the buyer came from; dropped if malformed
 })
 
 // Reuse a buyer's recent unpaid order instead of minting a new gateway order per
@@ -34,6 +36,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
   const { productId, currency, email, name, state, country, address } = parsed
+  const attribution = parseAttribution(parsed.attribution)
   if (currency === 'INR' && !gstStateName(state)) {
     return NextResponse.json({ error: 'Select your state' }, { status: 400 })
   }
@@ -94,7 +97,7 @@ export async function POST(req: NextRequest) {
           gateway, gatewayOrderId: rzpOrder.id, ebookSlug: q.slug,
           customerEmail: email, customerName: name,
           subtotal: q.inrTaxable, tax: q.inrGst, total: q.inrAmount, currency: 'INR',
-          paymentMethod: 'razorpay', buyerState: state, buyerCountry: 'IN',
+          paymentMethod: 'razorpay', buyerState: state, buyerCountry: 'IN', attribution,
         },
       })
       return NextResponse.json({
@@ -150,7 +153,7 @@ export async function POST(req: NextRequest) {
         gateway, gatewayOrderId: ppOrder.id, ebookSlug: q.slug,
         customerEmail: email, customerName: name,
         subtotal: q.usdAmount, tax: 0, total: q.usdAmount, currency: 'USD',
-        paymentMethod: 'paypal', buyerCountry: country, billingAddress: address,
+        paymentMethod: 'paypal', buyerCountry: country, billingAddress: address, attribution,
       },
     })
     const approval = ppOrder.links?.find((l) => l.rel === 'payer-action' || l.rel === 'approve')?.href

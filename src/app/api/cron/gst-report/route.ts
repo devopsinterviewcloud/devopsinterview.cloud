@@ -4,25 +4,17 @@
  * month for the previous month (IST) and sends "Authorization: Bearer $CRON_SECRET";
  * without CRON_SECRET set it refuses to run. `?month=YYYY-MM` reruns a month.
  */
-import crypto from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { db } from '@/lib/db'
 import { gstSupplier, monthlyReport, monthRange, previousMonth } from '@/lib/gst'
+import { cronAuthorized } from '@/lib/cron-auth'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-function authorized(req: NextRequest): boolean {
-  const secret = process.env.CRON_SECRET
-  if (!secret) return false
-  const got = Buffer.from(req.headers.get('authorization') ?? '')
-  const want = Buffer.from(`Bearer ${secret}`)
-  return got.length === want.length && crypto.timingSafeEqual(got, want)
-}
-
 export async function GET(req: NextRequest) {
-  if (!authorized(req)) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  if (!cronAuthorized(req)) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   const supplier = gstSupplier()
   if (!supplier) return NextResponse.json({ error: 'GST details not configured' }, { status: 503 })
 

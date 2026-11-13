@@ -9,6 +9,7 @@ import SiteFooter from "@/components/SiteFooter";
 // hid essentially all real traffic). Keep custom event payloads free of
 // personal data (no emails / order ids).
 import SiteAnalytics from "@/components/SiteAnalytics";
+import SourceCapture from "@/components/SourceCapture";
 import { absoluteUrl, siteConfig } from "@/config/site";
 
 const inter = Inter({
@@ -128,6 +129,7 @@ export default function RootLayout({
           {children}
           <SiteFooter />
           <SiteAnalytics />
+          <SourceCapture />
         </CurrencyProvider>
       </body>
     </html>

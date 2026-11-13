@@ -107,3 +107,17 @@ test('a reused PayPal order keeps the buyer\'s corrected name, address and count
   expect(createPp).not.toHaveBeenCalled()
   expect(updateMany).toHaveBeenCalledWith({ where: { id: 'ord_pp', paymentStatus: 'PENDING' }, data: { customerName: 'Ada L', billingAddress: '1 Rue X, 75001 Paris', buyerCountry: 'FR' } })
 })
+
+test('where the buyer came from is saved with a new order; malformed values are dropped', async () => {
+  findFirst.mockResolvedValue(null)
+  createRz.mockResolvedValue({ id: 'order_a', amount: 299900, currency: 'INR', receipt: 'x' })
+  create.mockResolvedValue({})
+  const attribution = { first: { ref: 'www.youtube.com', utm_source: 'youtube', landing: '/', at: '2026-11-13T00:00:00.000Z' } }
+  await post({ productId: '1', currency: 'INR', state: '33', email: 'buyer@example.com', attribution })
+  expect(create.mock.calls[0][0].data.attribution).toEqual(attribution)
+
+  create.mockClear()
+  await post({ productId: '1', currency: 'INR', state: '33', email: 'buyer2@example.com', attribution: { first: { landing: 5 } } })
+  expect(create).toHaveBeenCalledTimes(1)
+  expect(create.mock.calls[0][0].data.attribution).toBeUndefined()
+})

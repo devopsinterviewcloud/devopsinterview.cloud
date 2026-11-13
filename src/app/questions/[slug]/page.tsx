@@ -4,9 +4,11 @@ import { notFound } from 'next/navigation'
 import { getAllQuestions, getQuestion, relatedQuestions, categoryLabel, productForCategory } from '@/lib/questions'
 import { siteConfig, truncateMetadataText } from '@/config/site'
 import TrackedLink from '@/components/TrackedLink'
-import { getContents, sampleHrefFor, totalQuestions } from '@/lib/catalog'
+import { bundle, getContents, sampleHrefFor, totalQuestions } from '@/lib/catalog'
 import { bookStyle } from '@/lib/book-style'
 import BookCallout from '@/components/BookCallout'
+import BundleLine from '@/components/BundleLine'
+import SampleSignupSection from '@/components/SampleSignupSection'
 
 const inlineLink = 'font-semibold text-ink underline underline-offset-4 hover:decoration-2'
 
@@ -58,10 +60,11 @@ export default async function QuestionPage({
   const { slug } = await params
   const question = getQuestion(slug)
   if (!question) notFound()
-  const product = productForCategory(question.category)
-  const contents = product ? getContents(product.slug) : undefined
+  // Categories without a single matching book get the bundle.
+  const product = productForCategory(question.category) ?? bundle
+  const contents = getContents(product.slug)
   const related = relatedQuestions(question)
-  const style = bookStyle(product?.id ?? 'bundle')
+  const style = bookStyle(product.id)
 
   const url = `${SITE_URL}/questions/${question.slug}`
   const jsonLd = {
@@ -136,7 +139,7 @@ export default async function QuestionPage({
           </article>
 
           <BookCallout book={product} className="mt-10 bg-paper">
-            {product && contents ? (
+            {contents ? (
               <>
                 <span className="chip">{style.label}</span>
                 <h2 className="mt-3 text-[22px] font-bold leading-snug">
@@ -155,28 +158,24 @@ export default async function QuestionPage({
                     Read a free sample question
                   </TrackedLink>
                 </div>
+                <BundleLine eventName="questions_cta_clicked" eventProperties={{ product: product.id, question: question.slug }} />
               </>
             ) : (
               <>
-                {product && <span className="chip">{style.label}</span>}
-                <h2 className={`text-[22px] font-bold leading-snug ${product ? 'mt-3' : ''}`}>Preparing for DevOps interviews?</h2>
+                <span className="chip">{style.label}</span>
+                <h2 className="mt-3 text-[22px] font-bold leading-snug">Preparing for DevOps interviews?</h2>
                 <p className="mt-2.5 text-[16px] leading-relaxed text-subtle">
                   Our five-book series covers cloud, Kubernetes, Terraform, CI/CD and SRE with {totalQuestions} interview
                   questions and worked answers. Every purchase includes the free Interview-Day Playbook.
                 </p>
-                {/* categories mapped to the bundle (it has no single-book contents) go straight to it */}
-                {product ? (
-                  <TrackedLink href={`/ebooks/${product.slug}`} eventName="questions_cta_clicked" eventProperties={{ destination: 'product', product: product.id, question: question.slug }} className="btn-primary mt-5">
-                    See the five-book bundle
-                  </TrackedLink>
-                ) : (
-                  <TrackedLink href="/ebooks" eventName="questions_cta_clicked" eventProperties={{ destination: 'ebooks', question: question.slug }} className="btn-primary mt-5">
-                    Browse the DevOps ebooks
-                  </TrackedLink>
-                )}
+                <TrackedLink href={`/ebooks/${product.slug}`} eventName="questions_cta_clicked" eventProperties={{ destination: 'product', product: product.id, question: question.slug }} className="btn-primary mt-5">
+                  See the five-book bundle
+                </TrackedLink>
               </>
             )}
           </BookCallout>
+
+          <SampleSignupSection source="question-sample" className="mt-14" />
 
           {related.length > 0 && (
             <section className="mt-14 border-t-2 border-ink pt-3.5">
