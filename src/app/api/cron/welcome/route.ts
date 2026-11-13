@@ -1,8 +1,10 @@
 /**
  * Daily welcome-series run (vercel.json). For each enrolled, still-subscribed
  * signup whose next email is due, claims the step in the database first and then
- * sends, so overlapping runs can't double-send; a failed send gives the step back
- * for the next run. Anyone who has bought leaves the series.
+ * sends, so overlapping runs can't double-send. A send Resend definitely rejected
+ * gives the step back for the next run; one that may have gone out (network or
+ * Resend-side error) keeps it, since a skipped email beats a duplicate. Anyone who
+ * has bought leaves the series.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
@@ -22,6 +24,17 @@ const SLACK_MS = 12 * 60 * 60 * 1000
 const BATCH = 100
 // Stop claiming new work well inside maxDuration: a claim cut off mid-send would skip that email.
 const TIME_BUDGET_MS = 30_000
+
+// Resend error names for requests it refused outright (4xx), so nothing was sent.
+// Anything else, including network failures, which the SDK reports as
+// application_error, may hide an accepted send.
+const REJECTED = new Set([
+  'missing_required_field', 'invalid_idempotency_key', 'invalid_access', 'invalid_parameter', 'invalid_region',
+  'rate_limit_exceeded', 'daily_quota_exceeded', 'monthly_quota_exceeded', 'missing_api_key', 'invalid_api_Key',
+  'invalid_from_address', 'validation_error', 'not_found', 'method_not_allowed',
+])
+const definitelyRejected = (err: unknown) =>
+  typeof err === 'object' && err !== null && REJECTED.has(String((err as { name?: unknown }).name))
 
 export async function GET(req: NextRequest) {
   if (!cronAuthorized(req)) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
@@ -43,7 +56,7 @@ export async function GET(req: NextRequest) {
     select: { id: true, email: true, welcomeStep: true, welcomeSentAt: true },
   })
 
-  let sent = 0, buyers = 0, failed = 0
+  let sent = 0, buyers = 0, failed = 0, uncertain = 0
   for (const s of candidates) {
     if (Date.now() - started > TIME_BUDGET_MS) break
     const step = s.welcomeStep!
@@ -73,18 +86,34 @@ export async function GET(req: NextRequest) {
         unsubscribeApiUrl: unsubscribeApiUrl(appUrl, s.id),
         idempotencyKey: `welcome-email/${s.id}/${n}`,
       })
+    // One immediate retry with the same key (Resend keeps keys for 24 hours), so an
+    // accepted send whose response was lost can't go out twice.
+    let first: unknown
     try {
-      // A lost response may hide an accepted send; retrying now with the same key
-      // (Resend keeps keys for 24 hours) can't duplicate it, unlike tomorrow's run.
-      await send().catch(send)
+      await send()
       sent++
+      continue
     } catch (err) {
+      first = err
+    }
+    try {
+      await send()
+      sent++
+    } catch (second) {
       // eslint-disable-next-line no-console
-      console.error('Welcome email send failed:', err)
-      await db.subscriber.updateMany({ where: { id: s.id, welcomeStep: n }, data: { welcomeStep: step, welcomeSentAt: last } })
-      failed++
+      console.error('Welcome email send failed:', first, second)
+      if (definitelyRejected(first) && definitelyRejected(second)) {
+        // Only while still subscribed: an unsubscribe mid-send must stay final.
+        await db.subscriber.updateMany({
+          where: { id: s.id, welcomeStep: n, isActive: true },
+          data: { welcomeStep: step, welcomeSentAt: last },
+        })
+        failed++
+      } else {
+        uncertain++
+      }
     }
   }
 
-  return NextResponse.json({ ok: true, candidates: candidates.length, sent, buyers, failed })
+  return NextResponse.json({ ok: true, candidates: candidates.length, sent, buyers, failed, uncertain })
 }

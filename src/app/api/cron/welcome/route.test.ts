@@ -89,12 +89,23 @@ test('a step another run already claimed is not sent twice', async () => {
   expect(sendListEmail).not.toHaveBeenCalled()
 })
 
-test('a failed send gives the step back for the next run', async () => {
+test('a send Resend rejected outright gives the step back, only if still subscribed', async () => {
   const s = sub(2, 4)
   findMany.mockResolvedValue([s])
-  sendListEmail.mockRejectedValue(new Error('resend down'))
+  sendListEmail.mockRejectedValue({ name: 'rate_limit_exceeded', message: 'Too many requests' })
   jest.spyOn(console, 'error').mockImplementation(() => {})
   const res = await get()
-  expect(await res.json()).toMatchObject({ sent: 0, failed: 1 })
-  expect(updateMany).toHaveBeenLastCalledWith({ where: { id: 'sub_1', welcomeStep: 3 }, data: { welcomeStep: 2, welcomeSentAt: s.welcomeSentAt } })
+  expect(await res.json()).toMatchObject({ sent: 0, failed: 1, uncertain: 0 })
+  expect(updateMany).toHaveBeenLastCalledWith({ where: { id: 'sub_1', welcomeStep: 3, isActive: true }, data: { welcomeStep: 2, welcomeSentAt: s.welcomeSentAt } })
+})
+
+test('a send that may have gone out keeps its step, so tomorrow cannot send a duplicate', async () => {
+  findMany.mockResolvedValue([sub(0, 2)])
+  sendListEmail
+    .mockRejectedValueOnce({ name: 'application_error', message: 'Unable to fetch data. The request could not be resolved.' })
+    .mockRejectedValueOnce({ name: 'rate_limit_exceeded', message: 'Too many requests' })
+  jest.spyOn(console, 'error').mockImplementation(() => {})
+  const res = await get()
+  expect(await res.json()).toMatchObject({ sent: 0, failed: 0, uncertain: 1 })
+  expect(updateMany).toHaveBeenCalledTimes(1) // the claim only
 })
