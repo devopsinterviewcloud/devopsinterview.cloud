@@ -26,6 +26,7 @@ type Ebook = {
   tags?: string[];
   category?: string;
   isBundle?: boolean;
+  kindleAsin?: string;
 };
 
 const ebooks = ebooksData as Ebook[];
@@ -304,6 +305,27 @@ export default async function EbookPage({
                   Elsewhere: ${ebook.price.toFixed(2)}{ebook.isBundle ? "" : ` a book or $${bundle.price.toFixed(2)} for all five`} via PayPal. The exact total is shown before payment.
                   Prices auto-convert to your local currency.
                 </p>
+                {ebook.kindleAsin && (
+                  <p className="mt-2.5">
+                    Prefer Kindle? The same book is on{" "}
+                    {(["amazon.in", "amazon.com"] as const).map((store, i) => (
+                      <span key={store}>
+                        {i > 0 && " and "}
+                        <TrackedLink
+                          href={`https://www.${store}/dp/${ebook.kindleAsin}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          eventName="kindle_clicked"
+                          eventProperties={{ product: ebook.id, store }}
+                          className="font-semibold text-ink underline underline-offset-4 hover:decoration-2"
+                        >
+                          {store === "amazon.in" ? "Amazon.in" : "Amazon.com"}
+                        </TrackedLink>
+                      </span>
+                    ))}
+                    .
+                  </p>
+                )}
                 <p className="mt-2.5">
                   {contents ? (
                     <TrackedLink

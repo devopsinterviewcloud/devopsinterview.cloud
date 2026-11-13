@@ -66,10 +66,16 @@ ${message}`
  * questions, one per chapter) to a new subscriber. The sample is served as a
  * static asset from /samples so this works even before Supabase storage is wired.
  */
-export async function sendSampleEmail({ email }: { email: string }) {
+export async function sendSampleEmail({ email, unsubscribeUrl }: { email: string; unsubscribeUrl?: string }) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   const sampleUrl = `${appUrl}/samples/cloud-interview-mastery-sample.pdf`
   const bundleUrl = `${appUrl}/ebooks/complete-devops-mastery-bundle`
+  // Signups enrolled in the welcome series are told it's coming and how to stop it.
+  const followup = 'Over the next week you will get three short follow-up emails: two more worked answers and an overview of the series.'
+  const followupHtml = unsubscribeUrl
+    ? `\n    <p>${followup} <a href="${unsubscribeUrl}" style="color: #9ca3af;">Unsubscribe</a></p>`
+    : ''
+  const followupText = unsubscribeUrl ? `\n${followup} Unsubscribe: ${unsubscribeUrl}` : ''
 
   const html = `
 <!DOCTYPE html>
@@ -92,7 +98,7 @@ export async function sendSampleEmail({ email }: { email: string }) {
     <p style="margin: 0;"><a href="mailto:devopsinterview.cloud@gmail.com" style="color: #3b82f6;">devopsinterview.cloud@gmail.com</a></p>
   </div>
   <div style="text-align: center; font-size: 12px; color: #9ca3af; margin-top: 24px;">
-    <p>You are receiving this because you requested the free sample at devopsinterview.cloud.</p>
+    <p>You are receiving this because you requested the free sample at devopsinterview.cloud.</p>${followupHtml}
     <p>&copy; 2026 DevOpsInterview.Cloud. All rights reserved.</p>
   </div>
 </body>
@@ -108,7 +114,7 @@ Each question is answered the way a senior engineer actually would: the full ans
 
 Questions? Just reply to this email, or write to devopsinterview.cloud@gmail.com
 
-You are receiving this because you requested the free sample at devopsinterview.cloud.
+You are receiving this because you requested the free sample at devopsinterview.cloud.${followupText}
 © 2026 DevOpsInterview.Cloud. All rights reserved.`
 
   const { data, error } = await resend.emails.send({
@@ -162,4 +168,61 @@ export async function addToAudience({
     console.error('Resend audience add threw:', err)
     return false
   }
+}
+
+/**
+ * Marks an unsubscribed address in the Resend Audience so broadcasts skip it too.
+ * Fail-soft like addToAudience: our own subscribers row is the source of truth.
+ */
+export async function removeFromAudience(email: string): Promise<void> {
+  const audienceId = process.env.RESEND_AUDIENCE_ID
+  if (!audienceId) return
+  try {
+    const { error } = await resend.contacts.update({ audienceId, email, unsubscribed: true })
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('Resend audience unsubscribe failed:', error)
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Resend audience unsubscribe threw:', err)
+  }
+}
+
+/**
+ * Sends one list email (the welcome series) with one-click unsubscribe headers
+ * (RFC 8058). The idempotency key stops a retried cron run from sending twice.
+ */
+export async function sendListEmail({
+  to,
+  subject,
+  html,
+  text,
+  unsubscribeApiUrl,
+  idempotencyKey,
+}: {
+  to: string
+  subject: string
+  html: string
+  text: string
+  unsubscribeApiUrl: string
+  idempotencyKey: string
+}) {
+  const { data, error } = await resend.emails.send(
+    {
+      from: process.env.EMAIL_FROM || 'DevOpsInterview.Cloud <noreply@devopsinterview.cloud>',
+      replyTo: process.env.EMAIL_REPLY_TO || 'devopsinterview.cloud@gmail.com',
+      to: [to],
+      subject,
+      html,
+      text,
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeApiUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+    },
+    { idempotencyKey },
+  )
+  if (error) throw error
+  return data
 }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { safeTrack } from '@/lib/analytics'
+import { readAttribution } from '@/lib/attribution'
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
@@ -12,14 +13,16 @@ type SampleSignupProps = {
   successMessage?: string
   /** Shown under the success message; null for signups that send no email. */
   successNote?: string | null
+  className?: string
 }
 
 export default function SampleSignup({
-  source = 'home-hero',
+  source = 'home-free-sample',
   ctaLabel = 'Email me the free sample',
-  helperText = '8 real questions, one per chapter. No spam, unsubscribe anytime.',
+  helperText = '8 real questions, one per chapter, then three short follow-up emails. Unsubscribe anytime.',
   successMessage = 'Check your inbox for the free sample.',
   successNote = "It can take a minute to arrive. Check spam if you don't see it.",
+  className = 'max-w-xl mx-auto',
 }: SampleSignupProps) {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<Status>('idle')
@@ -34,7 +37,7 @@ export default function SampleSignup({
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source }),
+        body: JSON.stringify({ email, source, attribution: readAttribution() }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -56,7 +59,7 @@ export default function SampleSignup({
 
   if (status === 'success') {
     return (
-      <div className="max-w-xl mx-auto border-2 border-ink bg-sheet p-5 text-ink">
+      <div className={`${className} border-2 border-ink bg-sheet p-5 text-ink`}>
         <p className="font-semibold">{message}</p>
         {successNote && <p className="mt-2 text-sm text-subtle">{successNote}</p>}
       </div>
@@ -64,7 +67,7 @@ export default function SampleSignup({
   }
 
   return (
-    <form onSubmit={onSubmit} className="max-w-xl mx-auto">
+    <form onSubmit={onSubmit} className={className}>
       <div className="flex flex-col sm:flex-row">
         <input
           type="email"

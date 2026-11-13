@@ -90,7 +90,7 @@ export function bundleSavings() {
 
 /**
  * Topic map: which product an article's reader is most likely preparing for.
- * Articles not listed here fall back to the catalog page.
+ * Articles not listed here get the bundle in their callout.
  */
 export const articleProducts: Record<string, string> = {
   'kubernetes-interview-questions-2026': 'container-orchestration-journey',
@@ -101,6 +101,15 @@ export const articleProducts: Record<string, string> = {
   'terraform-mono-repo-20-aws-accounts': 'infrastructure-automation-mastery',
   'aws-azure-gcp-which-certification-first': 'cloud-interview-mastery',
   'devops-interview-preparation-roadmap': BUNDLE_SLUG,
+  'aws-vpc-interview-questions': 'cloud-interview-mastery',
+  'devsecops-pipeline-from-scratch': 'modern-cicd-gitops',
+  'kubernetes-cost-optimization-200-node-cluster': 'container-orchestration-journey',
+  'kubernetes-gpu-sharing-mig-time-slicing-mps': 'container-orchestration-journey',
+  'kubernetes-multi-tenancy-shared-cluster-design': 'container-orchestration-journey',
+  'kubernetes-networking-interview-questions': 'container-orchestration-journey',
+  'mlops-interview-questions': 'container-orchestration-journey',
+  'terraform-state-interview-questions': 'infrastructure-automation-mastery',
+  'ai-infrastructure-engineer-interview-questions': BUNDLE_SLUG,
 }
 
 export function productForArticle(articleSlug: string): CatalogEbook | undefined {

@@ -5,6 +5,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { safeTrack } from '@/lib/analytics'
+import { readAttribution } from '@/lib/attribution'
 import { bookStyle } from '@/lib/book-style'
 import ebooksData from '@/data/ebooks.json'
 import { GST_STATES } from '@/lib/gst-states'
@@ -131,7 +132,7 @@ function CheckoutContent() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId: ebook.id, currency, email, name, country, ...(currency === 'INR' ? { state: gstState } : { address }) }),
+        body: JSON.stringify({ productId: ebook.id, currency, email, name, country, ...(currency === 'INR' ? { state: gstState } : { address }), attribution: readAttribution() }),
       })
       const data = await res.json()
       if (!res.ok) {

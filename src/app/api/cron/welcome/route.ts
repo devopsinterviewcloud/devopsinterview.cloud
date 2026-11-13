@@ -1,0 +1,128 @@
+/**
+ * Daily welcome-series run (vercel.json). For each enrolled, still-subscribed
+ * signup whose next email is due, claims the step in the database first and then
+ * sends, so overlapping runs can't double-send. A send Resend definitely rejected
+ * gives the step back for the next run; one that may have gone out (network or
+ * Resend-side error) keeps it, since a skipped email beats a duplicate. Anyone who
+ * has bought leaves the series. The run also re-marks the last week's unsubscribes
+ * in the Resend audience, so a failed sync at unsubscribe time gets repaired.
+ */
+import { NextRequest, NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import { cronAuthorized } from '@/lib/cron-auth'
+import { removeFromAudience, sendListEmail } from '@/lib/email'
+import { unsubscribeApiUrl, unsubscribePageUrl } from '@/lib/unsubscribe'
+import { WELCOME_EMAIL_COUNT, WELCOME_GAPS_DAYS, welcomeEmail } from '@/lib/welcome-emails'
+
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60
+
+const DAY_MS = 24 * 60 * 60 * 1000
+// Hobby crons fire anywhere in their hour, so allow half a day of slack rather
+// than letting a few minutes push an email to the next day's run.
+const SLACK_MS = 12 * 60 * 60 * 1000
+const BATCH = 100
+// Stop claiming new work well inside maxDuration: a claim cut off mid-send would skip that email.
+const TIME_BUDGET_MS = 30_000
+
+// Resend error names for requests it refused outright (4xx), so nothing was sent.
+// Anything else, including network failures, which the SDK reports as
+// application_error, may hide an accepted send.
+const REJECTED = new Set([
+  'missing_required_field', 'invalid_idempotency_key', 'invalid_access', 'invalid_parameter', 'invalid_region',
+  'rate_limit_exceeded', 'daily_quota_exceeded', 'monthly_quota_exceeded', 'missing_api_key', 'invalid_api_Key',
+  'invalid_from_address', 'validation_error', 'not_found', 'method_not_allowed',
+])
+const definitelyRejected = (err: unknown) =>
+  typeof err === 'object' && err !== null && REJECTED.has(String((err as { name?: unknown }).name))
+
+export async function GET(req: NextRequest) {
+  if (!cronAuthorized(req)) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const now = new Date()
+  const started = Date.now()
+
+  // Only rows whose next email is due, so a backlog at one step can't crowd out another.
+  const candidates = await db.subscriber.findMany({
+    where: {
+      isActive: true,
+      OR: WELCOME_GAPS_DAYS.map((days, step) => ({
+        welcomeStep: step,
+        welcomeSentAt: { lte: new Date(now.getTime() - days * DAY_MS + SLACK_MS) },
+      })),
+    },
+    orderBy: { welcomeSentAt: 'asc' },
+    take: BATCH,
+    select: { id: true, email: true, welcomeStep: true, welcomeSentAt: true },
+  })
+
+  let sent = 0, buyers = 0, failed = 0, uncertain = 0
+  for (const s of candidates) {
+    if (Date.now() - started > TIME_BUDGET_MS) break
+    const step = s.welcomeStep!
+    const last = s.welcomeSentAt!
+
+    const bought = await db.order.count({
+      where: { customerEmail: { equals: s.email, mode: 'insensitive' }, paymentStatus: 'SUCCEEDED' },
+    })
+    if (bought > 0) {
+      await db.subscriber.updateMany({ where: { id: s.id, welcomeStep: step }, data: { welcomeStep: WELCOME_EMAIL_COUNT } })
+      buyers++
+      continue
+    }
+
+    const claim = await db.subscriber.updateMany({
+      where: { id: s.id, welcomeStep: step, isActive: true },
+      data: { welcomeStep: step + 1, welcomeSentAt: now },
+    })
+    if (claim.count !== 1) continue
+
+    const n = step + 1
+    const email = welcomeEmail(n, appUrl, unsubscribePageUrl(appUrl, s.id))
+    const send = () =>
+      sendListEmail({
+        to: s.email,
+        ...email,
+        unsubscribeApiUrl: unsubscribeApiUrl(appUrl, s.id),
+        idempotencyKey: `welcome-email/${s.id}/${n}`,
+      })
+    // One immediate retry with the same key (Resend keeps keys for 24 hours), so an
+    // accepted send whose response was lost can't go out twice.
+    let first: unknown
+    try {
+      await send()
+      sent++
+      continue
+    } catch (err) {
+      first = err
+    }
+    try {
+      await send()
+      sent++
+    } catch (second) {
+      // eslint-disable-next-line no-console
+      console.error('Welcome email send failed:', first, second)
+      if (definitelyRejected(first) && definitelyRejected(second)) {
+        // Only while still subscribed: an unsubscribe mid-send must stay final.
+        await db.subscriber.updateMany({
+          where: { id: s.id, welcomeStep: n, isActive: true },
+          data: { welcomeStep: step, welcomeSentAt: last },
+        })
+        failed++
+      } else {
+        uncertain++
+      }
+    }
+  }
+
+  // Idempotent on Resend's side; a week of daily runs covers any transient failure.
+  const unsubscribed = await db.subscriber.findMany({
+    where: { isActive: false, unsubscribedAt: { gte: new Date(now.getTime() - 7 * DAY_MS) } },
+    select: { email: true },
+    take: BATCH,
+  })
+  for (const u of unsubscribed) await removeFromAudience(u.email)
+
+  return NextResponse.json({ ok: true, candidates: candidates.length, sent, buyers, failed, uncertain, resynced: unsubscribed.length })
+}

@@ -13,7 +13,7 @@ export default function PrivacyPolicy() {
       <div className="mx-auto w-[min(680px,100%_-_32px)] pt-10 pb-16 sm:pt-14 sm:pb-20">
         <div className="mb-10">
           <h1 className="display-2 text-[40px] sm:text-[56px]">Privacy Policy</h1>
-          <p className="meta mt-5 text-subtle">Last updated: September 14, 2026</p>
+          <p className="meta mt-5 text-subtle">Last updated: November 13, 2026</p>
         </div>
 
         <div className="prose-article">
@@ -86,6 +86,10 @@ export default function PrivacyPolicy() {
               We use cookieless Vercel Web Analytics to understand aggregate site traffic and
               conversion events. These events do not include the email address or payment details
               you enter at checkout. Your currency preference is stored locally in your browser.
+              So we know which channels work, your browser also keeps a note of how you first and most
+              recently reached the site (the referring website, any campaign tags in the link, and the
+              page you landed on). It is sent to us only if you place an order or sign up for the free
+              sample, and is stored with that order or signup.
             </p>
           </section>
 

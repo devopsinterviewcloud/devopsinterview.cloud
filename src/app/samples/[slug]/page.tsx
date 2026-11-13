@@ -6,6 +6,7 @@ import { createPageMetadata, siteConfig } from '@/config/site'
 import { getContents, getEbook, singleBooks, SAMPLE_PDF, SAMPLE_PDF_QUESTIONS } from '@/lib/catalog'
 import { bookStyle } from '@/lib/book-style'
 import BookCallout from '@/components/BookCallout'
+import BundleLine from '@/components/BundleLine'
 
 const inlineLink = 'font-semibold text-ink underline underline-offset-4 hover:decoration-2'
 const sectionHeading = 'display-3 border-t-2 border-ink pt-3.5'
@@ -142,6 +143,7 @@ export default async function SamplePage({ params }: { params: Promise<{ slug: s
                 See all {contents.questionCount} questions and prices
               </TrackedLink>
             </div>
+            <BundleLine eventName="product_view_clicked" eventProperties={{ product: ebook.id, location: 'sample_page_bundle_line' }} />
             <p className="mt-5 text-[15px] text-subtle">
               Want full three-page questions?{' '}
               <TrackedLink href={SAMPLE_PDF} target="_blank" eventName="sample_opened" eventProperties={{ location: 'sample_page', product: ebook.id, kind: 'pdf' }} className={inlineLink}>

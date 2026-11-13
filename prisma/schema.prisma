@@ -160,6 +160,8 @@ model Order {
   // Metadata
   ipAddress         String?
   userAgent         String?
+  // Where the buyer first and last arrived from (see src/lib/attribution.ts)
+  attribution       Json?
 
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
@@ -256,8 +258,13 @@ model Subscriber {
   email     String   @unique
   name      String?
   source    String?  // Where they subscribed from
+  attribution Json?  // Where they first and last arrived from (see src/lib/attribution.ts)
 
   isActive  Boolean  @default(true)
+
+  // Welcome series after the sample: null = not enrolled, n = emails sent so far
+  welcomeStep   Int?
+  welcomeSentAt DateTime?
 
   subscribedAt   DateTime @default(now())
   unsubscribedAt DateTime?

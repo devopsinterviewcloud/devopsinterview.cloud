@@ -166,13 +166,19 @@ export default function Home() {
               {totalQuestions} questions in five PDF books. Each one has a 30-second answer, the deep dive, the trade-offs and the follow-ups.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
-              <TrackedLink href="#ebooks" eventName="home_ebooks_cta_clicked" eventProperties={{ location: "hero" }} className="btn-primary">
-                <span>See the five books, from <DynamicPriceText usdPrice={singleBooks[0].price} /></span>
+              <TrackedLink href={`/ebooks/${bundle.slug}`} eventName="product_view_clicked" eventProperties={{ product: bundle.id, location: "hero" }} className="btn-primary">
+                <span>All five books for <DynamicPriceText usdPrice={bundle.price} /></span>
               </TrackedLink>
               <TrackedLink href={SAMPLE_PDF} target="_blank" eventName="sample_opened" eventProperties={{ location: "hero" }} className="btn-secondary">
                 Read {SAMPLE_PDF_QUESTIONS} free questions
               </TrackedLink>
             </div>
+            <p className="mt-4 text-[15px] text-subtle">
+              Or pick one topic:{" "}
+              <TrackedLink href="#ebooks" eventName="home_ebooks_cta_clicked" eventProperties={{ location: "hero" }} className="font-semibold text-ink underline underline-offset-4 hover:decoration-2">
+                single books from <DynamicPriceText usdPrice={singleBooks[0].price} />
+              </TrackedLink>
+            </p>
           </div>
           <ul className="mt-8 grid grid-cols-3 gap-2 sm:gap-3 lg:col-span-6 lg:mt-0" aria-label="The five books">
             {singleBooks.map((b) => (
