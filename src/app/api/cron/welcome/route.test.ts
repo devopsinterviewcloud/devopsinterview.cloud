@@ -13,7 +13,8 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 const sendListEmail = jest.fn()
-jest.mock('@/lib/email', () => ({ sendListEmail: (...a: unknown[]) => sendListEmail(...a) }))
+const removeFromAudience = jest.fn()
+jest.mock('@/lib/email', () => ({ sendListEmail: (...a: unknown[]) => sendListEmail(...a), removeFromAudience: (...a: unknown[]) => removeFromAudience(...a) }))
 
 import { NextRequest } from 'next/server'
 import { GET } from './route'
@@ -108,4 +109,14 @@ test('a send that may have gone out keeps its step, so tomorrow cannot send a du
   const res = await get()
   expect(await res.json()).toMatchObject({ sent: 0, failed: 0, uncertain: 1 })
   expect(updateMany).toHaveBeenCalledTimes(1) // the claim only
+})
+
+test("the last week's unsubscribes are re-marked in the Resend audience", async () => {
+  findMany.mockResolvedValueOnce([]).mockResolvedValueOnce([{ email: 'gone@example.com' }])
+  const res = await get()
+  expect(await res.json()).toMatchObject({ resynced: 1 })
+  const where = findMany.mock.calls[1][0].where
+  expect(where.isActive).toBe(false)
+  expect((Date.now() - where.unsubscribedAt.gte.getTime()) / DAY).toBeCloseTo(7, 2)
+  expect(removeFromAudience).toHaveBeenCalledWith('gone@example.com')
 })

@@ -4,12 +4,13 @@
  * sends, so overlapping runs can't double-send. A send Resend definitely rejected
  * gives the step back for the next run; one that may have gone out (network or
  * Resend-side error) keeps it, since a skipped email beats a duplicate. Anyone who
- * has bought leaves the series.
+ * has bought leaves the series. The run also re-marks the last week's unsubscribes
+ * in the Resend audience, so a failed sync at unsubscribe time gets repaired.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { cronAuthorized } from '@/lib/cron-auth'
-import { sendListEmail } from '@/lib/email'
+import { removeFromAudience, sendListEmail } from '@/lib/email'
 import { unsubscribeApiUrl, unsubscribePageUrl } from '@/lib/unsubscribe'
 import { WELCOME_EMAIL_COUNT, WELCOME_GAPS_DAYS, welcomeEmail } from '@/lib/welcome-emails'
 
@@ -115,5 +116,13 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ok: true, candidates: candidates.length, sent, buyers, failed, uncertain })
+  // Idempotent on Resend's side; a week of daily runs covers any transient failure.
+  const unsubscribed = await db.subscriber.findMany({
+    where: { isActive: false, unsubscribedAt: { gte: new Date(now.getTime() - 7 * DAY_MS) } },
+    select: { email: true },
+    take: BATCH,
+  })
+  for (const u of unsubscribed) await removeFromAudience(u.email)
+
+  return NextResponse.json({ ok: true, candidates: candidates.length, sent, buyers, failed, uncertain, resynced: unsubscribed.length })
 }
