@@ -2,6 +2,7 @@
   {
     "id": "1",
     "slug": "cloud-interview-mastery",
+    "kindleAsin": "B0HPF6X7Q6",
     "title": "Cloud Platforms: AWS, Azure & GCP Interview Questions",
     "description": "Senior-level multi-cloud interview preparation across AWS, Azure, and GCP: 50 questions answered the way a senior engineer actually would. Covers multi-cloud architecture and tradeoffs, core compute and storage services, networking and cloud security, identity and access, cost optimization and FinOps, serverless, and disaster recovery and high availability.",
     "price": 9.99,
@@ -26,6 +27,7 @@
   {
     "id": "2",
     "slug": "container-orchestration-journey",
+    "kindleAsin": "B0HPBSD6GY",
     "title": "Containers & Orchestration: Kubernetes Interview Questions",
     "description": "Senior-level containers and Kubernetes interview preparation: 52 questions answered the way a senior engineer actually would. Covers workload deployment and scheduling, cluster networking and service mesh, container and supply-chain security, identity and RBAC, stateful workloads and storage, observability, operators and CRDs, and platform engineering and multi-tenancy.",
     "price": 9.99,
@@ -51,6 +53,7 @@
   {
     "id": "3",
     "slug": "infrastructure-automation-mastery",
+    "kindleAsin": "B0HPDLF3G2",
     "title": "Infrastructure as Code: Terraform & OpenTofu Interview Questions",
     "description": "Senior-level Infrastructure as Code interview preparation built on Terraform and OpenTofu. Covers state management and remote backends, module design and versioning, drift detection and reconciliation, testing with the native terraform test framework and Terratest, secrets and policy-as-code, CI/CD and GitOps delivery, the tooling landscape and multi-cloud (Pulumi, AWS CDK, Crossplane), and platform, scale, and cost. Real interview questions answered the way a senior engineer actually would.",
     "price": 9.99,
@@ -75,6 +78,7 @@
   {
     "id": "4",
     "slug": "modern-cicd-gitops",
+    "kindleAsin": "B0HPDYBMLZ",
     "title": "CI/CD & GitOps: Pipelines, GitOps & Progressive Delivery Interview Questions",
     "description": "Senior-level CI/CD and GitOps interview preparation: 50 questions answered the way a senior engineer actually would. Covers pipeline architecture and optimization, GitOps and continuous deployment with Argo CD and Flux, progressive delivery (canary, blue-green, Argo Rollouts), rollback and database migrations, pipeline and supply-chain security (SBOM, Sigstore/cosign, SLSA), DevSecOps and compliance-as-code, Git strategy and the tooling landscape, and delivery culture and DORA metrics.",
     "price": 9.99,
