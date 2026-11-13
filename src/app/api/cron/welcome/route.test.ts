@@ -38,10 +38,17 @@ test('without the cron secret nothing runs', async () => {
   expect(findMany).not.toHaveBeenCalled()
 })
 
-test('only enrolled, active subscribers with emails left are considered', async () => {
+test('only active subscribers whose next email is due are fetched (2, 3, 4 days, half a day of slack)', async () => {
   findMany.mockResolvedValue([])
+  const before = Date.now()
   await get()
-  expect(findMany.mock.calls[0][0].where).toEqual({ isActive: true, welcomeStep: { gte: 0, lt: 3 }, welcomeSentAt: { not: null } })
+  const where = findMany.mock.calls[0][0].where
+  expect(where.isActive).toBe(true)
+  expect(where.OR.map((c: { welcomeStep: number }) => c.welcomeStep)).toEqual([0, 1, 2])
+  where.OR.forEach((c: { welcomeSentAt: { lte: Date } }, i: number) => {
+    const ageDays = (before - c.welcomeSentAt.lte.getTime()) / DAY
+    expect(ageDays).toBeCloseTo([2, 3, 4][i] - 0.5, 2)
+  })
 })
 
 test('a due email is claimed, then sent with one-click unsubscribe and an idempotency key', async () => {
@@ -55,12 +62,14 @@ test('a due email is claimed, then sent with one-click unsubscribe and an idempo
   expect(arg.text).toContain('https://example.com/unsubscribe?s=sub_1&t=')
 })
 
-test('an email that is not due yet is left alone', async () => {
-  findMany.mockResolvedValue([sub(0, 1), sub(1, 2), sub(2, 3)]) // gaps are 2, 3 and 4 days
+test('one failed send is retried at once with the same key, and counts as sent if that works', async () => {
+  findMany.mockResolvedValue([sub(1, 3)])
+  sendListEmail.mockRejectedValueOnce(new Error('socket hang up'))
   const res = await get()
-  expect(await res.json()).toMatchObject({ sent: 0 })
-  expect(updateMany).not.toHaveBeenCalled()
-  expect(sendListEmail).not.toHaveBeenCalled()
+  expect(await res.json()).toMatchObject({ sent: 1, failed: 0 })
+  expect(sendListEmail).toHaveBeenCalledTimes(2)
+  expect(sendListEmail.mock.calls[1][0].idempotencyKey).toBe(sendListEmail.mock.calls[0][0].idempotencyKey)
+  expect(updateMany).toHaveBeenCalledTimes(1) // the claim only, no give-back
 })
 
 test('a buyer leaves the series without an email', async () => {

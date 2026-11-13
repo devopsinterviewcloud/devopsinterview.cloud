@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { verifyUnsubscribeToken } from '@/lib/unsubscribe'
 import { removeFromAudience } from '@/lib/email'
+import { WELCOME_EMAIL_COUNT } from '@/lib/welcome-emails'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -28,9 +29,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid link' }, { status: 400 })
   }
 
-  const sub = await db.subscriber.findUnique({ where: { id: s! }, select: { email: true, isActive: true } })
-  if (sub?.isActive) {
-    await db.subscriber.update({ where: { id: s! }, data: { isActive: false, unsubscribedAt: new Date() } })
+  const sub = await db.subscriber.findUnique({ where: { id: s! }, select: { email: true, isActive: true, welcomeStep: true } })
+  if (sub) {
+    if (sub.isActive) {
+      // Ending the series too means a later signup from a page that doesn't
+      // promise it (labs) can't quietly resume it.
+      await db.subscriber.update({
+        where: { id: s! },
+        data: { isActive: false, unsubscribedAt: new Date(), ...(sub.welcomeStep === null ? {} : { welcomeStep: WELCOME_EMAIL_COUNT }) },
+      })
+    }
+    // Every request retries the vendor side, so a Resend hiccup the first time isn't permanent.
     await removeFromAudience(sub.email)
   }
 

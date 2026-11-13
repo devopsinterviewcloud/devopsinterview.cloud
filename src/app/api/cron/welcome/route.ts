@@ -13,20 +13,31 @@ import { WELCOME_EMAIL_COUNT, WELCOME_GAPS_DAYS, welcomeEmail } from '@/lib/welc
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 const DAY_MS = 24 * 60 * 60 * 1000
 // Hobby crons fire anywhere in their hour, so allow half a day of slack rather
 // than letting a few minutes push an email to the next day's run.
 const SLACK_MS = 12 * 60 * 60 * 1000
-const BATCH = 200
+const BATCH = 100
+// Stop claiming new work well inside maxDuration: a claim cut off mid-send would skip that email.
+const TIME_BUDGET_MS = 30_000
 
 export async function GET(req: NextRequest) {
   if (!cronAuthorized(req)) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   const now = new Date()
+  const started = Date.now()
 
+  // Only rows whose next email is due, so a backlog at one step can't crowd out another.
   const candidates = await db.subscriber.findMany({
-    where: { isActive: true, welcomeStep: { gte: 0, lt: WELCOME_EMAIL_COUNT }, welcomeSentAt: { not: null } },
+    where: {
+      isActive: true,
+      OR: WELCOME_GAPS_DAYS.map((days, step) => ({
+        welcomeStep: step,
+        welcomeSentAt: { lte: new Date(now.getTime() - days * DAY_MS + SLACK_MS) },
+      })),
+    },
     orderBy: { welcomeSentAt: 'asc' },
     take: BATCH,
     select: { id: true, email: true, welcomeStep: true, welcomeSentAt: true },
@@ -34,9 +45,9 @@ export async function GET(req: NextRequest) {
 
   let sent = 0, buyers = 0, failed = 0
   for (const s of candidates) {
+    if (Date.now() - started > TIME_BUDGET_MS) break
     const step = s.welcomeStep!
     const last = s.welcomeSentAt!
-    if (now.getTime() - last.getTime() < WELCOME_GAPS_DAYS[step] * DAY_MS - SLACK_MS) continue
 
     const bought = await db.order.count({
       where: { customerEmail: { equals: s.email, mode: 'insensitive' }, paymentStatus: 'SUCCEEDED' },
@@ -55,13 +66,17 @@ export async function GET(req: NextRequest) {
 
     const n = step + 1
     const email = welcomeEmail(n, appUrl, unsubscribePageUrl(appUrl, s.id))
-    try {
-      await sendListEmail({
+    const send = () =>
+      sendListEmail({
         to: s.email,
         ...email,
         unsubscribeApiUrl: unsubscribeApiUrl(appUrl, s.id),
         idempotencyKey: `welcome-email/${s.id}/${n}`,
       })
+    try {
+      // A lost response may hide an accepted send; retrying now with the same key
+      // (Resend keeps keys for 24 hours) can't duplicate it, unlike tomorrow's run.
+      await send().catch(send)
       sent++
     } catch (err) {
       // eslint-disable-next-line no-console

@@ -17,7 +17,7 @@ type SampleSignupProps = {
 }
 
 export default function SampleSignup({
-  source = 'home-hero',
+  source = 'home-free-sample',
   ctaLabel = 'Email me the free sample',
   helperText = '8 real questions, one per chapter, then three short follow-up emails. Unsubscribe anytime.',
   successMessage = 'Check your inbox for the free sample.',

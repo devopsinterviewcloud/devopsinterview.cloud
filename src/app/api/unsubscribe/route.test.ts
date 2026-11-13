@@ -20,7 +20,7 @@ const post = (query: string, body: string) =>
 beforeEach(() => {
   jest.clearAllMocks()
   process.env.DOWNLOAD_TOKEN_SECRET = 'test-secret'
-  findUnique.mockResolvedValue({ email: 'a@example.com', isActive: true })
+  findUnique.mockResolvedValue({ email: 'a@example.com', isActive: true, welcomeStep: null })
   update.mockResolvedValue({})
 })
 afterEach(() => { process.env = { ...env } })
@@ -46,10 +46,16 @@ test('a bad token changes nothing', async () => {
   expect(update).not.toHaveBeenCalled()
 })
 
-test('an already-unsubscribed row is left alone', async () => {
-  findUnique.mockResolvedValue({ email: 'a@example.com', isActive: false })
+test('unsubscribing mid-series ends the series, so another signup form cannot resume it', async () => {
+  findUnique.mockResolvedValue({ email: 'a@example.com', isActive: true, welcomeStep: 1 })
+  await post(`s=sub_1&t=${unsubscribeToken('sub_1')}`, 'List-Unsubscribe=One-Click')
+  expect(update).toHaveBeenCalledWith({ where: { id: 'sub_1' }, data: { isActive: false, unsubscribedAt: expect.any(Date), welcomeStep: 3 } })
+})
+
+test('an already-unsubscribed row is not rewritten, but the vendor unsubscribe is retried', async () => {
+  findUnique.mockResolvedValue({ email: 'a@example.com', isActive: false, welcomeStep: 3 })
   const res = await post(`s=sub_1&t=${unsubscribeToken('sub_1')}`, 'List-Unsubscribe=One-Click')
   expect(res.status).toBe(200)
   expect(update).not.toHaveBeenCalled()
-  expect(removeFromAudience).not.toHaveBeenCalled()
+  expect(removeFromAudience).toHaveBeenCalledWith('a@example.com')
 })
