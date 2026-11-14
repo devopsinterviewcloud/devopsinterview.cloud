@@ -27,7 +27,7 @@ They want to see if you can connect infrastructure decisions to organizational r
 
 **How would you migrate from multi-repo to mono-repo, or vice versa, without downtime?** Focus on the fact that this is really an organizational change wrapped in a tooling change, so sequencing access control and ownership boundaries matters as much as the repo mechanics.
 
-**What happens to blast radius if you pick mono-repo for a large, loosely coupled org?** A bad change or bad merge can affect teams that had nothing to do with it, which is exactly the tradeoff the source highlights for larger or security-sensitive organizations.
+**What happens to blast radius if you pick mono-repo for a large, loosely coupled org?** A bad change or bad merge can affect teams that had nothing to do with it, say an edit to a shared base config that every team's apps sync from. That's why larger or security-sensitive orgs usually split repos along team lines.
 
 **How does this decision affect access control?** Multi-repo gives you granular, per-team permissions naturally; mono-repo requires you to build that granularity on top of a single repo, which adds tooling complexity.
 

@@ -23,7 +23,7 @@ This question separates people who understand Terraform as a one-time provisioni
 
 ## Follow-ups to expect
 
-**How often should the scheduled `terraform plan` run?** The source doesn't specify a fixed interval, but the logic is that it needs to run often enough to catch drift before it compounds into an outage, which argues for frequent, automated runs rather than occasional manual ones.
+**How often should the scheduled `terraform plan` run?** Daily is a sensible default, hourly for critical prod stacks if the runs stay well under your provider's API rate limits. HCP Terraform's built-in drift detection checks about once a day. Use `terraform plan -detailed-exitcode` so exit code 2, meaning changes, triggers the alert.
 
 **What do you do once you detect drift?** Treat it as an incident worth investigating, not just a diff to auto-apply away, since the manual change that caused it might have been an emergency fix that encodes real information about what's happening in prod.
 

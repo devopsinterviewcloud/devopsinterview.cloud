@@ -27,7 +27,7 @@ This question checks whether you think about cost as a first-class engineering c
 
 **Why mix instance types and AZs instead of picking the cheapest single option?** A single instance type in a single AZ is a single point of failure for spot capacity; diversifying across types and zones spreads that risk and cuts interruption frequency substantially.
 
-**Would you run spot for every stage of the pipeline?** The source pattern is built around build workloads specifically, since they're short-lived and safely retryable, which is exactly the profile that tolerates spot interruptions well.
+**Would you run spot for every stage of the pipeline?** No. Builds and test shards are ideal because they're short and safe to retry. Keep deploys, database migrations and release publishing on on-demand runners, since a reclaim halfway through can leave an environment half-changed.
 
 ## The common wrong answer
 

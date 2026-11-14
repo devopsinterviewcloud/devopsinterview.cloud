@@ -23,7 +23,7 @@ This question separates people who've read about Vault from people who've actual
 
 ## Follow-ups to expect
 
-**Why not just use the Vault Agent Injector instead?** The source doesn't cover this tradeoff directly, but be ready to compare: ESO syncs values into native Kubernetes Secrets that any workload can consume, which is a different operational model than sidecar injection.
+**Why not just use the Vault Agent Injector instead?** The injector adds Vault Agent containers that write secrets to an in-memory volume per pod, so nothing lands in etcd, but each pod runs a sidecar and the app reads files. ESO creates native Secrets any workload can use, but they live in etcd, so encrypt etcd and lock down RBAC.
 
 **What happens if Vault is unreachable when ESO polls?** Think through this in terms of the sync model: ESO keeps the last-synced Kubernetes Secret in place until it can successfully reconcile again, so a transient Vault outage shouldn't immediately break running pods.
 

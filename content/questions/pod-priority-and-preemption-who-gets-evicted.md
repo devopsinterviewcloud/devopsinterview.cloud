@@ -23,7 +23,7 @@ This question separates people who've memorized the term "PriorityClass" from pe
 
 ## Follow-ups to expect
 
-**What happens if two pods have the same priority class?** The source doesn't go into tie-breaking detail, but the expectation is that you'd explain priority only matters when the scheduler has to choose between pods of different priority during contention, same-priority pods aren't preempted against each other.
+**What happens if two pods have the same priority class?** They can't preempt each other, because the scheduler only preempts pods with lower priority than the pending one. Equal-priority pods are scheduled in queue order, so if there's no room the later one stays Pending until capacity frees up or the cluster autoscaler adds a node.
 
 **How do you prevent a critical pod from ever being evicted?** You can't guarantee it, but you can put it last in line: a high priority class so the scheduler won't preempt it for lower-priority pods, and requests that match actual usage, since under node pressure the kubelet evicts pods using more than they requested first. Then run more than one replica so losing a pod isn't an outage.
 

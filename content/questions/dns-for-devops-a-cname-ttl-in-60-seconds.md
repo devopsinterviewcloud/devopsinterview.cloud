@@ -27,7 +27,7 @@ They're checking whether you understand DNS as a caching system with uncooperati
 
 **Why use CNAME instead of just pointing everything with A records?** CNAME lets the thing behind the subdomain, like a CDN endpoint, change its underlying IPs freely without you having to update DNS records yourself.
 
-**Can you set a CNAME on a root/apex domain?** The source doesn't go into that distinction directly, but the stated convention is A records for root domains and CNAME for subdomains, which is the safer default to state in an interview.
+**Can you set a CNAME on a root/apex domain?** No. A CNAME can't share its name with any other record, and the apex must hold SOA and NS records, so DNS forbids it. For a CDN or load balancer at the apex, use a Route 53 alias record, or CNAME flattening or ALIAS records elsewhere.
 
 ## The common wrong answer
 

@@ -46,7 +46,7 @@ This question separates people who've only written standalone CI configs from pe
 
 - **What happens if you reference a reusable workflow by `@main` instead of a tag?** A breaking change merged to `main` propagates instantly to every caller, with no version boundary to catch it before it hits production pipelines.
 - **How do you pass different configuration into the same reusable workflow for different environments?** Define `inputs` in the `workflow_call` trigger, then pass values with `with` when another workflow calls it via `uses`.
-- **How is this different from a composite action?** The source material doesn't cover composite actions directly, but it's worth being ready to contrast the two, since interviewers often ask when to use each.
+- **How is this different from a composite action?** A reusable workflow supplies whole jobs that pick their own runner and can use secrets. A composite action is a set of steps that runs inside the caller's job, so it shares steps rather than pipelines.
 
 ## The common wrong answer
 

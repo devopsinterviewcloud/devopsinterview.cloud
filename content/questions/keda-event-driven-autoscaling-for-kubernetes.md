@@ -29,7 +29,7 @@ They want to know if you think about autoscaling in terms of the actual business
 
 **What workloads are a bad fit for scale-to-zero?** Anything latency-sensitive where a cold start to spin a pod back up would hurt user experience is a poor candidate; batch consumers tolerant of a short delay are the ideal case.
 
-**What metrics sources can trigger a ScaledObject?** The source calls out queue length, database connections, and HTTP request counts as examples of external metrics KEDA can scale against.
+**What metrics sources can trigger a ScaledObject?** Any KEDA scaler: Kafka, RabbitMQ or SQS queue depth, a PostgreSQL query, Redis list length, a Prometheus query, a cron schedule or a CloudWatch metric, among dozens more.
 
 ## The common wrong answer
 

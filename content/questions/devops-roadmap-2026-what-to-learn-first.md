@@ -28,7 +28,7 @@ This question is a proxy for judging whether you understand how infrastructure c
 
 **"Why pick just one cloud provider instead of learning general cloud concepts?"** Trying to learn AWS, Azure, and GCP simultaneously tends to produce shallow, interchangeable knowledge of all three rather than real competence in any one, and most interviews test against a specific provider anyway.
 
-**"What comes after Kubernetes in this roadmap?"** The source doesn't go beyond this core sequence, but the implication is that everything after Linux, Git, one cloud provider, Docker, and Kubernetes builds on having those fundamentals solid first.
+**"What comes after Kubernetes in this roadmap?"** Usually infrastructure as code with Terraform, a CI/CD pipeline that builds and deploys your images, then monitoring with Prometheus and Grafana. All of it assumes the Linux, Git, cloud, Docker and Kubernetes basics are already solid.
 
 ## The common wrong answer
 

@@ -27,7 +27,7 @@ They're checking whether you've thought past "it works on my machine." Anyone ca
 
 ## Follow-ups to expect
 
-**How do you handle vault password rotation?** You'd need to re-encrypt the vault files with the new password and update whatever secure store holds the password file that CI/CD reads from. The source doesn't go into tooling specifics here, so keep the answer at that level unless you have direct experience to add.
+**How do you handle vault password rotation?** Run `ansible-vault rekey` to re-encrypt the vault files with the new password, then update the secure store that holds the password file CI/CD reads from. Rekey can't touch inline `encrypt_string` values, so those have to be re-encrypted one at a time, which is another reason to vault whole files.
 
 **Why not just use environment variables for secrets?** Environment variables still have to be stored and injected from somewhere, and they leak easily into logs, debug output and child processes; Ansible Vault keeps the secret encrypted in the repo itself until decryption at runtime.
 

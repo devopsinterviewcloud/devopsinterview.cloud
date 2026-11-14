@@ -24,7 +24,7 @@ This question separates people who've only ever run `docker run -e DB_PASSWORD=.
 
 **How would you check if a container is leaking secrets through its environment?** Inspect the container with `docker inspect`, which lists its env vars under `Config.Env`, and read `/proc/<pid>/environ` on the host as root to see what the running process actually has.
 
-**Does Docker Secrets work outside of Swarm mode?** The source describes Secrets as a Swarm feature, with the Raft log storage; on single-node Compose setups you get the file-mounting workflow but not the clustered encrypted storage.
+**Does Docker Secrets work outside of Swarm mode?** No. `docker secret create` needs Swarm mode, since secrets live in the Raft log. Compose accepts `secrets:` without Swarm, but it bind-mounts a host file into `/run/secrets/`, so you get the workflow without the encrypted storage.
 
 **Why mount secrets as files instead of injecting them directly?** Files in a memory-backed mount avoid the process-list and inspect-output exposure that environment variables have, and with Swarm on Linux they don't get written to disk.
 

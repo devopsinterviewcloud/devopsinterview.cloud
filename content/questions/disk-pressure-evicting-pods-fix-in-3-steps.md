@@ -28,7 +28,7 @@ This question separates people who've only read about eviction from people who'v
 ## Follow-ups to expect
 
 - **Why does kubelet evict pods instead of just failing?** Because kubelet is protecting the node itself - if disk fills completely, the kubelet and container runtime can't function, so it sacrifices pods to keep the node alive.
-- **What's the difference between soft and hard eviction thresholds?** The source doesn't give specifics here, but expect this as a natural next question - be ready to explain that kubelet supports configurable thresholds with grace periods versus immediate eviction.
+- **What's the difference between soft and hard eviction thresholds?** A soft threshold must stay crossed for its grace period before kubelet evicts, and evicted pods get a shutdown capped by `evictionMaxPodGracePeriod`. A hard threshold, like the default `nodefs.available<10%`, evicts immediately with no graceful shutdown.
 - **How do you prevent this from recurring?** Garbage collection thresholds and log rotation are the proactive fix described above - they stop the disk from filling in the first place instead of reacting after eviction starts.
 
 ## The common wrong answer

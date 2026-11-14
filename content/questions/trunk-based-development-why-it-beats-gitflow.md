@@ -23,7 +23,7 @@ They're checking whether you can connect a branching model to a deployment caden
 
 ## Follow-ups to expect
 
-- **How do you handle incomplete features on `main` with trunk-based development?** The source doesn't cover this directly, but the implication is that you lean on practices like feature flags so unfinished work can sit in `main` without being exposed to users, since everyone's committing to the same branch daily.
+- **How do you handle incomplete features on `main` with trunk-based development?** Feature flags, so unfinished work merges to `main` switched off and gets turned on when it's ready, and branch by abstraction for large refactors. Keep each change small, and delete flags once a feature is fully rolled out so they don't pile up.
 - **What breaks if a team adopts trunk-based development without changing anything else?** If deployments still happen on a slow manual cadence, you keep the faster integration but lose most of the payoff, which is frequent deployment and fast feedback from production. The branching model alone doesn't create velocity.
 - **When would GitFlow still make sense?** When you ship explicitly versioned software or have to support several released versions at once, like a library, a desktop app or an on-prem product. Its author says as much in his 2020 note on the original post.
 

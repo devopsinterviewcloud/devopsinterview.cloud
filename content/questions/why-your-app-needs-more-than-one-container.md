@@ -27,7 +27,7 @@ They're checking if you understand the single-responsibility principle as it app
 
 - **How do sidecar containers communicate with the main container?** Within a Kubernetes pod they share a network namespace and can talk over `localhost`, and they can share volumes for log files or sockets. In Docker Compose, containers communicate over the network Compose creates for that project.
 - **What's the tradeoff of splitting everything into separate containers?** You gain independent restart and scaling, but you add orchestration complexity: more containers to define, network wiring, and separate lifecycle management to reason about.
-- **When would you still combine two things in one container?** The source pattern is about splitting by responsibility, so the implication is you combine only processes that are so tightly coupled they have no independent failure mode worth isolating, otherwise you keep them separate.
+- **When would you still combine two things in one container?** When the processes only make sense together and always scale together, like nginx in front of PHP-FPM. Then run them under a process manager such as `supervisord`, so a crashed child gets restarted instead of dying unnoticed.
 
 ## The common wrong answer
 

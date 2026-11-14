@@ -27,7 +27,7 @@ This question screens for whether you've actually operated a tracing backend ver
 
 **"How does trace retention cost scale differently between these tools?"** Tempo's object storage model avoids the heavier indexing costs that drive up storage spend in other backends, which matters a lot once you're retaining traces for weeks or months instead of days.
 
-**"Would you run two tracing backends in parallel during a migration?"** It's reasonable to mention that teams often run an old backend alongside a new one during cutover to validate trace completeness before fully switching, though the source here doesn't go into migration mechanics.
+**"Would you run two tracing backends in parallel during a migration?"** Yes, for a short window. Put an OpenTelemetry Collector in front and send the same spans to both backends through two exporters, check that traces match, then move dashboards over and retire the old backend once its retention period runs out.
 
 **"What would push you away from Jaeger even in a Kubernetes shop?"** If the team is small and doesn't need Jaeger's throughput or operator-driven complexity, Zipkin's lighter setup can be the more pragmatic call.
 

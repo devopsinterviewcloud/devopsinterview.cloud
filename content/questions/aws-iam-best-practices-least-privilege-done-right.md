@@ -25,7 +25,7 @@ This question separates people who've only read the IAM docs from people who've 
 
 **How do you handle legitimate exceptions, like a break-glass admin role?** Permission boundaries still apply here. You scope the boundary tightly and pair it with monitoring and short-lived credentials rather than leaving a standing broad-access role unattended.
 
-**What's the difference between a permission boundary and an SCP?** The source material doesn't go into organizational-level controls, but it's worth knowing a boundary caps a single identity's permissions while broader org-wide guardrails operate at the account level. Don't guess at specifics you can't back up in an interview.
+**What's the difference between a permission boundary and an SCP?** A boundary is attached to one IAM user or role and caps what its identity-based policies can grant. An SCP is set in AWS Organizations on an OU or account and caps every user and role in those member accounts, root user included. Neither grants anything: the boundary, the SCP and the identity policy all have to allow the action.
 
 **How often should you re-run Access Analyzer and CloudTrail reviews?** Treat it as continuous, not a quarterly audit checkbox. Usage patterns change as services evolve, so unused permissions accumulate quietly if nobody's watching.
 
