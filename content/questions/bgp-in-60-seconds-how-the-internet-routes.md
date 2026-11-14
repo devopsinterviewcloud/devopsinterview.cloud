@@ -13,18 +13,18 @@ Candidates walk into networking rounds assuming routing is about speed. It isn't
 
 The internet does not pick the fastest path for your traffic. Not even close. BGP, the Border Gateway Protocol, doesn't care about latency at all. It routes based on policy: who you peer with, who you pay, and who you trust.
 
-Every AS (Autonomous System) announces the routes it claims to own. Other networks accept those announcements largely on faith. One bad announcement, like the Pakistan Telecom hijack, and traffic for half the internet can vanish or get rerouted somewhere it was never meant to go.
+Every AS (Autonomous System) announces the prefixes it can reach, both its own and ones learned from neighbors. Other networks filter some of that, but a lot still gets accepted on trust. One bad announcement, like the Pakistan Telecom hijack that took YouTube offline for much of the internet in 2008, and a service's traffic can vanish or get rerouted somewhere it was never meant to go.
 
-Here's the part most people gloss over: BGP shipped with zero built-in security. There was no origin validation baked into the original protocol. RPKI (Resource Public Key Infrastructure) exists now to validate route origins, but adoption is uneven. Most networks still don't bother configuring it. That gap is why BGP breaks the internet as often as it routes it.
+Here's the part most people gloss over: BGP shipped with no way to verify what a neighbor announces. Peers could authenticate each other, but there was no origin validation baked into the original protocol. RPKI (Resource Public Key Infrastructure) exists now to validate route origins, but adoption is uneven. Most networks still don't bother configuring it. That gap is why BGP breaks the internet as often as it routes it.
 
 ## Why interviewers ask this
 
-This question screens for whether you understand that internet routing is a trust-based system, not an optimization engine. It also tests whether you can explain how a misconfiguration at one AS cascades into an outage for networks that had nothing to do with the mistake. Interviewers want to see you connect protocol design (policy-based, no built-in auth) to real-world failure modes, not just recite that "BGP stands for Border Gateway Protocol."
+This question screens for whether you understand that internet routing is a trust-based system, not an optimization engine. It also tests whether you can explain how a misconfiguration at one AS cascades into an outage for networks that had nothing to do with the mistake. Interviewers want to see you connect protocol design (policy-based, no built-in route validation) to real-world failure modes, not just recite that "BGP stands for Border Gateway Protocol."
 
 ## Follow-ups to expect
 
 - **What is a route hijack, in plain terms?** An AS announces that it owns IP space it doesn't actually control, and because BGP accepts announcements on trust, other networks start sending that traffic to the wrong place.
-- **What does RPKI actually fix, and what doesn't it fix?** RPKI lets a network cryptographically validate that an AS is authorized to announce a given prefix, which helps catch bogus origin announcements. It doesn't fix path validation or attacks where the origin is legitimate but the path is manipulated, and it only works where networks actually deploy it.
+- **What does RPKI actually fix, and what doesn't it fix?** RPKI lets a network cryptographically validate that an AS is authorized to announce a given prefix, which helps catch bogus origin announcements. It doesn't fix path validation or attacks where the origin is legitimate but the path is manipulated (ASPA, also built on RPKI, targets that but is still an IETF draft), and it only works where networks actually deploy it.
 - **Why would a company choose a worse-performing route on purpose?** Because BGP path selection is driven by peering agreements and cost, not latency, so a cheaper or contractually preferred path can win over a faster one.
 
 ## The common wrong answer

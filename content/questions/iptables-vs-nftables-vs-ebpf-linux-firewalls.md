@@ -11,11 +11,11 @@ Linux firewalling comes up in almost every infra interview because it's a quick 
 
 ## The answer interviewers want
 
-`iptables` is the legacy standard. It's been around forever, most existing infrastructure still runs on it, and in production today `iptables` still dominates despite being the older tool. You can't assume a shop has moved on just because something newer exists.
+`iptables` is the legacy standard. It's been around forever and a lot of existing tooling, like Docker and kube-proxy, still speaks it. On most current distros, though, the `iptables` command is really `iptables-nft`, writing rules into the nftables backend. You can't assume a shop has moved on just because something newer exists.
 
 `nftables` is the modern replacement with better syntax. It's perfect for complex rule sets, since it was designed to fix the awkward, hard-to-read rule chains that `iptables` is known for. If you're building out rich rule logic and maintainability matters, `nftables` is the better fit.
 
-eBPF is a different category entirely. It bypasses the kernel's normal packet-processing path for extreme performance, and it shines in high-throughput scenarios like load balancers, where every microsecond of latency matters. The catch: eBPF has a steep learning curve. It's not a drop-in firewall replacement, it's a programmable layer that takes real investment to use well. That said, it's where the industry is heading for performance-critical applications, so expect it to keep showing up in interviews and in production stacks.
+eBPF is a different category entirely. It runs your own programs at hooks inside the kernel, and with XDP it can handle packets before most of the network stack even sees them. That's why it shines in high-throughput scenarios like load balancers, where every microsecond of latency matters. The catch: eBPF has a steep learning curve. It's not a drop-in firewall replacement, it's a programmable layer that takes real investment to use well. That said, it's where the industry is heading for performance-critical applications, so expect it to keep showing up in interviews and in production stacks.
 
 The short version: pick `iptables` if it's already there and working, pick `nftables` when you need cleaner syntax and complex rules, and reach for eBPF when you're optimizing for raw throughput and have the engineering time to invest in it.
 

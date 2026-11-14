@@ -11,7 +11,7 @@ Interviewers want to know whether you understand the difference between applicat
 
 ## The answer interviewers want
 
-Syslog does not tell you who deleted a file. It only sees what processes choose to report, which means a process can delete a file without logging anything meaningful about who triggered it. `auditd` sits lower in the stack, in the kernel, below syslog and below your application. It sees everything that happens at the syscall level, regardless of whether the process itself logs it.
+Syslog does not tell you who deleted a file. It only sees what processes choose to report, which means a process can delete a file without logging anything meaningful about who triggered it. `auditd` works lower in the stack: it's the user-space daemon for the kernel's audit subsystem, which records syscalls below syslog and below your application. It captures whatever your audit rules select, regardless of whether the process itself logs it.
 
 To use it, first enable the daemon:
 
@@ -22,10 +22,10 @@ systemctl enable --now auditd
 Then add a watch rule, for example to track changes to a sensitive file:
 
 ```
-auditctl -w /etc/passwd -p wa -k passwd-changes
+auditctl -a always,exit -F arch=b64 -F path=/etc/passwd -F perm=wa -k passwd-changes
 ```
 
-This watches `/etc/passwd` for write and attribute changes (`-p wa`) and tags matching events with the key `passwd-changes` so they're easy to find later.
+This watches `/etc/passwd` for writes and attribute changes (`perm=wa`) and tags events with the key `passwd-changes` so they're easy to find later. The older `-w /etc/passwd -p wa` form still works but is deprecated for performance.
 
 Query the results with:
 
@@ -35,7 +35,7 @@ ausearch -k passwd-changes
 
 One detail that trips people up in production: rules added with `auditctl` directly are not persistent. They live in memory and are lost on reboot. If you only add rules with `auditctl`, your next restart silently kills your compliance coverage and nobody notices until an audit or an incident review comes up empty. To make rules survive a reboot, write them to a file under `/etc/audit/rules.d/` instead.
 
-Once this is in place, the next time someone asks who deleted a file or modified a config, auditd already has the answer.
+Once this is in place, the next time someone asks who modified a file you're watching, auditd already has the answer.
 
 ## Why interviewers ask this
 

@@ -14,9 +14,9 @@ Capacity planning comes down to three things: understanding your baseline, ident
 
 In practice, that means monitoring CPU, memory, and request latency over a period of weeks, not days, so you actually see the shape of your traffic including the weird edge cases. Once you have that data, you configure auto-scaling rules with proper headroom built in, so the system isn't scrambling to add capacity the moment load ticks up.
 
-A good rule of thumb: plan for roughly double your expected peak on the upside, so you've got margin when traffic surprises you. But don't just over-provision and walk away. Scale down aggressively during low-traffic periods. The expensive mistake most teams make isn't under-provisioning, it's leaving that extra capacity running 24/7 out of caution, which is a huge source of wasted cloud spend.
+Size the upside headroom from that data, not a fixed multiplier: how far real peaks have overshot the forecast, and how long a scale-out takes to land. That's your margin when traffic surprises you. But don't just over-provision and walk away. Scale down during low-traffic periods, just more cautiously than you scale up. The expensive mistake plenty of teams make is leaving that extra capacity running 24/7 out of caution, which is a big source of wasted cloud spend.
 
-So the full answer has two halves: measure first, then build in asymmetric scaling. Generous headroom going up, aggressive scale-down coming back.
+So the full answer has two halves: measure first, then build in asymmetric scaling. Scale up fast with generous headroom, and scale down steadily once demand has stayed low.
 
 ## Why interviewers ask this
 
@@ -26,11 +26,11 @@ They're also listening for whether you think about both directions of scaling. C
 
 ## Follow-ups to expect
 
-**How would you set the actual scaling thresholds, not just the headroom multiplier?** You'd derive them from the CPU, memory, and latency data collected over weeks, looking for the point where latency starts degrading before CPU maxes out, and set the trigger ahead of that point.
+**How would you set the actual scaling thresholds, not just the headroom?** You'd derive them from the CPU, memory, and latency data collected over weeks, looking for the point where latency starts degrading before CPU maxes out, and set the trigger ahead of that point.
 
-**What's the risk of scaling down too aggressively?** If scale-down is too fast or too eager, you risk flapping, where the system scales down right before a traffic burst and then scrambles to catch up, so the aggressive scale-down still needs guardrails informed by your observed patterns.
+**What's the risk of scaling down too aggressively?** If scale-down is too fast or too eager, you risk flapping, where the system scales down right before a traffic burst and then scrambles to catch up, so scale-in needs a cooldown or stabilization window sized from your observed patterns.
 
-**Why plan for double the peak instead of just matching projected peak?** Real traffic doesn't follow the forecast exactly, and unpredictable spikes are the whole premise of the question, so the extra headroom is insurance against being wrong about what "peak" actually is.
+**Why plan above the projected peak instead of just matching it?** Real traffic doesn't follow the forecast exactly, and unpredictable spikes are the whole premise of the question, so the extra headroom is insurance against being wrong about what "peak" actually is.
 
 ## The common wrong answer
 

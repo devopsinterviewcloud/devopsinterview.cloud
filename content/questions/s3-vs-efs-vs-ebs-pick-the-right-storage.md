@@ -13,13 +13,13 @@ A classic interview trap: someone mentions using S3 like a database, and the int
 
 Think of it as three different tools with three different shapes.
 
-`EBS` is a hard drive. It attaches to one EC2 instance at a time and gives you low latency, block-level storage. If your workload needs a single machine to read and write fast, like a database's data directory, this is the default choice.
+`EBS` is a hard drive. It attaches to one EC2 instance at a time (io1/io2 Multi-Attach is a niche exception) and gives you low latency, block-level storage. If your workload needs a single machine to read and write fast, like a database's data directory, this is the default choice.
 
 `EFS` is a shared network drive. Multiple instances can mount it and read/write simultaneously, and it behaves like a real POSIX file system. Pick it when your app actually expects file system semantics, for example containers that need to share config files across replicas.
 
-`S3` is object storage, not a file system. It's key-value at massive scale: you put an object in with a key, you get it back with that key. There's no concept of directories or file locks underneath, even though the console fakes a folder view.
+`S3` is object storage, not a file system. It's key-value at massive scale: you put an object in with a key, you get it back with that key. A general purpose bucket has no real directories or file locks, even though the console fakes a folder view. Directory buckets and the 2026 S3 Files feature change that, but you opt into those.
 
-The detail most candidates miss: S3 has eventual consistency implications for rapid read-after-write. If you write an object and immediately try to read it back in a tight loop, you can't always assume the read reflects the write right away. That matters for pipelines that write artifacts and then immediately try to consume them.
+The detail a lot of candidates still get wrong: S3 has been strongly consistent since December 2020. Once a PUT, overwrite or DELETE returns success, the next GET or LIST sees it. Old blog posts still warn about eventual consistency, so it's worth saying out loud. What still needs care is two writers racing on the same key, and replication to another region, which is asynchronous.
 
 And the trap to avoid out loud: S3 is not a database replacement. It's a staging and storage layer for objects, logs, backups, and static assets, not a transactional data store.
 
@@ -33,7 +33,7 @@ They're checking whether you reason from workload shape to tool, rather than rec
 
 **"Why would a container platform need EFS instead of EBS?"** Because EBS only attaches to one instance, and containers scaling across multiple nodes need a volume all of them can mount and write to at once.
 
-**"How does S3's consistency behavior affect a CI/CD pipeline?"** A build step that uploads an artifact and a deploy step that reads it immediately could hit a window where the read doesn't yet reflect the write, so pipelines need to account for that rather than assume instant visibility.
+**"How does S3's consistency behavior affect a CI/CD pipeline?"** It doesn't, for the common case. Since S3 became strongly consistent, a deploy step can read an artifact as soon as the upload step gets a success response. What you still handle is two jobs writing the same key at once, and replication lag if you copy artifacts to another region.
 
 ## The common wrong answer
 

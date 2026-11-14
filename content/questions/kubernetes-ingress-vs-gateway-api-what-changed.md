@@ -1,13 +1,13 @@
 ---
 title: Kubernetes Ingress vs Gateway API - What Changed
-description: Why Gateway API is replacing Kubernetes Ingress controllers, what changed in the resource model, and how interviewers test this.
+description: Why Kubernetes now recommends Gateway API over Ingress, what changed in the resource model, and how interviewers test this.
 date: 2026-10-22
 keywords: networking, devops interview questions, gateway api vs ingress, kubernetes gateway api interview, k8s gateway api explained
 category: networking
 youtube: olJultki6-4
 ---
 
-Ingress has been the default way to expose HTTP services in Kubernetes for years, but it's showing its age. This question comes up in interviews because Gateway API is the project's direction going forward, and interviewers want to know if you've kept up or if you're still stuck describing a networking model that's being phased out.
+Ingress has been the default way to expose HTTP services in Kubernetes for years, but it's showing its age. This question comes up in interviews because Gateway API is the project's direction going forward, and interviewers want to know if you've kept up or if you're still stuck describing a networking model the project has frozen.
 
 ## The answer interviewers want
 
@@ -15,7 +15,7 @@ Ingress was too basic for what production traffic routing actually needs. It's a
 
 Gateway API fixes this by splitting concerns into separate resources. A `Gateway` resource handles the infrastructure side: listeners, ports, TLS termination, the stuff a platform team owns. `HTTPRoute` (and other Route types) handle the application side: path matching, header-based routing, traffic splitting, the stuff an app team owns. This separation maps cleanly onto how most orgs actually split ownership between platform and product teams, which Ingress never did.
 
-The other major change is standardization. Gateway API routing behavior is specified consistently across vendors, so an `HTTPRoute` you write for one implementation behaves the same way on another. That's the opposite of the annotation sprawl Ingress produced.
+The other major change is standardization. Gateway API routing behavior is specified consistently across vendors, so an `HTTPRoute` that sticks to Core features behaves the same way on any conformant implementation. That's the opposite of the annotation sprawl Ingress produced, though Extended features vary, so check conformance reports before switching.
 
 In practice, most teams aren't doing a flag day cutover. They run both during migration: new applications get onboarded onto Gateway API, while existing Ingress resources for legacy apps stay in place until there's a reason to touch them.
 

@@ -13,11 +13,11 @@ A Terraform apply that quietly grants admin access to every IAM user is the kind
 
 Think of IaC testing as three layers that run in CI before anything touches real infrastructure.
 
-- `checkov .` scans your Terraform for security issues: overly permissive IAM policies, public S3 buckets, unencrypted resources, and similar misconfigurations.
-- `tflint` catches best practice violations: things like invalid instance types, deprecated syntax, or provider-specific anti-patterns that a security scanner isn't designed to flag.
+- `checkov -d .` scans your Terraform for security issues: overly permissive IAM policies, public S3 buckets, unencrypted resources, and similar misconfigurations.
+- `tflint` catches best practice violations: deprecated syntax and unused declarations out of the box, plus provider-specific anti-patterns like invalid instance types once you enable that provider's ruleset plugin, things a security scanner isn't designed to flag.
 - OPA (Open Policy Agent) policies run last, enforcing your own custom rules such as company-specific tagging standards, naming conventions, or restrictions that generic open source tools have no way of knowing about.
 
-The order matters: run `checkov .`, then `tflint`, then your OPA policies, all as stages in your CI pipeline before the plan is ever applied. Generic scanners catch generic problems. Custom OPA policies catch the specific requirement your org cares about, things a generic tool simply can't anticipate. Together these three layers catch the kind of security disaster where a Terraform change silently grants admin access to everyone, long before it ever reaches production.
+The order matters: run `checkov -d .`, then `tflint`, then your OPA policies, all as stages in your CI pipeline before the plan is ever applied. Generic scanners catch generic problems. Custom OPA policies catch the specific requirement your org cares about, things a generic tool simply can't anticipate. Together these three layers catch the kind of security disaster where a Terraform change silently grants admin access to everyone, long before it ever reaches production.
 
 ## Why interviewers ask this
 
@@ -27,7 +27,7 @@ This question is really about whether you treat IaC with the same rigor as appli
 
 - **What happens if a PR fails one layer but passes the others?** Treat each layer as its own required CI gate. A failure in any one of them should block the merge, since Checkov, Tflint, and OPA are each checking for a different category of problem.
 - **Why not just use OPA for everything?** OPA is built for custom, organization-specific policy, not general security scanning. Checkov already ships with checks for known misconfigurations that you'd otherwise have to write and maintain yourself.
-- **Where exactly do these checks run?** In the CI pipeline, as stages that execute against the Terraform plan before apply, not locally and not as a post-deploy audit after the damage is already done.
+- **Where exactly do these checks run?** In CI before apply, as required gates: TFLint on the Terraform source, Checkov on the source or plan JSON, and OPA on the plan JSON. Local runs give faster feedback, but CI is the enforcement point, not a post-deploy audit after the damage is done.
 
 ## The common wrong answer
 

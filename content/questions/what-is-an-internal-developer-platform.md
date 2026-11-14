@@ -13,7 +13,7 @@ A company hires a platform team and the first question anyone asks is what they'
 
 An Internal Developer Platform (IDP) is a curated layer of tools and workflows that lets developers deploy and manage applications without needing to know the underlying infrastructure complexity. In practice that means things like `GitHub Actions` workflows, `Terraform` modules, monitoring dashboards, and deployment pipelines, all integrated with your company's standards and security policies.
 
-The part most people miss: the best IDPs feel invisible. Developers shouldn't be thinking about the platform at all, just their applications. If a developer has to understand how the Kubernetes cluster is wired, or which Terraform module to copy-paste, the platform hasn't done its job yet. That's also why a platform team's remit is bigger than standing up Kubernetes clusters. Clusters are infrastructure. The platform is the paved road on top of that infrastructure, with the pipelines, policies, and guardrails baked in so developers never have to touch the raw plumbing.
+The part most people miss: the best IDPs feel invisible. Developers shouldn't be thinking about the platform at all, just their applications. If a developer has to understand how the Kubernetes cluster is wired, or which Terraform module to copy-paste, the platform hasn't done its job yet. That's also why a platform team's remit is bigger than standing up Kubernetes clusters. Clusters are infrastructure. The platform is the paved road on top of that infrastructure, with the pipelines, policies, and guardrails baked in so developers don't have to touch the raw plumbing for everyday work, while teams that need to go deeper still can.
 
 ## Why interviewers ask this
 

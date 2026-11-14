@@ -25,11 +25,11 @@ This question separates people who've only run `terraform apply` in a single env
 
 ## Follow-ups to expect
 
-**What problem does Terragrunt actually solve that plain Terraform doesn't?** Plain Terraform has no built-in way to avoid repeating backend config, variables, and module calls across environments, so you end up copying the same blocks everywhere. Terragrunt adds an inheritance layer so that config is defined once and only overridden where needed.
+**What problem does Terragrunt actually solve that plain Terraform doesn't?** Plain Terraform helps with modules, `.tfvars` files and partial backend config, but if each environment has its own root directory you still repeat the backend block, provider setup and module calls in every one, and backend blocks can't use variables. Terragrunt adds an inheritance layer so that config is defined once and only overridden where needed.
 
 **How do environments differ if they share the same module?** Each environment's `terragrunt.hcl` inherits the shared parent settings and only overrides the values specific to it, like variable inputs, keeping the underlying module identical across dev, staging, and prod.
 
-**What happens if you skip Terragrunt and just use Terraform workspaces or copy-pasted folders?** You end up maintaining duplicated backend and variable definitions by hand, which is exactly the drift and repetition problem Terragrunt's inheritance model is meant to eliminate.
+**What happens if you skip Terragrunt and just use Terraform workspaces or copy-pasted folders?** Copy-pasted folders leave you syncing duplicated backend and variable definitions by hand, which is exactly the drift Terragrunt's inheritance is meant to remove. Workspaces avoid the copying, but all environments share one backend and its credentials, which is weak isolation for prod.
 
 ## The common wrong answer
 

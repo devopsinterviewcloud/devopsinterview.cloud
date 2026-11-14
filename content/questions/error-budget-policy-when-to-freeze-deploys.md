@@ -11,7 +11,7 @@ A service is burning through its error budget faster than expected, and the ques
 
 ## The answer interviewers want
 
-Most teams freeze deployments at 50% error budget burn within a rolling window. For critical services, the threshold is tighter, often 25%, because the blast radius of a bad deploy is higher and the tolerance for added risk is lower.
+There's no standard freeze threshold. Google's published example halts releases once the four-week budget is spent, and you can start restricting deploys earlier than that. Critical services warrant tighter thresholds, because the blast radius of a bad deploy is higher and the tolerance for added risk is lower.
 
 A practical way to implement this as a graduated policy rather than a single on/off switch:
 
@@ -19,7 +19,7 @@ A practical way to implement this as a graduated policy rather than a single on/
 - At 50% burn: deploys require manual approval instead of flowing automatically.
 - At 75% burn: a hard freeze kicks in, blocking deploys outright.
 
-Smart teams also distinguish *what* is being deployed, not just how much budget is left. Feature deploys, which add new risk and new surface area, are the ones that should actually be frozen. Bug fixes and reliability improvements can bypass the freeze, since they're reducing risk rather than adding it. A freeze that blocks the exact fix you need to stop burning budget defeats the purpose of having the policy.
+Smart teams also distinguish *what* is being deployed, not just how much budget is left. Feature deploys, which add new risk and new surface area, are the ones that should actually be frozen. Fixes for the problem burning the budget, and security fixes, can bypass the freeze since they reduce risk, but they still get review and a careful rollout, because a fix is a change too. A freeze that blocks the exact fix you need to stop burning budget defeats the purpose of having the policy.
 
 ## Why interviewers ask this
 
@@ -27,10 +27,10 @@ This question separates people who can recite "error budgets" as a buzzword from
 
 ## Follow-ups to expect
 
-- **What counts as the rolling window?** The source doesn't specify an exact length, but the key point is that it's a rolling window, not a fixed calendar period, so a burst of errors ages out over time as the service stabilizes.
+- **What counts as the rolling window?** The policy has to name one. Google calls a four-week rolling window a good general-purpose choice, since a burst of errors ages out gradually as the service stabilizes. Calendar windows like a month or quarter also work and fit business planning better, but the whole budget resets at once.
 - **Who approves deploys during the 50% manual approval stage?** This is meant to add a human check, typically someone with context on the incident or the service, rather than blocking deploys entirely or letting them flow automatically.
 - **How do you decide which deploys count as "bug fixes" that bypass a freeze?** The distinction is about risk direction: changes that reduce risk and are tied to resolving the current reliability issue should bypass, while anything adding new feature surface should wait.
 
 ## The common wrong answer
 
-The most common mistake is treating the error budget as binary: either it's fine and everyone deploys, or it's gone and everything stops. Candidates who answer this way miss the graduated structure, alerting early, requiring approval in the middle, and only hard-freezing at a high threshold, and they almost never mention that not all deploys carry the same risk. Freezing bug fixes along with feature work is the kind of policy gap that turns an error budget incident into a longer outage.
+The most common mistake is treating the error budget as binary: either it's fine and everyone deploys, or it's gone and everything stops. The freeze itself isn't the problem. Candidates who answer this way leave out the early warning that burn-rate alerts give you, and they almost never mention that not all deploys carry the same risk. Freezing bug fixes along with feature work is the kind of policy gap that turns an error budget incident into a longer outage.

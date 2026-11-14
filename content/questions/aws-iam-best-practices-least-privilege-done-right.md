@@ -7,7 +7,7 @@ category: aws
 youtube: ZVxmIXuNUfE
 ---
 
-Almost every AWS shop has at least one IAM policy with a wildcard resource and a wildcard action sitting somewhere in production. Interviewers know this, which is why "how do you implement least privilege in IAM" is a near-universal screening question for anyone claiming AWS experience.
+Plenty of AWS accounts have at least one IAM policy with a wildcard resource and a wildcard action sitting somewhere in production. Interviewers know this, which is why "how do you implement least privilege in IAM" comes up in so many screens for anyone claiming AWS experience.
 
 ## The answer interviewers want
 
@@ -15,7 +15,7 @@ Start from zero. Don't begin with a broad managed policy and try to trim it down
 
 Two AWS tools do the heavy lifting here. Use **IAM Access Analyzer** to find permissions that exist on a policy but are never actually used, so you can identify what to strip out. Use **CloudTrail** to look at actual API usage patterns over time, since that tells you what a role genuinely calls versus what it was granted "just in case." Together they turn least privilege from a one-time policy review into an ongoing, evidence-based process: grant narrowly, observe real usage, then tighten further.
 
-The other piece is **permission boundaries**. A permission boundary caps the maximum permissions an identity can ever have, even if someone later attaches a broader policy to it or an attacker manages to escalate privileges through a misconfigured trust relationship. It's a backstop that limits blast radius even when the primary controls fail.
+The other piece is **permission boundaries**. A permission boundary caps what identity-based policies can grant a user or role, so attaching a broader policy later doesn't widen its access. It has limits: it doesn't follow the identity into another role it assumes, and some same-account resource-based policies can still grant access past it. It's a backstop that limits blast radius even when the primary controls fail.
 
 ## Why interviewers ask this
 
@@ -25,7 +25,7 @@ This question separates people who've only read the IAM docs from people who've 
 
 **How do you handle legitimate exceptions, like a break-glass admin role?** Permission boundaries still apply here. You scope the boundary tightly and pair it with monitoring and short-lived credentials rather than leaving a standing broad-access role unattended.
 
-**What's the difference between a permission boundary and an SCP?** The source material doesn't go into organizational-level controls, but it's worth knowing a boundary caps a single identity's permissions while broader org-wide guardrails operate at the account level. Don't guess at specifics you can't back up in an interview.
+**What's the difference between a permission boundary and an SCP?** A boundary is attached to one IAM user or role and caps what its identity-based policies can grant. An SCP is set in AWS Organizations on an OU or account and caps every user and role in those member accounts, root user included. Neither grants anything: the boundary, the SCP and the identity policy all have to allow the action.
 
 **How often should you re-run Access Analyzer and CloudTrail reviews?** Treat it as continuous, not a quarterly audit checkbox. Usage patterns change as services evolve, so unused permissions accumulate quietly if nobody's watching.
 

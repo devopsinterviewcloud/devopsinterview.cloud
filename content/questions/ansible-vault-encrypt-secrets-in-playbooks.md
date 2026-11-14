@@ -13,11 +13,11 @@ A database password sitting in plain text inside a playbook is the kind of thing
 
 Ansible Vault encrypts your variables using AES256. Think of it like a password-protected zip file for your secrets: anyone can see the file exists, but they can't read the contents without the key.
 
-To create a new encrypted file, use `ansible-vault create`. To encrypt a single variable inline, use `ansible-vault encrypt-string`. When running a playbook that references encrypted content, you pass `--ask-vault-pass` so Ansible can decrypt at runtime.
+To create a new encrypted file, use `ansible-vault create`. To encrypt a single variable inline, use `ansible-vault encrypt_string`. When running a playbook that references encrypted content, you pass `--ask-vault-pass` so Ansible can decrypt at runtime.
 
 That covers the basics, but here's the part that separates a working knowledge from production experience: in CI/CD pipelines, you don't use interactive prompts. A pipeline can't type a password when asked. Instead, use a vault password file, something the CI system reads from a secure location (a secrets manager, a protected environment variable, a mounted file) and points Ansible at directly.
 
-The other detail worth stating out loud: encrypt the entire vars file, not individual strings scattered across playbooks. `ansible-vault encrypt-string` is useful for quick one-offs, but relying on it everywhere means secrets are mixed with non-secret config, which makes auditing and key rotation harder. Keeping all sensitive values in one encrypted file gives you a clean boundary between what's secret and what isn't.
+The other detail worth stating out loud: encrypt the entire vars file, not individual strings scattered across playbooks. `ansible-vault encrypt_string` is useful for quick one-offs, but relying on it everywhere means secrets are mixed with non-secret config, which makes auditing and key rotation harder. Keeping all sensitive values in one encrypted file gives you a clean boundary between what's secret and what isn't.
 
 End state: no plain text passwords in your repos, and a decryption flow that works the same whether a human or a pipeline is running the playbook.
 
@@ -27,9 +27,9 @@ They're checking whether you've thought past "it works on my machine." Anyone ca
 
 ## Follow-ups to expect
 
-**How do you handle vault password rotation?** You'd need to re-encrypt the vault files with the new password and update whatever secure store holds the password file that CI/CD reads from. The source doesn't go into tooling specifics here, so keep the answer at that level unless you have direct experience to add.
+**How do you handle vault password rotation?** Run `ansible-vault rekey` to re-encrypt the vault files with the new password, then update the secure store that holds the password file CI/CD reads from. Rekey can't touch inline `encrypt_string` values, so those have to be re-encrypted one at a time, which is another reason to vault whole files.
 
-**Why not just use environment variables for secrets?** Environment variables aren't encrypted at rest and often end up logged or visible in process listings; Ansible Vault keeps the secret encrypted in the repo itself until decryption at runtime.
+**Why not just use environment variables for secrets?** Environment variables still have to be stored and injected from somewhere, and they leak easily into logs, debug output and child processes; Ansible Vault keeps the secret encrypted in the repo itself until decryption at runtime.
 
 **What's the downside of encrypting the whole vars file instead of individual strings?** Diffs become harder to review since you can't see which specific value changed, but you get a simpler security boundary and fewer places secrets can leak from.
 

@@ -11,11 +11,11 @@ A SOC2 audit is coming up, and someone on the platform team gets asked to explai
 
 ## The answer interviewers want
 
-SOC2 is built around five trust principles, but DevOps doesn't own all five. The three that land squarely on infrastructure and platform teams are security, availability, and processing integrity.
+SOC2 is built around five trust services categories, but DevOps doesn't own all five, and only security is required in every report. The ones that land most on infrastructure and platform teams are security and availability, plus processing integrity when it's in scope.
 
 In practice, that breaks down into three concrete areas of work:
 
-- **RBAC for all systems.** Every tool in the stack, not just production, needs role-based access control. Auditors want to see that access is scoped and provable, not just "everyone on the team has admin."
+- **Role-based access for in-scope systems.** Every tool that touches the service, not just production, needs access scoped by role. Auditors want to see that access is scoped and provable, not just "everyone on the team has admin."
 - **Immutable infrastructure changes.** Changes to infrastructure shouldn't be made by hand on a live system. They should go through a defined, repeatable process that leaves a record of what changed and when.
 - **Continuous monitoring with alerting.** Availability and processing integrity both depend on knowing when something breaks, not finding out from a customer.
 
@@ -29,10 +29,10 @@ This question separates people who've only heard the word "compliance" from peop
 
 **"How would you prove RBAC is actually enforced, not just configured?"** You'd point to access reviews and logs showing permission changes and usage over time, not just a policy document stating what roles exist.
 
-**"Why does GitOps help specifically with processing integrity?"** Because changes go through a defined pipeline with review and history, there's a consistent, traceable record that the system processed changes the way it was supposed to.
+**"Why does GitOps help specifically with processing integrity?"** Only indirectly. Reviewed, traceable changes show the system you run is the one you approved, but processing integrity is about data being processed completely and accurately, which needs checks like input validation, reconciliation and error alerts.
 
-**"What happens if a team is still doing manual infrastructure changes?"** That's usually the first thing an auditor flags, since manual changes break the audit trail and make it hard to prove when and how something was modified.
+**"What happens if a team is still doing manual infrastructure changes?"** That's usually the first thing an auditor flags, since ad hoc manual changes leave no reliable record of when and how something was modified. They can pass if each is ticketed, approved and logged, but that's harder to prove than a merged PR.
 
 ## The common wrong answer
 
-Candidates often answer this by naming all five SOC2 trust principles and explaining each one generically, which signals they've read a compliance overview but never implemented controls themselves. The weaker answer also treats SOC2 as a one-time audit checklist rather than something reflected in daily engineering practice, missing the point that most DevOps teams fail their first audit precisely because these controls weren't built in from the start.
+Candidates often answer this by naming all five SOC2 trust principles and explaining each one generically, which signals they've read a compliance overview but never implemented controls themselves. The weaker answer also treats SOC2 as a one-time audit checklist rather than something reflected in daily engineering practice, missing the point that teams that don't build these controls in from the start end up with exceptions in the report or a scramble for evidence at audit time.

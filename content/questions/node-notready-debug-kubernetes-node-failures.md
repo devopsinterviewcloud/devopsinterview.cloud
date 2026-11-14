@@ -1,6 +1,6 @@
 ---
 title: Node NotReady - Debug Kubernetes Node Failures
-description: Learn how to debug a NotReady Kubernetes node step by step, including the disk pressure root cause interviewers expect you to name.
+description: Learn how to debug a NotReady Kubernetes node step by step, including the full disk cause interviewers expect you to name.
 date: 2026-10-22
 keywords: kubernetes, devops interview questions, kubernetes interview questions, kubernetes node notready debug, k8s node troubleshooting interview
 category: kubernetes
@@ -11,15 +11,15 @@ A node flips to NotReady in production and everyone looks at you to explain why.
 
 ## The answer interviewers want
 
-Start with `kubectl get nodes` to confirm the status, then `kubectl describe node <name>` to see the reported conditions. NotReady means the kubelet on that node has stopped reporting healthy status to the control plane. It is not necessarily the node that is down, it is the heartbeat that stopped.
+Start with `kubectl get nodes` to confirm the status, then `kubectl describe node <name>` to see the reported conditions. NotReady means the node's `Ready` condition is `False` or `Unknown`. `False` means the kubelet is still reporting in but says something is wrong; `Unknown` means its heartbeats stopped arriving. Either way, it is not necessarily the node itself that is down.
 
 From there, go straight to the kubelet logs, either through `journalctl -u kubelet` on the node or through your logging pipeline if you cannot SSH in. You are looking for three usual suspects: disk pressure, memory issues, or container runtime failures (things like the container runtime not responding, or crashing).
 
-Here is the part that separates a canned answer from a real one: most NotReady incidents are not exotic hardware failures or networking blips. They are disk pressure, usually because log files filled up the root partition. The kubelet watches disk usage, and once it crosses the eviction threshold it marks the node under `DiskPressure` and eventually stops reporting Ready. So after checking conditions and logs, check disk usage on the node directly before you assume something more complicated is going on.
+Here is the part that separates a canned answer from a real one: NotReady is often something mundane, not an exotic hardware failure or networking blip, and a full disk is a classic, usually logs filling the root partition. Crossing the kubelet's eviction threshold only sets `DiskPressure` and starts evicting pods; the node stays Ready. It's when the disk fills completely and the container runtime or kubelet starts failing that the node drops to NotReady. So after checking conditions and logs, check disk usage on the node directly before you assume something more complicated is going on.
 
 ## Why interviewers ask this
 
-They are not testing whether you memorized the word `NotReady`. They are testing whether you have an actual debugging sequence: conditions first, logs second, resource exhaustion third, instead of guessing or immediately cordoning and replacing the node. Naming disk pressure as the most common cause signals you have actually operated clusters, not just read the docs.
+They are not testing whether you memorized the word `NotReady`. They are testing whether you have an actual debugging sequence: conditions first, logs second, resource exhaustion third, instead of guessing or immediately cordoning and replacing the node. Knowing that a full disk can take a node NotReady, and checking for it early, signals you have actually operated clusters, not just read the docs.
 
 ## Follow-ups to expect
 

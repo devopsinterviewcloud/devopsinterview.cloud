@@ -17,9 +17,9 @@ There are three common ways to fix this:
 
 1. **Use `host.docker.internal`** as the hostname for host services. The container resolves this to the host's IP.
 2. **Use `--network host`** (network mode `host`), which drops the container into the host's network namespace directly, so `localhost` inside the container really is the host.
-3. **Bind the service to `0.0.0.0`** instead of `127.0.0.1`, so it listens on all interfaces and is reachable from the container's bridge network via the host's bridge IP.
+3. **Bind the service to the bridge IP** (often `172.17.0.1`) or to `0.0.0.0` instead of `127.0.0.1`, so it's reachable from the container's bridge network. If you use `0.0.0.0`, firewall it, since that also exposes it on every other interface.
 
-The pro tip worth mentioning explicitly: `host.docker.internal` only works on Docker Desktop (Mac and Windows). On production Linux hosts, it doesn't resolve by default. There you need the host gateway IP, or you add it manually with the `--add-host=host.docker.internal:host-gateway` flag (the extra hosts flag) so your containers behave the same way across dev and prod.
+The pro tip worth mentioning explicitly: `host.docker.internal` only resolves automatically on Docker Desktop. On production Linux hosts running plain Docker Engine, it doesn't resolve by default. There you need the host gateway IP, or you add it manually with the `--add-host=host.docker.internal:host-gateway` flag (the extra hosts flag) so your containers behave the same way across dev and prod.
 
 ## Why interviewers ask this
 
@@ -29,7 +29,7 @@ They're checking whether you understand that containers run in isolated network 
 
 - **Why doesn't `host.docker.internal` work in production?** Because it's a Docker Desktop feature backed by a VM networking layer; plain Linux Docker doesn't ship that resolution by default, so you need the host-gateway flag or the gateway IP directly.
 - **What's the tradeoff of using `--network host`?** You lose network isolation between the container and host, which is a security and port-collision concern, so it's generally avoided in multi-tenant or production setups.
-- **What if binding to `0.0.0.0` isn't an option for a legacy service?** Then you're stuck using the host gateway IP or host networking, since you can't change what interface the service listens on.
+- **What if binding to `0.0.0.0` isn't an option for a legacy service?** Then use host networking, or put a small proxy on the host (socat or nginx) that listens on the bridge IP and forwards to `127.0.0.1`, since a loopback-only service won't answer on the gateway IP.
 
 ## The common wrong answer
 

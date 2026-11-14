@@ -11,7 +11,7 @@ Every IaC conversation in 2026 eventually hits this fork in the road: Terraform,
 
 ## The answer interviewers want
 
-Terraform is mature and still the default most teams know, but it's now BSL-licensed, which closes the door on commercial forks. OpenTofu is the community fork that came out of that license change. It's MPL-2 licensed and today it's nearly identical to Terraform in practice.
+Terraform is mature and still the default most teams know, but it's now BSL-licensed, which bars offering it as a hosted or embedded product that competes with Terraform's paid versions. OpenTofu is the community fork that came out of that license change. It's MPL-2 licensed and still runs most Terraform code unchanged, though the two now differ on features like state encryption.
 
 Pulumi takes a different approach entirely: instead of HCL, you write actual code in languages like Python or TypeScript. That's powerful. You get real loops, real conditionals, real functions, and your existing language tooling. But it comes with a steeper learning curve, and the thing most people miss is that this power has a cost. Debugging a broken `for` loop in Python infrastructure code at 2AM is genuinely miserable, in a way that HCL's limitations usually aren't. HCL is deliberately constrained, and those constraints act as guardrails - it's harder to write infrastructure code that's clever in a bad way.
 
@@ -23,7 +23,7 @@ This question screens for whether you evaluate tools on tradeoffs or on hype. An
 
 ## Follow-ups to expect
 
-**Why did OpenTofu get forked from Terraform in the first place?** Terraform moved to a BSL license that closes off commercial forks, and OpenTofu is the community response that kept an open MPL-2 license while staying nearly identical functionally.
+**Why did OpenTofu get forked from Terraform in the first place?** Terraform moved to a BSL license that restricts competing commercial products, and OpenTofu is the community response that kept an open MPL-2 license and still runs most Terraform code unchanged.
 
 **When would you actually reach for Pulumi over Terraform or OpenTofu?** When your infrastructure logic is genuinely complex enough to need real programming constructs, and your team already has strong skills in that language, so the debugging burden is manageable rather than miserable.
 

@@ -28,7 +28,7 @@ They're checking whether you understand secrets as a distributed systems problem
 
 ## Follow-ups to expect
 
-**What happens if a service doesn't support dual secrets during the overlap window?** That's the riskiest case, since without a valid-old-and-new window, rotation becomes a hard cutover and any lag in picking up the new secret causes an outage; this is exactly why the transition period approach matters.
+**What happens if a service doesn't support dual secrets during the overlap window?** That's the riskiest case. Without a window where old and new both work, rotation is a hard cutover, and anything still holding the old secret fails until it picks up the new one. Make clients refetch and retry on auth errors, or alternate between two accounts, which is how AWS's alternating-users rotation avoids the gap.
 
 **Why use Terraform for secrets rotation instead of a manual process or a script?** Because it makes rotation infrastructure-as-code: versioned, reviewable, and repeatable, instead of a one-off manual action that's easy to get wrong or forget to document.
 

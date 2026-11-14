@@ -1,6 +1,6 @@
 ---
 title: Kyverno vs OPA - Kubernetes Policy Engines Compared
-description: Kyverno vs OPA Gatekeeper explained: when to use YAML policies versus Rego, with the interview answer that avoids over-engineering.
+description: Kyverno vs OPA Gatekeeper explained: when to use Kyverno's YAML and CEL policies versus Rego, with the interview answer that avoids over-engineering.
 date: 2026-10-22
 keywords: devsecops, devops interview questions, kyverno vs opa, kubernetes policy engines compared, kyverno vs opa gatekeeper interview, devsecops interview questions
 category: devsecops
@@ -13,9 +13,9 @@ Kubernetes admission control interviews almost always circle back to this one: K
 
 The two engines solve the same problem, policy enforcement at admission time, but with very different approaches.
 
-Kyverno uses YAML policies. It's simple and Kubernetes-native, so if you're already comfortable with Kubernetes manifests, writing a `ClusterPolicy` or `Policy` resource feels natural. OPA Gatekeeper uses the Rego language instead. Rego is more powerful and more expressive, but it has a steeper learning curve, especially for teams without a dedicated platform or security engineer who's already fluent in it.
+Kyverno policies are YAML resources with the checks written in CEL, the same expression language Kubernetes uses for its built-in admission policies. If you're comfortable with manifests, writing a `ValidatingPolicy` feels natural (since Kyverno 1.20 the older `ClusterPolicy` and `Policy` types are no longer enforced). OPA Gatekeeper is built around Rego, though it accepts CEL too. Rego is more powerful and more expressive, but it has a steeper learning curve, especially for teams without a dedicated platform or security engineer who's already fluent in it.
 
-That split drives the decision. Use Kyverno for standard, everyday policies: requiring labels, enforcing resource limits, blocking `:latest` image tags, that kind of thing. Reach for OPA when you need complex logic that YAML can't express cleanly, like cross-namespace validation or advanced RBAC checks that depend on relationships between resources.
+That split drives the decision. Use Kyverno for standard, everyday policies: requiring labels, enforcing resource limits, blocking `:latest` image tags, that kind of thing. Reach for OPA when the logic gets heavy enough that Rego earns its keep, or when you want one policy language beyond Kubernetes, since the same Rego runs in CI with conftest. Cross-namespace lookups alone aren't a reason to switch; Kyverno does those too.
 
 The part most people skip: you don't have to pick one and commit forever. A solid default is to start with Kyverno for quick wins, since it gets you enforcing policy fast with minimal ramp-up. Then add OPA later, once you hit a real case that needs Rego's expressiveness. Don't over-engineer on day one by reaching for Gatekeeper to enforce a label requirement.
 

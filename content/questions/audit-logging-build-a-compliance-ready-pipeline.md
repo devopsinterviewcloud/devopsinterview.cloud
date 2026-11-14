@@ -7,7 +7,7 @@ category: compliance
 youtube: k9CJrGHNuIA
 ---
 
-Auditors don't care how pretty your dashboards are. They care whether your logs are complete, tamper-proof, and still around when they ask for them eighteen months later. This question shows up in compliance-heavy DevOps and platform roles because most teams have logging, but almost none of them have logging an auditor would trust.
+Auditors don't care how pretty your dashboards are. They care whether your logs are complete, tamper-proof, and still around when they ask for them eighteen months later. This question shows up in compliance-heavy DevOps and platform roles because plenty of teams have logging, but far fewer have logging an auditor would trust.
 
 ## The answer interviewers want
 
@@ -31,7 +31,7 @@ This question separates people who've built logging for debugging from people wh
 
 **What happens when Elasticsearch goes down, do you lose logs?** The answer should separate the ingestion/search layer from the storage layer: Elasticsearch is for querying, S3 with write-once settings is the durable source of truth, so an Elasticsearch outage shouldn't mean lost audit data.
 
-**How do you handle log volume at scale?** This is a chance to talk about indexing strategy and retention tiers, even if the source material doesn't specify numbers, so stay general rather than inventing figures.
+**How do you handle log volume at scale?** Audit logs can't be sampled, so tier them: recent indices stay hot in Elasticsearch, lifecycle policies move older ones to cheaper nodes and delete them, and S3 keeps the full record, moving to Glacier as it ages.
 
 ## The common wrong answer
 

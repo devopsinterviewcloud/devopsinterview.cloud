@@ -11,13 +11,13 @@ Your Elasticsearch cluster is on fire financially and nobody can explain why. Th
 
 ## The answer interviewers want
 
-The Elasticsearch bill gets insane because Elasticsearch does full-text indexing on every single log line. Every word in every log becomes searchable, which means every word gets written into an index. That indexing overhead, not the raw log volume, is what explodes your storage and your compute costs.
+The Elasticsearch bill gets insane because, with typical log mappings, Elasticsearch full-text indexes every log message. Every word becomes searchable, which means every word gets written into an index, then replicated and retained. That overhead multiplies your raw log volume, and together they explode your storage and compute costs. You can turn indexing off per field, but only if you plan for it.
 
-Loki takes the opposite approach. Instead of indexing the content of your logs, it only indexes a small set of labels, things like `job` or `namespace`. The actual log content gets compressed into chunks and dumped into cheap object storage like S3. You're not paying to index raw text anymore, you're paying for cold storage plus a tiny label index.
+Loki takes the opposite approach. Instead of indexing the content of your logs, it only indexes a small set of labels, things like `job` or `namespace`. The actual log content gets compressed into chunks and dumped into cheap object storage like S3. You're not paying to index raw text anymore, you're paying for cheap object storage, a small label index, and the compute to ingest and query.
 
-In a typical production setup, you ship logs with Promtail or Alloy, those chunks land in S3, and you query with LogQL instead of running full-text search against raw strings. LogQL first filters by label, then greps through the matching chunks, which is why keeping the label index small matters so much.
+In a typical production setup, you ship logs with Grafana Alloy (Promtail, its predecessor, reached end of life in March 2026), those chunks land in S3, and you query with LogQL instead of running full-text search against raw strings. LogQL first filters by label, then greps through the matching chunks, which is why keeping the label index small matters so much.
 
-Here's the part that trips people up: if you label by something high-cardinality, like user ID or request ID, Loki's index explodes exactly the same way Elasticsearch's did. The fix only works if you keep labels low cardinality. So the real lesson is that the original Elasticsearch bill was never about log volume. It was about indexing every word of every line. Loki didn't make logging free, it just moved where the indexing cost lives.
+Here's the part that trips people up: if you label by something high-cardinality, like user ID or request ID, Loki's index explodes exactly the same way Elasticsearch's did. The fix only works if you keep labels low cardinality. So the real lesson is that the original Elasticsearch bill was never just about log volume. It was about indexing every word of every line on top of that volume. Loki didn't make logging free, it just moved where the indexing cost lives.
 
 ## Why interviewers ask this
 
@@ -29,7 +29,7 @@ They want to know if you understand indexing tradeoffs rather than just reciting
 
 **How does a LogQL query actually work under the hood?** It filters by label first to narrow down which chunks to read, then searches the content of those chunks, rather than searching all log text directly like Elasticsearch does.
 
-**What's the operational pipeline look like in production?** Promtail or Alloy ship logs, compressed chunks land in object storage like S3, and the label index stays small and queryable.
+**What's the operational pipeline look like in production?** Alloy ships logs, compressed chunks land in object storage like S3, and the label index stays small and queryable.
 
 ## The common wrong answer
 

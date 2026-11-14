@@ -13,7 +13,7 @@ A team maintaining dozens of Jenkinsfiles eventually hits the same wall: every p
 
 There are three pieces to a Jenkins Shared Library, and interviewers want you to name all three without prompting.
 
-First, reusable steps go in `vars/`. Each file in there is a Groovy script that becomes a callable step in any Jenkinsfile, like a custom DSL function.
+First, reusable steps go in `vars/`. Each file in there is a Groovy script that becomes a global variable named after the file, and if it defines a `call` method you can use it like a step in any Jenkinsfile, a custom DSL function.
 
 Second, anything more complex than a simple step, actual logic, classes, helper methods, goes in `src/` as proper Groovy classes. This is where you put code that needs structure, not just a flat script.
 

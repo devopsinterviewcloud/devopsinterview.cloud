@@ -11,11 +11,11 @@ A recruiter or hiring manager asks this because they've all been burned by a bas
 
 ## The answer interviewers want
 
-Start every script with `set -euo pipefail`. This one line does three things: it exits immediately on any command failure, it catches references to undefined variables instead of silently treating them as empty strings, and it makes a pipeline fail if any command in it fails, not just the last one. Without this, bash's default behavior is to keep running after errors, which is how silent failures turn into bad deployments.
+Start every script with `set -euo pipefail`. This one line does three things: it exits immediately when a command fails (except inside `if` tests and `&&`/`||` lists, which `-e` ignores), it catches references to undefined variables instead of silently treating them as empty strings, and it makes a pipeline fail if any command in it fails, not just the last one. Without this, bash's default behavior is to keep running after errors, which is how silent failures turn into bad deployments.
 
 Second, validate inputs immediately, before your main logic runs. Check that required files exist, that expected environment variables are actually set, and that any external commands your script depends on are available on the system. Fail fast and fail loud here, rather than letting a missing file blow up halfway through a deploy.
 
-Third, and this is the one that tends to separate senior engineers from juniors in interviews: use `trap` to clean up on exit. A trap on EXIT (or on specific signals) ensures temp files and other resources get removed even if the script crashes partway through. Without a trap, a crashed script leaves garbage behind, and that garbage can cause the next run to fail in confusing ways.
+Third, and this is the one that tends to separate senior engineers from juniors in interviews: use `trap` to clean up on exit. A trap on EXIT (or on specific signals) makes sure temp files and other resources get removed even if the script fails partway through or gets interrupted; only a `kill -9` or a machine crash skips it. Without a trap, a crashed script leaves garbage behind, and that garbage can cause the next run to fail in confusing ways.
 
 ## Why interviewers ask this
 

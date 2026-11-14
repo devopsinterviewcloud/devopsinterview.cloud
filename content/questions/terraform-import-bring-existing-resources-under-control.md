@@ -21,7 +21,7 @@ terraform import aws_instance.web i-1234567890abcdef0
 
 After the import, run `terraform plan`. This shows you any drift between the configuration you wrote and the actual state of the resource in the cloud. If your config doesn't match reality exactly, the plan will want to "correct" the resource toward your config, which can mean unintended changes.
 
-The part people skip: always import into a separate workspace first, not directly into your production state. Test the config there, confirm the plan comes back clean with no unexpected diffs, and only then move the import into the workspace that actually manages production. That gives you a safe way to rescue orphaned infrastructure, resources nobody wrote Terraform for, without betting the farm on getting the config right on the first try.
+The part people skip: on Terraform 1.5 and later, use an `import` block instead of the CLI command. The import then shows up in `terraform plan` next to any diffs before anything is written to state, so you can fix the config first and get the change reviewed like any other PR. That gives you a safe way to rescue orphaned infrastructure, resources nobody wrote Terraform for, without betting the farm on getting the config right on the first try.
 
 ## Why interviewers ask this
 
@@ -31,9 +31,9 @@ This question separates people who've only ever run `terraform apply` on greenfi
 
 **What happens if your config doesn't match the imported resource exactly?** `terraform plan` will show a diff, and if you apply without reconciling it, Terraform will try to change the real resource to match your config, which can mean unwanted modifications to something that's already working.
 
-**Why bother with a separate workspace instead of importing straight into production state?** Because you want to validate that your written config produces a clean, no-op plan before that resource is tied into the state file your team depends on. A mistake in a throwaway workspace costs nothing; a mistake in production state can corrupt tracking for resources that are actually live.
+**Why use an `import` block instead of running `terraform import`?** The CLI command writes to state straight away, with no plan to review. An `import` block goes through plan and apply like any other change, so you see the diff first. And don't test an import in a separate workspace first: it still points at the same live resource, so an apply there changes production.
 
-**How do you know the import succeeded correctly?** A clean `terraform plan` with no drift is the signal. If the plan shows changes you didn't expect, your config is wrong, not the import.
+**How do you know the import succeeded correctly?** Run `terraform state show` to confirm you got the ID you meant, in the right account, then `terraform plan`. A clean plan means your config matches that object. Unexpected changes mean the config is off, or you imported the wrong thing.
 
 ## The common wrong answer
 

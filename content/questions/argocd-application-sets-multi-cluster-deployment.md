@@ -26,7 +26,7 @@ This question separates people who've read the ArgoCD docs from people who've ru
 
 ## Follow-ups to expect
 
-**What happens when a cluster is deregistered?** The cluster generator is driven by what's currently registered with ArgoCD, so the set of generated Applications tracks that registration list; removing a cluster removes it from future reconciliation.
+**What happens when a cluster is deregistered?** The cluster generator only sees registered clusters, so that cluster's Application stops being generated and, by default, gets deleted. Generated Applications carry the resources finalizer, so the deletion can also remove its workloads. Set `preserveResourcesOnDeletion` or a `create-update` policy to keep them running.
 
 **How would you deploy different config per environment, not just per cluster?** That's exactly what matrix generators are for: combine a cluster generator with another generator (say, one listing environments or app variants) so the output is the cross product of both.
 

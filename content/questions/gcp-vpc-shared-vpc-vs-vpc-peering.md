@@ -17,7 +17,7 @@ VPC Peering is more like separate offices agreeing to connect directly to each o
 
 So the decision comes down to control. Use Shared VPC when you want one team enforcing consistent security policy across multiple projects, and you're fine with that team owning the network layer centrally. Use VPC Peering when teams need to keep independent control over their own networks but still need connectivity between them.
 
-Here's the part that trips people up: Shared VPC isn't just a checkbox in a project's VPC settings. It requires organization-level setup and specific IAM roles to configure, because you're designating a host project and granting service project admins the right to use its subnets. That's an org-level decision, not a project-level one. Most startups can't even use Shared VPC initially, because they haven't set up that organizational structure yet. So in practice, a lot of early-stage teams start with VPC Peering by default, even if Shared VPC would be the better long-term answer once the org is mature enough to support it.
+Here's the part that trips people up: Shared VPC isn't just a checkbox in a project's VPC settings. It requires organization-level setup and specific IAM roles to configure, because you're designating a host project and granting service project admins the right to use its subnets. That's an org-level decision, not a project-level one. Projects that don't belong to an organization can't use Shared VPC at all, so early-stage teams that skipped that setup often start with VPC Peering by default, even if Shared VPC would be the better long-term answer. Creating the organization early, through Cloud Identity or Workspace, avoids that.
 
 ## Why interviewers ask this
 
@@ -25,10 +25,10 @@ This question tests whether you understand GCP's resource hierarchy, not just ne
 
 ## Follow-ups to expect
 
-- **What IAM roles are involved in setting up Shared VPC?** The source points to specific IAM roles being required at the organization level for designating host and service projects, which is part of why it's more than a simple project setting.
-- **Why can't a new startup just set up Shared VPC on day one?** Because it depends on organization-level configuration, and many startups haven't established that org structure yet, so they default to peering instead.
+- **What IAM roles are involved in setting up Shared VPC?** A Shared VPC Admin needs Compute Shared VPC Admin and Project IAM Admin at the organization or folder level to designate host and service projects, and service project admins need Compute Network User on the host project or specific subnets. That's part of why it's more than a simple project setting.
+- **Can a new startup set up Shared VPC on day one?** Yes, once it has an organization resource and someone holding the Shared VPC Admin role. Teams that skipped creating the organization can't, so they default to peering instead.
 - **If a team's needs change, can you migrate from Peering to Shared VPC later?** The underlying driver is whether you want centralized admin control or independent team control, so a migration would mean re-architecting around that organizational decision, not just a networking change.
 
 ## The common wrong answer
 
-Candidates usually recite the definitions, Shared VPC centralizes, Peering connects independent networks, and stop there. They miss the organizational dependency entirely, treating Shared VPC as a purely technical networking choice instead of one that requires org-level IAM setup most small teams don't have in place yet.
+Candidates usually recite the definitions, Shared VPC centralizes, Peering connects independent networks, and stop there. They miss the organizational dependency entirely, treating Shared VPC as a purely technical networking choice instead of one that needs an organization and IAM setup that small teams often haven't done yet.

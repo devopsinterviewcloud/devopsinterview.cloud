@@ -23,11 +23,11 @@ Once an attacker can spin up a privileged container and bind-mount `/`, it's gam
 
 The fix is to avoid mounting the socket at all. Options that come up in practice:
 
-- Use the Docker API over TLS instead of mounting the raw socket, so access is authenticated and encrypted rather than a bare filesystem handle
-- Use Docker-in-Docker (`dind`) where the nested daemon is isolated from the host daemon
+- Point builds at a separate, disposable Docker host over mutual TLS instead of the local socket. TLS controls who can connect, but a client cert is still root on that host, so keep it away from anything you care about
+- Use a daemonless builder like Buildah or rootless BuildKit, or run Docker-in-Docker (`dind`) only inside a throwaway VM, since `dind` needs a privileged container
 - Use CI runners built with proper isolation (ephemeral VMs, gVisor, Kata Containers, or similar) so a compromised build job can't reach the host daemon at all
 
-One detail worth stating explicitly: mounting the socket read-only does not fix the problem. Even with a read-only mount, an attacker can still query the Docker API to inspect running containers, pull environment variables, secrets, and network configuration. Read-only only restricts filesystem writes to that one file, it does nothing to limit what the API itself exposes. The practical rule is simple: never mount that socket into a container you don't fully trust.
+One detail worth stating explicitly: mounting the socket read-only does not fix the problem. Even with a read-only mount, an attacker can still use the whole Docker API: inspect running containers, pull environment variables and secrets, or start a privileged container with the host filesystem mounted. Read-only only restricts filesystem writes to that one file, it does nothing to limit what the API itself allows. The practical rule is simple: never mount that socket into a container you don't fully trust.
 
 ## Why interviewers ask this
 
@@ -35,9 +35,9 @@ This question separates people who've only used Docker from people who understan
 
 ## Follow-ups to expect
 
-**"Is a read-only socket mount safe?"** No. Read-only still exposes the full Docker API for inspection, which is enough to leak secrets and network configuration even without write access.
+**"Is a read-only socket mount safe?"** No. A read-only mount doesn't stop clients talking to the socket, so the full Docker API still works, including starting a privileged container with the host filesystem mounted.
 
-**"How would you set up CI to build Docker images without this risk?"** Use CI runners with real isolation, ephemeral and sandboxed, so a compromised build can't reach the host daemon, or use Docker-in-Docker with its own isolated daemon.
+**"How would you set up CI to build Docker images without this risk?"** Use CI runners with real isolation, ephemeral and sandboxed, so a compromised build can't reach the host daemon, or use a daemonless builder like Buildah. Docker-in-Docker needs a privileged container, so keep it inside a throwaway VM.
 
 **"What's the actual attack path once someone has the socket?"** They start a new container, request it as privileged, mount the host filesystem into it, and now have host-level read/write access.
 

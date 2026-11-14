@@ -1,6 +1,6 @@
 ---
 title: DevOps Interview - Top 5 Mistakes to Avoid
-description: Why 80% of DevOps candidates fail before the technical round, and the two most common answer patterns that end interviews early.
+description: Why many DevOps candidates lose the interview before the technical round, and the two answer patterns that end interviews early.
 date: 2026-10-22
 keywords: career, devops interview questions, devops interview mistakes, devops interview tips for beginners, devops interview questions 2026
 category: career

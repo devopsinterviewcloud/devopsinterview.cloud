@@ -7,7 +7,7 @@ category: azure
 youtube: UvOkXG4AOoE
 ---
 
-Azure gives you three ways to run a container, and interviewers use this question to see if you default to Kubernetes out of habit or actually think through the tradeoffs. It comes up constantly in Azure DevOps and platform engineering interviews because picking the wrong service is an expensive, hard-to-reverse mistake.
+Azure gives you three main ways to run a container, and interviewers use this question to see if you default to Kubernetes out of habit or actually think through the tradeoffs. It comes up constantly in Azure DevOps and platform engineering interviews because picking the wrong service is an expensive, hard-to-reverse mistake.
 
 ## The answer interviewers want
 
@@ -29,7 +29,7 @@ This question tests whether you understand that operational complexity has a cos
 
 **What would make you move from Container Apps to AKS later?** Needing a specific Kubernetes feature that Container Apps doesn't expose, like a custom scheduler, a particular networking model, or operators and CRDs the app depends on.
 
-**What would make you move from App Service to Container Apps?** Needing to scale multiple services independently or handle more complex, event-driven workloads than a single web app model supports.
+**What would make you move from App Service to Container Apps?** Needing KEDA-style event scaling per service, scale to zero, or a set of microservices talking to each other, which is more than the web app model is built for.
 
 **Is this decision reversible?** It's generally easier to move up the tiers, from App Service to Container Apps to AKS, than to over-provision AKS early and then try to simplify back down once a team has built processes around a cluster.
 

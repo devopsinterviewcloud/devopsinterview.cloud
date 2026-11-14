@@ -13,7 +13,7 @@ A privileged pod gets approved in code review, deploys to prod, and only surface
 
 OPA Gatekeeper sits in the Kubernetes admission chain. Before the API server ever persists an object, Gatekeeper checks it against your policy. If the request fails the policy, it never lands, there's no object to clean up later and no audit finding two weeks downstream.
 
-Three rules cover most of the incidents that actually show up in production:
+Three rules make a good starting set, because these misconfigurations are common and easy to catch:
 
 - Block privileged containers
 - Require resource limits (CPU and memory requests/limits set)
@@ -21,11 +21,11 @@ Three rules cover most of the incidents that actually show up in production:
 
 Each rule is written as a `ConstraintTemplate` in Rego, the policy language Gatekeeper uses to express the actual logic (what counts as a violation). You then apply a `Constraint`, which is the object that binds that template to specific resources, namespaces, or kinds in your cluster.
 
-The part most people skip: roll out new constraints in dry-run first. Gatekeeper supports an audit-only enforcement mode that evaluates every matching resource and logs violations without blocking any deploys. That lets you see what would have been rejected, fix the noisy offenders, and then flip enforcement on without breaking day-one deploys across teams that didn't know the policy existed. Once enforcement is on, that privileged pod never makes it past admission. Three rules, one gate, and the failure mode from the code-review-to-audit gap goes away entirely.
+The part most people skip: roll out new constraints in dry-run first. Gatekeeper supports an audit-only enforcement mode that evaluates every matching resource and logs violations without blocking any deploys. That lets you see what would have been rejected, fix the noisy offenders, and then flip enforcement on without breaking day-one deploys across teams that didn't know the policy existed. Once enforcement is on, that privileged pod gets rejected at admission instead of found in an audit. One caveat: Gatekeeper's webhook fails open by default, so if it's down, requests go through. Run it highly available and keep audit on as a backstop.
 
 ## Why interviewers ask this
 
-They want to know if you treat policy as something enforced by the platform, not something hoped for in a pull request template. The dry-run detail specifically separates people who've rolled this out in a real org from people reciting Gatekeeper's README, because every team that skips audit-only first ends up breaking someone's deploy on day one and getting Gatekeeper disabled out of spite.
+They want to know if you treat policy as something enforced by the platform, not something hoped for in a pull request template. The dry-run detail specifically separates people who've rolled this out in a real org from people reciting Gatekeeper's README, because a team that skips audit-only first can easily break someone's deploy on day one and end up with Gatekeeper switched off.
 
 ## Follow-ups to expect
 
@@ -33,7 +33,7 @@ They want to know if you treat policy as something enforced by the platform, not
 
 **What's the difference between a ConstraintTemplate and a Constraint?** The template defines the Rego logic and the schema for parameters; the Constraint is the applied instance that says which resources that logic actually runs against.
 
-**Why not just do this in CI instead of at admission?** CI checks can be bypassed by anyone with cluster access applying manifests directly; admission control is the one point every object has to pass through regardless of how it got there.
+**Why not just do this in CI instead of at admission?** CI checks can be bypassed by anyone with cluster access applying manifests directly; admission control is the one point every API write has to pass through, whether it came from a pipeline or someone's laptop.
 
 ## The common wrong answer
 

@@ -11,7 +11,7 @@ Kubernetes RBAC interview questions almost always include this one because it se
 
 ## The answer interviewers want
 
-The core distinction is scope. A `Role` grants permissions within a single namespace. It only applies to resources inside that namespace, nothing else. A `ClusterRole` grants permissions cluster-wide, across all namespaces, and it's also required for cluster-scoped resources that don't belong to any namespace, like nodes or persistent volumes.
+The core distinction is scope. A `Role` grants permissions within a single namespace. It only applies to resources inside that namespace, nothing else. A `ClusterRole` isn't tied to a namespace: bound with a `ClusterRoleBinding`, it grants permissions across all namespaces, and it's also required for cluster-scoped resources that don't belong to any namespace, like nodes or persistent volumes.
 
 That maps directly to who uses each one. Application teams managing their own namespace use `Role` plus a `RoleBinding`, scoped tightly to what their service needs in that namespace. Platform admins who need to manage cluster-wide resources, or who need a permission set that applies everywhere, use `ClusterRole`.
 
@@ -21,13 +21,13 @@ So the mental model is: `Role`/`RoleBinding` for namespace-local permissions, `C
 
 ## Why interviewers ask this
 
-This question screens for whether a candidate actually understands RBAC's object model or just runs `kubectl create rolebinding` from memory. It also surfaces whether someone has operated a multi-tenant cluster, since the ClusterRole-plus-RoleBinding pattern only shows up once you've had to manage permissions at scale across many teams.
+This question screens for whether a candidate actually understands RBAC's object model or just runs `kubectl create rolebinding` from memory. It also surfaces whether someone has operated a multi-tenant cluster, since the ClusterRole-plus-RoleBinding pattern is what you reach for once several teams need the same permissions in their own namespaces.
 
 ## Follow-ups to expect
 
 - **When would you use a ClusterRoleBinding instead of a RoleBinding?** When the permission genuinely needs to apply across every namespace, such as a monitoring agent that reads pods cluster-wide.
-- **Why not just give every team a ClusterRole directly?** Because that grants permissions everywhere, breaking namespace isolation; binding a ClusterRole with a RoleBinding keeps the reusable definition but limits its blast radius to one namespace.
-- **What resources require a ClusterRole regardless of binding type?** Cluster-scoped resources like nodes or persistent volumes, since they don't live inside any namespace.
+- **Why not just give every team a ClusterRoleBinding?** Because that grants permissions everywhere, breaking namespace isolation; binding a ClusterRole with a RoleBinding keeps the reusable definition but limits its blast radius to one namespace.
+- **What resources need a ClusterRole and a ClusterRoleBinding?** Cluster-scoped resources like nodes or persistent volumes, since they don't live inside any namespace and a RoleBinding can't grant access to them.
 
 ## The common wrong answer
 

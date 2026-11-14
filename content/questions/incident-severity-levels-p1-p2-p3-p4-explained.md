@@ -11,10 +11,10 @@ Production is down and someone asks what severity this is. It's a staple SRE and
 
 ## The answer interviewers want
 
-Severity levels map directly to customer impact, not to how technically interesting the bug is.
+Every company writes its own severity matrix, but the levels should map to customer impact, not to how technically interesting the bug is.
 
-- **P1**: Customers can't use the product at all. This gets the CEO paged immediately, no debate.
-- **P2**: Degraded performance affecting some users. This needs all hands on deck, but during business hours rather than a 3AM wake-up for everyone.
+- **P1**: Customers can't use the product at all, or data is being lost. Page the on-call and an incident commander immediately and bring leadership in early, no debate.
+- **P2**: Degraded performance or a broken feature affecting some users. This still pages someone right away, 3AM included, just without the executive and public communication a P1 gets.
 - **P3**: Minor issues with workarounds available. This goes in the next sprint, not an emergency fix.
 - **P4**: Cosmetic bugs. This gets fixed when someone has spare time.
 

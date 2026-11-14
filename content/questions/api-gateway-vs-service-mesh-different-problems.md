@@ -1,6 +1,6 @@
 ---
 title: API Gateway vs Service Mesh - Different Problems
-description: When to use an API Gateway vs a service mesh in interviews: what each handles, why teams need both, and common mix-ups.
+description: When to use an API Gateway vs a service mesh in interviews: what each handles, when teams need both, and common mix-ups.
 date: 2026-10-22
 keywords: microservices, devops interview questions, api gateway vs service mesh, microservices interview questions, api gateway service mesh difference, microservices architecture interview
 category: microservices
@@ -11,7 +11,7 @@ A classic trap question in system design and platform interviews: candidates oft
 
 ## The answer interviewers want
 
-Most engineers assume API Gateway and Service Mesh solve the same problem. They don't.
+A lot of engineers assume API Gateway and Service Mesh solve the same problem. Their features overlap, but they're built for different jobs.
 
 An **API Gateway** handles external traffic coming into your system. That means things like authentication, rate limiting, and routing requests from outside the cluster to the right backend service. It's the front door.
 
@@ -26,14 +26,14 @@ This question is a quick filter for whether you understand traffic boundaries in
 ## Follow-ups to expect
 
 **"Could you use a Service Mesh to handle external traffic instead of a Gateway?"**
-The source draws a clean line: Gateway is for traffic from outside, Mesh is for traffic between services inside the cluster. Blurring that line is the mistake the question is designed to expose, so the honest answer is to keep them scoped to what they're each built for.
+Partly. A mesh's ingress gateway, Istio's for example, can terminate TLS, validate JWTs and apply rate limits to external traffic. What it doesn't give you is API management: developer keys, usage plans, request transformation, a portal. If outside clients need those, put a Gateway in front; if they don't, the mesh ingress can be enough.
 
 **"Why would a system need both at once?"**
  Because they cover different hops in the request path. The Gateway deals with auth, rate limiting, and routing as a request enters the system from a client; the Mesh then governs how that request moves between internal services. Removing either one leaves a gap at that layer.
 
 **"What's the risk of only having a Gateway and no Mesh, or vice versa?"**
- The source doesn't go into failure scenarios directly, but the implication is clear: if you only have a Gateway, you have no visibility or control over internal service-to-service traffic. If you only have a Mesh, you have no proper edge control for external clients. The two are not substitutes for each other.
+ With only a Gateway, internal calls get no mTLS, retries or tracing unless each service or the network adds them. With only a Mesh, its ingress gateway covers basic edge control, but you lose API management like keys and quotas. Each can cover part of the other's job; neither covers all of it.
 
 ## The common wrong answer
 
-Candidates typically describe one tool and then just bolt on the other tool's job description, as if a Gateway could also manage internal mesh traffic or a Mesh could handle external auth and rate limiting. That answer collapses two distinct architectural layers into one, which is the exact confusion this interview question exists to surface. The stronger answer keeps the boundary explicit: external traffic is the Gateway's job, internal service-to-service traffic is the Mesh's job, and most real systems run both side by side.
+The weak answer treats them as interchangeable because the feature lists overlap. The overlap is real: Istio's ingress gateway can handle TLS, JWT auth and rate limiting for external traffic, and a Gateway can front internal APIs. What the stronger answer adds is what each is built around: the Gateway manages the API contract with outside clients (keys, quotas, versioning), the Mesh manages every service-to-service hop (mTLS, retries, telemetry), and plenty of real systems run both side by side.

@@ -6,7 +6,7 @@ keywords: career, devops interview questions, devops, roadmap, beginner
 category: career
 ---
 
-A version of this question comes up whenever an interviewer wants to know how you'd mentor a junior engineer, or when they're sizing up whether your own foundations are solid before they dig into Kubernetes or cloud specifics. It also surfaces in "tell me about your learning path" conversations, which are more common in 2026 as teams hire people transitioning into DevOps from sysadmin or dev roles.
+A version of this question comes up whenever an interviewer wants to know how you'd mentor a junior engineer, or when they're sizing up whether your own foundations are solid before they dig into Kubernetes or cloud specifics. It also surfaces in "tell me about your learning path" conversations, which come up a lot for people moving into DevOps from sysadmin or dev roles.
 
 ## The answer interviewers want
 
@@ -28,7 +28,7 @@ This question is a proxy for judging whether you understand how infrastructure c
 
 **"Why pick just one cloud provider instead of learning general cloud concepts?"** Trying to learn AWS, Azure, and GCP simultaneously tends to produce shallow, interchangeable knowledge of all three rather than real competence in any one, and most interviews test against a specific provider anyway.
 
-**"What comes after Kubernetes in this roadmap?"** The source doesn't go beyond this core sequence, but the implication is that everything after Linux, Git, one cloud provider, Docker, and Kubernetes builds on having those fundamentals solid first.
+**"What comes after Kubernetes in this roadmap?"** Usually infrastructure as code with Terraform, a CI/CD pipeline that builds and deploys your images, then monitoring with Prometheus and Grafana. All of it assumes the Linux, Git, cloud, Docker and Kubernetes basics are already solid.
 
 ## The common wrong answer
 

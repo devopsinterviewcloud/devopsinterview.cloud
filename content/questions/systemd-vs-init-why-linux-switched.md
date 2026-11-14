@@ -11,11 +11,11 @@ A service that worked fine in testing vanished on boot with no logs and no alert
 
 ## The answer interviewers want
 
-Init and systemd are not the same thing wearing different clothes. Init starts services sequentially: one finishes, the next starts. If one service hangs or blocks, everything behind it in the sequence waits too. That's slow, and it's fragile.
+Init and systemd are not the same thing wearing different clothes. Classic SysV init starts services sequentially: one script finishes, the next starts. If one service hangs or blocks, everything behind it in the sequence waits too. Some distros later bolted on parallel boot, but the core model is slow, and it's fragile.
 
-systemd runs services in parallel, tracks dependencies between them, and restarts services automatically when they fail. That's a fundamentally different model, not just a faster version of the same thing.
+systemd starts independent services in parallel, tracks dependencies between them, and restarts a service when it fails if its unit sets a `Restart=` policy. That's a fundamentally different model, not just a faster version of the same thing.
 
-Here's the part most people miss: systemd is PID 1. It's the first process the kernel starts, and every other process is a descendant of it. If PID 1 dies, the kernel panics. There's no fallback, no restart, nothing above it to recover. That's why systemd bugs are a different category of risk than an ordinary service crashing.
+Here's the part most people miss: systemd is PID 1. It's the first userspace process the kernel starts, and every other userspace process is a descendant of it. If PID 1 dies, the kernel panics. There's no fallback, no restart, nothing above it to recover. That's why systemd bugs are a different category of risk than an ordinary service crashing.
 
 In the silent boot failure case, the actual cause was a unit file missing `After=` and `Requires=` directives. Without them, systemd had no way to know the service depended on something else starting first, so it started too early, failed, and nothing downstream flagged it. Two lines in the unit file would have caught it before it ever reached production.
 

@@ -11,11 +11,11 @@ A Docker daemon running as root means anything that can talk to that daemon can 
 
 ## The answer interviewers want
 
-By default, the Docker daemon runs as root, and a container breakout or a compromised daemon socket gives an attacker root on the host. Rootless Docker fixes this by running the daemon itself as a regular, unprivileged user. Your containers still build, run, and behave normally, but the daemon process has no root privileges to abuse in the first place.
+By default, the Docker daemon runs as root, and a container breakout or a compromised daemon socket gives an attacker root on the host. Rootless Docker fixes this by running the daemon itself as a regular, unprivileged user. Your containers still build and run mostly as normal, but the daemon process has no root privileges to abuse in the first place.
 
-To set it up, install it with `dockerd-rootless-setuptool.sh`. Once it's running, export `DOCKER_HOST` to point at your user-level socket instead of the default system socket, so the `docker` CLI talks to your rootless daemon.
+To set it up, run `dockerd-rootless-setuptool.sh install` as your regular user. It creates a `rootless` CLI context and switches to it, so the `docker` CLI talks to your rootless daemon. Tools that don't read contexts still need `DOCKER_HOST` pointed at your user-level socket.
 
-The detail most people miss: because the daemon has no root privileges, it can't bind to privileged ports, meaning anything below 1024. So if you're used to mapping `-p 80:80` or `-p 443:443`, that won't work under rootless mode. You need to plan your port mappings around this, usually by mapping to a high port on the host and putting a reverse proxy in front, or mapping to unprivileged ports directly in your app config.
+The detail most people miss: because the daemon has no root privileges, it can't bind to privileged ports by default, meaning anything below 1024. So if you're used to mapping `-p 80:80` or `-p 443:443`, that won't work out of the box under rootless mode. Either an admin grants RootlessKit `CAP_NET_BIND_SERVICE` or lowers `net.ipv4.ip_unprivileged_port_start`, or you plan your port mappings around it, usually by mapping to a high port on the host and putting a reverse proxy in front, or mapping to unprivileged ports directly in your app config.
 
 With that constraint accounted for, rootless Docker gives you a daemon and container runtime that no longer need root to operate, which closes off one of the most common container escape paths.
 
@@ -26,7 +26,7 @@ This question separates people who've memorized "run containers as a non-root us
 ## Follow-ups to expect
 
 - **How do you expose a rootless container on port 443 then?** You map to a high unprivileged port on the host and put a reverse proxy, load balancer, or `iptables`/`systemd` socket activation in front of it to forward traffic from 443.
-- **Does rootless Docker change anything inside the container itself?** No, the source doesn't change container behavior; the containers still run the same, the difference is the privilege level of the daemon process on the host.
+- **Does rootless Docker change anything inside the container itself?** Mostly no, but root inside the container maps to your unprivileged host user, so anything that needs real host privileges fails, and networking and resource limits (cgroup v2 with systemd) behave differently. Test workloads under rootless mode first.
 - **What's the actual security benefit here?** If the daemon or a container escapes, the blast radius is limited to a regular user's permissions instead of root, since the daemon was never running as root to begin with.
 
 ## The common wrong answer

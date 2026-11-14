@@ -13,7 +13,7 @@ Ask a room full of engineers what an Ansible Collection is, and most will say "a
 
 A Collection is a self-contained automation package, not just a bundle of roles. Think of it like a Docker image for Ansible: modules, plugins, roles, and docs all packaged together with proper versioning, instead of loose files scattered across a Galaxy namespace.
 
-In practice, you install collections with `ansible-galaxy collection install`, and you reference their contents using fully qualified collection names (FQCNs), like `community.general.ufw` instead of just `ufw`. That FQCN tells Ansible exactly which collection, and implicitly which version, a module comes from.
+In practice, you install collections with `ansible-galaxy collection install`, and you reference their contents using fully qualified collection names (FQCNs), like `community.general.ufw` instead of just `ufw`. That FQCN tells Ansible exactly which collection a module comes from. Which version you get is whatever's installed, which is why pinning matters.
 
 The part most engineers skip is version pinning. You pin collection versions in a `requirements.yml` file, the same way you'd pin a Docker image tag or a Python package version. That's the real payoff: before Collections, a module could update underneath you and silently break a playbook that depended on its old behavior. Pinning in `requirements.yml` plus FQCNs means your automation stays reproducible even as the broader Galaxy ecosystem keeps shipping updates.
 
@@ -25,7 +25,7 @@ This question separates people who've used Ansible casually from people who've m
 
 **What happens if you don't pin versions in requirements.yml?** You're exposed to the exact dependency hell Collections were designed to fix: a module in a collection gets updated, its behavior shifts, and your playbook breaks without any change on your end.
 
-**Why use FQCNs instead of short module names?** A short name is ambiguous once you have multiple collections installed; the FQCN pins down exactly which collection and version namespace a module call resolves to, which matters once you're pinning versions in requirements.yml anyway.
+**Why use FQCNs instead of short module names?** A short name is ambiguous once you have multiple collections installed; the FQCN pins down exactly which collection a module call resolves to, and requirements.yml decides which version of that collection gets installed.
 
 **How is a Collection different from a role?** A role is a reusable chunk of tasks and variables; a Collection is a packaged, versioned unit that can contain multiple roles, modules, and plugins together, more analogous to a Docker image than to a single script.
 

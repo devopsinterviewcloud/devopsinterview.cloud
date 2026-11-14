@@ -32,7 +32,7 @@ They're not looking for a tool preference, they're looking for whether you can r
 The underlying sync and reconciliation can keep functioning since it's Git-driven, but teams that have built their workflow around checking the dashboard lose visibility and confidence, which effectively stalls their process.
 
 **"Why would FluxCD 'force better GitOps practices'?"**
-Because there's no UI to lean on as a crutch, teams have to trust Git state and automation directly, which pushes them toward cleaner, more disciplined GitOps habits instead of eyeballing a dashboard.
+Because it ships without a built-in UI (dashboards exist, but they're optional add-ons), teams default to trusting Git state and automation directly, which pushes them toward cleaner, more disciplined GitOps habits instead of eyeballing a dashboard.
 
 **"How would you decide between the two for a new platform team?"**
 It comes down to team size and need for visibility: multiple teams wanting a shared visual view point toward ArgoCD, while a smaller or more automation-heavy team wanting low overhead points toward FluxCD.

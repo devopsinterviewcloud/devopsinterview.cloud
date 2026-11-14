@@ -1,6 +1,6 @@
 ---
 title: Terraform for_each vs count - Stop Using count
-description: Why Terraform count silently destroys and recreates resources, how for_each fixes it, and the state surgery migration needs.
+description: Why removing one list item under Terraform count can destroy and recreate other resources, how for_each fixes it, and the state surgery migration needs.
 date: 2026-10-22
 keywords: terraform, devops interview questions, terraform for_each vs count, terraform for_each interview question, terraform count destroy resources, terraform interview questions
 category: terraform
@@ -11,7 +11,7 @@ You delete one item from a list, run `terraform apply`, and watch Terraform dest
 
 ## The answer interviewers want
 
-`count` indexes resources by position in a list. If you have three instances and delete the first one, Terraform doesn't just remove that instance. It shifts every index after it down by one, which means Terraform sees instance `[1]` as now mapping to what used to be instance `[2]`, and so on. Terraform then destroys and recreates every resource after the deleted index to match the new positions, even though nothing about those resources actually changed.
+`count` indexes resources by position in a list. If you have three instances built from a list with `count.index` and delete the first entry, Terraform doesn't just remove that instance. Every value after it shifts down by one, so `[0]` now gets what used to be `[1]`'s values, `[1]` gets `[2]`'s, and `[2]` is destroyed. Anything whose changed arguments force replacement, like a bucket name or an AMI, gets destroyed and recreated; the rest is updated in place to look like its neighbor. All that churn, when you only meant to remove one.
 
 `for_each` fixes this by keying resources by name instead of position. Use it with `toset()` on a list of strings, or with a map. When you remove one entry, Terraform only touches that one resource because the key for every other resource stays exactly the same. Nothing shifts, nothing gets recreated.
 
@@ -25,7 +25,7 @@ This question tests whether you understand Terraform's resource addressing model
 
 **When would you still use count instead of for_each?** When you're creating a fixed, identical set of resources where you genuinely don't care about individual identity, such as a known number of interchangeable workers that will never be selectively removed from the middle of the list.
 
-**What happens if you skip the state surgery and just apply the for_each change?** Terraform treats the resources as having entirely new addresses, so it plans to destroy every resource under its old index-based address and create new ones under the name-based keys, which for live infrastructure means an outage.
+**What happens if you skip the state surgery and just apply the for_each change?** Terraform treats the resources as having entirely new addresses, so it plans to destroy every resource under its old index-based address and create new ones under the name-based keys, which for live infrastructure can mean an outage, or lost data for anything stateful.
 
 **How do moved blocks compare to terraform state mv?** `moved` blocks live in your configuration and document the migration as code, which is safer for team review, while `state mv` is a manual one-off command better suited to quick fixes or a single resource.
 

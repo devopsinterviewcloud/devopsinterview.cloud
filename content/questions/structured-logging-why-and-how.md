@@ -7,7 +7,7 @@ category: observability
 youtube: GtvjaOF6PBA
 ---
 
-This question shows up in almost every observability-focused interview because so many teams have logs that humans can read but machines can't use. The interviewer wants to know if you understand logging as a data problem, not just a debugging convenience.
+This question comes up a lot in observability-focused interviews because so many teams have logs that humans can read but machines can't use. The interviewer wants to know if you understand logging as a data problem, not just a debugging convenience.
 
 ## The answer interviewers want
 

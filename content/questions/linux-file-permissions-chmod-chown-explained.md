@@ -21,7 +21,7 @@ In day-to-day use:
 - `chmod 755 file` - same as above but adds execute for the owner (and read+execute for group/others). This is what you use for scripts and binaries.
 - `chown user:group file` - changes both the owner and the group in a single command.
 
-The part most people skip: you don't have to memorize octal numbers at all. Symbolic mode works directly on intent. `chmod +x file` makes it executable. `chmod -w file` removes write access. This is safer than numeric modes because you're not recalculating a three-digit number and risking a typo that opens up permissions you didn't mean to touch.
+The part most people skip: you don't have to memorize octal numbers at all. Symbolic mode works directly on intent. `chmod +x file` makes it executable. `chmod a-w file` removes write access for everyone (a bare `-w` skips any bits your umask covers). This is safer than numeric modes because you're not recalculating a three-digit number and risking a typo that opens up permissions you didn't mean to touch.
 
 And then there's `chmod 777`. It gives read, write, and execute to the owner, the group, and everyone else on the system. On a production box, that's effectively handing out the keys to anyone with access to the machine. Anyone who suggests `777` as a quick fix is proposing a security hole, not a solution.
 

@@ -12,9 +12,9 @@ A deploy just broke prod and the pager is going off. GitOps changes the usual ro
 
 You don't roll back by touching the cluster directly. You roll back by fixing the source of truth, which is the git repo, and letting the GitOps controller do the rest.
 
-The move is: `git revert <commit>` on the bad change, then `git push` to `main`. GitOps is built to watch that branch for drift between desired state and actual state. The moment it sees the revert land, it reconciles and syncs the cluster back to the last known-good state automatically. With ArgoCD specifically, that sync typically happens within seconds of the push, no manual intervention needed.
+The move is: `git revert <commit>` on the bad change, then `git push` to `main`. GitOps is built to watch that branch for drift between desired state and actual state. Once it sees the revert land, it reconciles and syncs the cluster back to the last known-good state, automatically if auto-sync is enabled. With ArgoCD and a Git webhook configured, that sync starts within seconds of the push; without one, ArgoCD polls about every three minutes, so hit Refresh if you can't wait.
 
-A practical habit that makes this faster under pressure: tag your releases. When prod is on fire and you need to find the last good commit, scrolling through commit history is slow and error-prone. A tag gives you an instant, unambiguous pointer to "this was working," so the revert target is obvious instead of guessed at.
+A practical habit that makes this faster under pressure: tag your releases. When prod is on fire and you need to find the last good commit, scrolling through commit history is slow and error-prone. A tag gives you an instant, unambiguous pointer to "this was working," so you know exactly what to revert: the commits after it, for example `git revert --no-commit v1.4.2..HEAD`.
 
 ## Why interviewers ask this
 

@@ -13,9 +13,9 @@ A connection is timing out somewhere between your service and a dependency, and 
 
 Start with `ss` instead of `netstat`. It's faster and more detailed, it shows socket states and process info, and it doesn't hang on DNS lookups the way `netstat` can.
 
-Use `ss -t` to look at TCP sockets and `ss -u` for UDP. Add `-p` to see which process owns a given socket, which is usually the first thing you need when something is bound to a port it shouldn't be, or when a port you expect to be listening isn't.
+Use `ss -t` to look at TCP connections and `ss -u` for UDP. Listening sockets are hidden unless you add `-l` (or `-a` for both), so the classic port check is `ss -tulpn`. Add `-p` to see which process owns a given socket, which is usually the first thing you need when something is bound to a port it shouldn't be, or when a port you expect to be listening isn't.
 
-That covers the local side: is the socket open, is it in the state you expect, is the right process holding it. For path issues, where traffic leaves the box and you need to know where it's actually dying, use `traceroute`. It shows exactly where packets stop getting through, hop by hop.
+That covers the local side: is the socket open, is it in the state you expect, is the right process holding it. For path issues, where traffic leaves the box and you need to know where it's actually dying, use `traceroute`. It shows the path hop by hop, though a hop that doesn't answer may just be ignoring probes, not dropping your traffic.
 
 The practical workflow is to combine the two: `ss` to check local sockets first, then `traceroute` to check the remote path if the local socket looks healthy but the connection still isn't working. Ditch `netstat`, master `ss`.
 
@@ -27,9 +27,9 @@ This question is a cheap way to tell who has kept their toolkit current versus w
 
 **Why is `ss` preferred over `netstat`?** It's faster and more detailed, and it doesn't hang trying to resolve DNS for every address it displays, which matters a lot when a box is under load or the network is already degraded.
 
-**How would you find out which process is bound to a UDP port?** Run `ss -up` to list UDP sockets with process info attached, instead of grepping through `netstat` output.
+**How would you find out which process is bound to a UDP port?** Run `ss -ulpn` to list bound UDP sockets with process info (plain `ss -up` skips them), instead of grepping through `netstat` output.
 
-**If `ss` shows a healthy local socket but the connection still fails, what's next?** That's when you move to `traceroute` to check the path, since the problem is no longer local to the box.
+**If `ss` shows a healthy local socket but the connection still fails, what's next?** Check the box's own firewall rules first, since a healthy socket doesn't mean local `nftables` or `iptables` rules aren't dropping the traffic, then move to `traceroute` to check the path.
 
 ## The common wrong answer
 

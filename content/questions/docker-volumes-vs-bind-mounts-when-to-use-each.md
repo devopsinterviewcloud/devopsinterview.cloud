@@ -15,22 +15,22 @@ A Docker volume is storage that Docker manages itself, in its own directory on t
 
 Think of it like a hotel room versus your own house. A volume is the hotel room: Docker handles the upkeep, you don't worry about where it physically lives, and it's built for the kind of persistence a database or stateful app needs. A bind mount is your own house: you have direct, immediate access and control, which is exactly what you want in development when you're editing code and need those changes to show up in the container right away without rebuilding an image.
 
-The part people usually miss: volumes also perform better, because they bypass some of the host filesystem overhead that bind mounts carry. Bind mounts are slower in comparison, but they buy you flexibility, since you're working with real files on the host that other tools, editors, and scripts can touch directly.
+The part people usually miss: whether volumes are faster depends on where Docker runs. On native Linux, volumes and bind mounts both write straight to the host filesystem, so speed is about the same. On Docker Desktop for Mac and Windows, bind mounts cross the file-sharing layer into Docker's Linux VM and are noticeably slower, while volumes live inside the VM and stay fast. Bind mounts buy you flexibility either way, since you're working with real files on the host that other tools, editors, and scripts can touch directly.
 
 So the practical rule is: volumes for databases and persistent application data, bind mounts for local development where you need live file changes reflected instantly.
 
 ## Why interviewers ask this
 
-They're checking whether you understand Docker's storage model instead of just memorizing `docker run -v` syntax. A candidate who can explain the hotel-room-versus-house distinction and tie it to a performance reason, not just a syntax difference, shows they've actually reasoned about where data lives and why that matters for persistence and speed.
+They're checking whether you understand Docker's storage model instead of just memorizing `docker run -v` syntax. A candidate who can explain the hotel-room-versus-house distinction and say when performance actually differs, not just a syntax difference, shows they've actually reasoned about where data lives and why that matters for persistence and speed.
 
 ## Follow-ups to expect
 
-**Would you use a bind mount in production?** Generally no for application state, since you lose the management benefits and performance advantage that volumes give you; bind mounts are better suited to development workflows.
+**Would you use a bind mount in production?** Generally no for application state, since you lose what volumes give you: Docker manages them, they're easier to back up and migrate, and volume drivers can put them on remote storage. Bind mounts are better suited to development workflows.
 
-**Why would volumes be faster than bind mounts?** Because volumes avoid some of the host filesystem overhead that bind mounts incur by linking directly into the host's filesystem layer.
+**Why would volumes be faster than bind mounts?** On Docker Desktop they are, because bind mounts go through the file sharing between your Mac or Windows host and the Linux VM. On native Linux there's no real difference; both skip the container's writable layer.
 
 **What would you use for a database running in a container?** A volume, since it's managed by Docker and built for the kind of persistent, performance-sensitive data a database produces.
 
 ## The common wrong answer
 
-Most candidates describe the syntax difference between `-v` and bind mount paths but can't explain why the choice matters. They'll say "bind mounts are for dev, volumes are for prod" as a memorized rule without connecting it to the actual mechanics: that volumes are Docker-managed storage with less filesystem overhead, while bind mounts are a direct, slower, but more flexible link to the host. Without that reasoning, it sounds like a rule you read once rather than something you understand.
+Most candidates describe the syntax difference between `-v` and bind mount paths but can't explain why the choice matters. They'll say "bind mounts are for dev, volumes are for prod" as a memorized rule without connecting it to the actual mechanics: that volumes are Docker-managed storage that's portable and fast even on Desktop, while bind mounts are a direct, flexible link to the host that's tied to its paths and slow across the Desktop VM boundary. Without that reasoning, it sounds like a rule you read once rather than something you understand.

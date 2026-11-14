@@ -15,9 +15,9 @@ A cold start happens when Lambda has to spin up a fresh execution environment be
 
 The real fix in production is `Provisioned Concurrency`. It pre-initializes a set number of execution environments ahead of time, so requests hitting those environments see zero cold start. For latency-sensitive or customer-facing functions, this is the actual answer, not a workaround.
 
-What a lot of engineers miss: keep-warm pings (scheduling a dummy invocation every few minutes to keep one container alive) don't help once you have a real concurrency spike. A single warm container can only serve one request at a time. When traffic spikes and Lambda needs to handle multiple concurrent invocations, it still has to spin up new containers to meet that demand, and those new containers cold start regardless of your keep-warm pings. The ping hack only ever protected against the single idle-container case, which is not the scenario that actually hurts you in production.
+What a lot of engineers miss: keep-warm pings (scheduling a dummy invocation every few minutes to keep one container alive) don't help once you have a real concurrency spike. On a standard Lambda function, a warm environment serves only one request at a time. When traffic spikes and Lambda needs to handle multiple concurrent invocations, it still has to spin up new containers to meet that demand, and those new containers cold start regardless of your keep-warm pings. The ping hack only ever protected against the single idle-container case, which is not the scenario that actually hurts you in production.
 
-So the answer an interviewer wants is: cold starts are caused by new environment initialization, runtime choice affects how bad they are, and `Provisioned Concurrency` is the only mechanism that reliably eliminates them for the functions that need it.
+So the answer an interviewer wants is: cold starts come from new environment initialization, runtime choice affects how bad they are, and the fix is having environments ready before requests arrive: `Provisioned Concurrency` on standard functions, or Lambda Managed Instances, which scales ahead of traffic. SnapStart shortens init but doesn't remove it.
 
 ## Why interviewers ask this
 
@@ -25,7 +25,7 @@ This question separates people who've read a Lambda overview from people who've 
 
 ## Follow-ups to expect
 
-**Why do Java and .NET cold start slower than Python or Node?** The source doesn't go into JVM/CLR internals, but the practical takeaway is runtime choice is a real lever: if cold starts are a problem, an interpreted, lighter-weight runtime will generally initialize faster than Java or .NET.
+**Why do Java and .NET cold start slower than Python or Node?** The JVM and CLR boot a heavier runtime, load lots of classes and JIT-compile code on first use, and frameworks like Spring add reflection-heavy startup on top. Python and Node start fast and load less. If you're tied to Java or .NET, SnapStart or ahead-of-time compilation cuts most of that.
 
 **Would you put Provisioned Concurrency on every function?** No, you'd target it at the functions where cold start latency actually matters to users, like synchronous, customer-facing paths, rather than applying it blanket across every Lambda in an account.
 

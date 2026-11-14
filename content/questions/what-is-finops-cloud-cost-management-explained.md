@@ -10,7 +10,7 @@ A five-figure cloud bill lands on someone's desk, engineering blames usage spike
 
 ## The answer interviewers want
 
-FinOps is getting engineering and finance to speak the same language about cloud costs. Instead of surprise bills showing up at month-end, teams get real-time visibility into spending as it happens, not after the invoice arrives.
+FinOps is getting engineering and finance to speak the same language about cloud costs. Instead of surprise bills showing up at month-end, teams get timely cost data, usually refreshed daily, so they see spending as it accrues, not after the invoice arrives.
 
 The goal isn't just cutting costs. It's making sure every dollar spent drives business value. That means shifting the conversation from raw infrastructure spend to something like cost-per-feature: what did this capability actually cost to build and run, and is that justified by what it delivers.
 
@@ -22,7 +22,7 @@ This question screens for whether you treat cost as an afterthought or as a firs
 
 ## Follow-ups to expect
 
-**How do you give engineering real-time cost visibility instead of waiting for month-end bills?** Point to the shift the source implies: moving from after-the-fact invoices to ongoing, in-the-loop visibility so teams see spend as it accrues rather than as a surprise.
+**How do you give engineering timely cost visibility instead of waiting for month-end bills?** Tag every resource by team and service, enforce the tags in IaC, and feed the daily billing export into each team's dashboards. Add budgets and anomaly alerts so a spike reaches its owner within a day, not at month-end.
 
 **What does cost-per-feature actually measure, and why is it more useful than total infrastructure spend?** It ties a number to the value delivered rather than just the resources consumed, which lets teams judge whether a feature's cost is justified instead of just whether the bill went up.
 
@@ -30,4 +30,4 @@ This question screens for whether you treat cost as an afterthought or as a firs
 
 ## The common wrong answer
 
-Most candidates describe FinOps as cost-cutting: tagging resources, killing idle instances, and shrinking the bill. That's not wrong as a tactic, but it misses the actual point. The source is clear that cutting costs isn't the goal, value per dollar spent is. Candidates who stop at "it's about reducing cloud spend" miss the business-value and collaboration angle that interviewers are actually listening for.
+Most candidates describe FinOps as cost-cutting: tagging resources, killing idle instances, and shrinking the bill. That's not wrong as a tactic, but it misses the actual point. The FinOps Foundation's own definition is about maximizing business value, not cutting the bill. Candidates who stop at "it's about reducing cloud spend" miss the business-value and collaboration angle that interviewers are actually listening for.

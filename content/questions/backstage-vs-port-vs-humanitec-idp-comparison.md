@@ -15,9 +15,9 @@ Start with the mental model: these three products are not interchangeable, they 
 
 - **Backstage** is a framework, not a product. You own everything - setup, plugins, upkeep.
 - **Port** is a low-code portal. Fast setup, works well for small teams.
-- **Humanitec** is an orchestrator. It models your entire platform with scores and baselines.
+- **Humanitec** is an orchestrator. It combines developers' Score workload specs with baseline configs the platform team owns.
 
-In production, team size drives the right call. Under five platform engineers, Port ships faster because there are no React plugins to maintain. Large orgs with existing Kubernetes investments can justify Backstage or Humanitec. Choose Humanitec specifically when you need environment parity enforced across something like 20 teams - that's the kind of orchestration problem it's built for.
+In production, team size drives the right call. As a rule of thumb, with a small platform team (say under five engineers), Port usually ships faster because there are no React plugins to maintain. Large orgs with existing Kubernetes investments can justify Backstage or Humanitec. Choose Humanitec specifically when you need environment parity enforced across something like 20 teams - that's the kind of orchestration problem it's built for.
 
 The detail most candidates miss: Backstage's real cost isn't licensing, it's plugin maintenance. A common failure pattern looks like this - six months in, half the plugins are broken and nobody owns them. That ownership gap is what actually kills Backstage adoptions, not the initial setup cost. If you want to sound credible on this topic, be ready to answer the question interviewers will throw back at you: what's your plugin ownership model?
 
@@ -29,10 +29,10 @@ They want to know if you can match a tool to organizational constraints instead 
 
 **"What's your plugin ownership model?"** Each plugin needs a named owner responsible for keeping it working across upgrades, otherwise it rots and gets disabled quietly, which is how portals end up half-broken.
 
-**"How would this decision change as the team grows past five platform engineers?"** Past that threshold, the maintenance burden of a framework like Backstage becomes more affordable relative to the control and customization it buys you, so the calculus shifts away from Port's fast-setup advantage.
+**"How would this decision change as the team grows past five platform engineers?"** As the team grows, the maintenance burden of a framework like Backstage becomes more affordable relative to the control and customization it buys you, so the calculus shifts away from Port's fast-setup advantage.
 
-**"Why would you pick Humanitec over Backstage for a large org?"** Pick Humanitec when the core problem is enforcing consistency - environment parity, scoring, baselines - across many teams, rather than just giving developers a catalog and self-service UI.
+**"Why would you pick Humanitec over Backstage for a large org?"** Pick Humanitec when the core problem is enforcing consistency - environment parity, standard workload specs, baselines - across many teams, rather than just giving developers a catalog and self-service UI.
 
 ## The common wrong answer
 
-Most candidates answer this as a feature comparison - Backstage has plugins, Port has low-code setup, Humanitec has scoring - without ever connecting the tool to team size, existing infrastructure, or who owns long-term maintenance. That answer sounds informed but dodges the actual question, which is about tradeoffs under constraints, not capability lists. It also misses the most expensive line item: ongoing plugin ownership, not the sticker price of any of these tools.
+Most candidates answer this as a feature comparison - Backstage has plugins, Port has low-code setup, Humanitec does orchestration - without ever connecting the tool to team size, existing infrastructure, or who owns long-term maintenance. That answer sounds informed but dodges the actual question, which is about tradeoffs under constraints, not capability lists. It also misses the most expensive line item: ongoing plugin ownership, not the sticker price of any of these tools.

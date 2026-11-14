@@ -17,7 +17,7 @@ The two services solve different problems at different layers, and most engineer
 
 `Front Door` is global. It runs on Microsoft's edge network, not inside any single VNet, so it's built for routing and accelerating traffic across regions. Use it for global apps, especially ones that benefit from caching at the edge.
 
-So the quick decision rule: internal apps, WAF requirements, or VNet integration point you to App Gateway. Global reach and caching point you to Front Door.
+So the quick decision rule: internal apps, or traffic that has to enter through your VNet, point you to App Gateway. Both offer WAF, so WAF alone doesn't decide it. Global reach and caching point you to Front Door.
 
 The detail that separates a good answer from a great one: you can chain them. Put Front Door in front of Application Gateway for global apps that still need VNet backends. Front Door handles the global edge routing and caching, then hands traffic off to Application Gateway, which does the regional, VNet-aware work including WAF enforcement close to the backend.
 

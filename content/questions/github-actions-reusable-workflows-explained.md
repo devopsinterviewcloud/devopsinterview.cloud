@@ -34,7 +34,7 @@ jobs:
       environment: staging
 ```
 
-The detail that trips people up: always version your reusable workflows with tags, never reference `main` in production. If you call a reusable workflow at `@main`, someone can merge a breaking change to that branch and silently break every single pipeline that depends on it, with no warning and no rollback path. Pinning to a tag like `@v1.2.0` means consumers only pick up changes when they explicitly bump the version, the same discipline you'd apply to any shared library dependency.
+The detail that trips people up: version your reusable workflows, never reference `main` in production. If you call a reusable workflow at `@main`, someone can merge a breaking change to that branch and silently break every pipeline that depends on it on its next run. Pinning to a release tag like `@v1.2.0` means consumers pick up changes when they bump the version, the same discipline you'd apply to any shared library dependency. Tags can be moved, though, so for the strictest pinning use the full commit SHA, which GitHub calls the safest option.
 
 Done right, this eliminates copy-paste workflows cluttering your repos and gives you one place to fix bugs or add steps.
 
@@ -46,7 +46,7 @@ This question separates people who've only written standalone CI configs from pe
 
 - **What happens if you reference a reusable workflow by `@main` instead of a tag?** A breaking change merged to `main` propagates instantly to every caller, with no version boundary to catch it before it hits production pipelines.
 - **How do you pass different configuration into the same reusable workflow for different environments?** Define `inputs` in the `workflow_call` trigger, then pass values with `with` when another workflow calls it via `uses`.
-- **How is this different from a composite action?** The source material doesn't cover composite actions directly, but it's worth being ready to contrast the two, since interviewers often ask when to use each.
+- **How is this different from a composite action?** A reusable workflow supplies whole jobs that pick their own runner and can use secrets. A composite action is a set of steps that runs inside the caller's job, so it shares steps rather than pipelines.
 
 ## The common wrong answer
 

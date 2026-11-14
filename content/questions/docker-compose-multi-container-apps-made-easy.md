@@ -1,6 +1,6 @@
 ---
 title: Docker Compose - Multi-Container Apps Made Easy
-description: How to explain Docker Compose for multi-container apps in interviews: YAML stack definition, docker-compose up, and depends_on ordering.
+description: How to explain Docker Compose for multi-container apps in interviews: YAML stack definition, docker compose up, and depends_on ordering.
 date: 2026-10-22
 keywords: docker, devops interview questions, docker compose tutorial, docker compose beginner tutorial, multi container docker applications, docker interview questions
 category: docker
@@ -16,7 +16,7 @@ For multi-container applications, the standard tool is Docker Compose. Instead o
 You bring the whole stack up with a single command:
 
 ```
-docker-compose up
+docker compose up
 ```
 
 Every service defined in the file starts together, and Compose wires them onto a shared network so they can talk to each other by service name. No more juggling individual `docker run` commands or remembering which flags each container needs.
@@ -29,7 +29,7 @@ They want to know you understand that container orchestration starts with the ba
 
 ## Follow-ups to expect
 
-**What happens if a dependent service isn't actually ready when the container starts, even with `depends_on`?** `depends_on` controls container start order, not application readiness, so a database container can be "up" before the database process inside it can accept connections; many teams add retry logic or a readiness check in the dependent service to handle that gap.
+**What happens if a dependent service isn't actually ready when the container starts, even with `depends_on`?** Plain `depends_on` controls container start order, not application readiness, so a database container can be "up" before the database process inside it can accept connections. Give the database a `healthcheck` and use `condition: service_healthy` so Compose waits for it, and keep retry logic in the app for later drops.
 
 **How do services in the same Compose file find each other?** They communicate over the shared network Compose creates, addressing each other by the service name defined in the YAML file rather than by IP address.
 

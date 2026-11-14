@@ -13,9 +13,9 @@ A team watching their GitHub Actions bill climb into the thousands eventually as
 
 Self-hosted runners are machines you control that execute your workflows. Think of them as your own dedicated build servers instead of renting GitHub's hosted ones.
 
-In practice, the setup is straightforward: you download the runner binary, use your repo's registration token to register it, then run the `config.sh` (or `config.cmd` on Windows) script. Once configured, the runner polls GitHub for jobs rather than GitHub pushing work to it.
+In practice, the setup is straightforward: you download the runner, run the `config.sh` (or `config.cmd` on Windows) script with your repo's URL and registration token to register it, then start it with `run.sh` or install it as a service. Once configured, the runner polls GitHub for jobs rather than GitHub pushing work to it.
 
-The part candidates often miss: always use ephemeral runners for security. An ephemeral runner spins up, executes exactly one job, then gets torn down. Each job gets a fresh environment, so there's no leftover state, cached credentials, or build artifacts from a previous job that a later job (or a compromised workflow) could read. A long-lived, reusable self-hosted runner is a much bigger attack surface, especially if it ever runs workflows triggered from a public repo's pull requests.
+The part candidates often miss: always use ephemeral runners for security. An ephemeral runner takes exactly one job, then GitHub deregisters it, and your autoscaler (ARC or your own scripts) destroys the machine or container and starts a clean one. That's what gives each job a fresh environment, with no leftover state, cached credentials, or build artifacts from a previous job that a later job (or a compromised workflow) could read. The flag alone wipes nothing. A long-lived, reusable self-hosted runner is a much bigger attack surface, especially if it ever runs workflows triggered from a public repo's pull requests.
 
 ## Why interviewers ask this
 

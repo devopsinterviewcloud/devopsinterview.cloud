@@ -21,7 +21,7 @@ HEALTHCHECK --interval=30s --retries=3 CMD curl -f http://localhost/health || ex
 
 Docker runs that command on the interval you set, here every 30 seconds. If it fails enough consecutive times, three in this example, Docker flags the container as unhealthy. In standalone Docker that status just shows up in `docker ps`. In Docker Swarm, an unhealthy container triggers a reschedule, Swarm kills it and starts a replacement.
 
-The part that trips people up: Kubernetes ignores `HEALTHCHECK` entirely. It's a Docker and Swarm-only instruction. If you're running on Kubernetes, that Dockerfile line does nothing at runtime. Kubernetes has its own mechanism, liveness and readiness probes defined in the pod spec, and it needs those configured separately regardless of what's baked into the image. So the honest answer to "how does Docker know a container's healthy" is: it doesn't, unless you explicitly tell it how to check, and that check only matters if you're actually running under Docker or Swarm.
+The part that trips people up: Kubernetes ignores `HEALTHCHECK` entirely. Docker, Swarm and Podman act on it; Kubernetes doesn't. If you're running on Kubernetes, that Dockerfile line does nothing at runtime. Kubernetes has its own mechanism, liveness and readiness probes defined in the pod spec, and it needs those configured separately regardless of what's baked into the image. So the honest answer to "how does Docker know a container's healthy" is: it doesn't, unless you explicitly tell it how to check, and that check only matters if your runtime actually reads it.
 
 ## Why interviewers ask this
 

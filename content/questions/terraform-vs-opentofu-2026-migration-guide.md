@@ -7,15 +7,15 @@ category: terraform
 youtube: yU9TnBx4x5k
 ---
 
-Every DevOps interview loop in 2026 has at least one licensing question buried in it, and OpenTofu is the current favorite. Interviewers don't care if you've run `tofu init` once. They care whether you understand the license dispute that created the fork in the first place.
+Since Terraform's license change, licensing has become a fair interview topic, and OpenTofu is the usual way in. Interviewers don't care if you've run `tofu init` once. They care whether you understand the license dispute that created the fork in the first place.
 
 ## The answer interviewers want
 
-HashiCorp moved Terraform from the open MPL license to the BSL, the Business Source License, specifically to restrict competitors from building commercial products on top of Terraform's code. That move is the whole story. The Linux Foundation responded by forking the last MPL-licensed version of Terraform into OpenTofu, keeping it fully open source under community governance instead of a single vendor.
+HashiCorp moved Terraform from the open MPL license to the BSL, the Business Source License, specifically to restrict competitors from building commercial products on top of Terraform's code. That move is the whole story. A group of companies and community contributors responded by forking the last MPL-licensed version of Terraform into OpenTofu, which then joined the Linux Foundation to keep it fully open source under community governance instead of a single vendor.
 
 The two projects share the same state format, but they're diverging fast as separate codebases with separate roadmaps.
 
-Migration is deliberately low-friction: swap the `terraform` binary for `tofu`, run `tofu init`, and it reads your existing state untouched, no conversion step required. In practice, test the switch in a non-prod environment first and check your provider lock file (`.terraform.lock.hcl`), since provider resolution can behave slightly differently between the two tools.
+Migration is deliberately low-friction: back up your state, swap the `terraform` binary for `tofu`, run `tofu init`, and OpenTofu reads your existing state with no conversion step. Then run `tofu plan` and expect no changes before you apply, because the first apply may update the state file format. Test the switch in a non-prod environment first and check your provider lock file (`.terraform.lock.hcl`), since provider resolution can behave slightly differently between the two tools.
 
 What a lot of candidates miss: OpenTofu shipped state encryption and dynamic provider blocks before Terraform did. That's the detail that separates a surface-level answer from one that shows you actually track the ecosystem. OpenTofu isn't playing catch-up to Terraform anymore. On some features, it's ahead.
 
@@ -27,7 +27,7 @@ This question filters for engineers who understand licensing as an operational r
 
 **"What would make you choose OpenTofu over Terraform for a new project, or vice versa?"** Point to concrete feature differences, like OpenTofu's earlier state encryption and dynamic provider blocks, plus licensing and governance preferences, rather than a vague "open source is better" answer.
 
-**"What breaks if you migrate a large, multi-team Terraform setup to OpenTofu?"** Nothing should break at the state level since the format is shared, but provider lock files and any HashiCorp-specific registry dependencies are worth auditing first in non-prod.
+**"What breaks if you migrate a large, multi-team Terraform setup to OpenTofu?"** OpenTofu reads Terraform state, but Terraform may not reliably read state OpenTofu wrote. So if configs read each other through `terraform_remote_state`, migrate the readers first. Audit provider lock files and HashiCorp-specific registry dependencies in non-prod too.
 
 **"How do you keep up with changes like this?"** A credible answer mentions following release notes or changelogs for your core tooling, not just reacting when something breaks in production.
 

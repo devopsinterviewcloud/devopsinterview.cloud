@@ -7,7 +7,7 @@ category: docker
 youtube: Nnlzk_uLXo4
 ---
 
-A container that looks dead but is actually fine, or a `-p` flag that silently does nothing, almost always traces back to which Docker network mode is in play. Interviewers use this question to check whether you actually understand container networking or just memorize `docker run` flags.
+A container that looks dead but is actually fine, or a `-p` flag that does nothing but print a warning, almost always traces back to which Docker network mode is in play. Interviewers use this question to check whether you actually understand container networking or just memorize `docker run` flags.
 
 ## The answer interviewers want
 
@@ -19,11 +19,11 @@ Docker gives you three core network modes, and each one changes how a container 
 
 **None** mode gives the container only a loopback interface. No external network access at all. This is for security-locked workloads, batch jobs or sandboxed processes that should have zero ability to reach the network.
 
-Here's the gotcha that trips people up in production: in host mode, `-p` port flags do nothing. There's no NAT layer to map a container port to a host port, because the container is already using the host's network stack directly. If you run a container with `--network host -p 8080:80`, that `-p` is silently ignored. Someone expecting port mapping to work gets a container that looks unreachable, when really it's just host mode doing exactly what it's supposed to do.
+Here's the gotcha that trips people up in production: in host mode, `-p` port flags do nothing. There's no NAT layer to map a container port to a host port, because the container is already using the host's network stack directly. If you run a container with `--network host -p 8080:80`, Docker ignores that `-p` and only prints a warning, which is easy to miss in a pipeline log. Someone expecting port mapping to work gets a container that looks unreachable, when really it's just host mode doing exactly what it's supposed to do.
 
 ## Why interviewers ask this
 
-This question separates people who've only run `docker run -p` in tutorials from people who've debugged real networking issues. It tests whether you understand NAT and isolation trade-offs, not just mode names, and whether you can explain why a config choice silently breaks an assumption someone else made.
+This question separates people who've only run `docker run -p` in tutorials from people who've debugged real networking issues. It tests whether you understand NAT and isolation trade-offs, not just mode names, and whether you can explain why a config choice breaks an assumption someone else made.
 
 ## Follow-ups to expect
 

@@ -20,9 +20,9 @@ Juniors see a 5xx spike and immediately roll back. Seniors ask three questions f
 From there, the decision tree is straightforward:
 
 - **Error rate climbing and you can't find the cause within about two minutes:** roll back. You don't have time to debug live while the blast radius grows.
-- **Error rate flat and isolated to a single endpoint:** fix forward. It's contained, so you can patch it without the disruption of a rollback.
+- **Error rate flat and isolated to a single, non-critical endpoint:** fix forward if a patch is close. It's contained, so you can patch it without a rollback's disruption. If that endpoint is login or checkout, roll back.
 
-The part most people miss: check whether a database migration shipped with that deploy *before* you roll back. Rolling back the application code while the schema has already changed can leave you in a worse state than the original bug, because the running (old) code may not match the new schema. Rollback assumes you can cleanly undo the deploy. If a migration is in play, that assumption breaks.
+The part most people miss: check whether a database migration shipped with that deploy *before* you roll back. Rolling back the application code while the schema has already changed can leave you in a worse state than the original bug, because the running (old) code may not match the new schema. Rollback assumes the old code can still run against the current schema. That holds only if the migration was backward compatible, which is exactly what you need to know before rolling back.
 
 The goal is to walk into a post-deploy 5xx spike with a decision tree, not a reflex.
 

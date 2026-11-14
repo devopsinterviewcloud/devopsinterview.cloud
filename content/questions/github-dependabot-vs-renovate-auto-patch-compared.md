@@ -11,11 +11,11 @@ Unpatched dependencies are a classic root cause behind production incidents, and
 
 ## The answer interviewers want
 
-Dependabot is zero config on GitHub. It works out of the box in about five minutes, which is great if you just want something running immediately. The catch: it fires one pull request per dependency, per ecosystem. Run twenty services and you can end up with a hundred PRs a week. At that volume, engineers stop reading them and start ignoring them, which defeats the entire point of automated patching.
+Dependabot is built into GitHub. Security updates are a settings toggle and version updates need only a short `dependabot.yml`, so you can have it running in about five minutes. The catch: by default it opens one pull request per dependency, per ecosystem. It can group updates through `groups` in `dependabot.yml`, but left at the default, twenty services can mean a hundred PRs a week. At that volume, engineers stop reading them and start ignoring them, which defeats the entire point of automated patching.
 
-Renovate takes a different approach. It groups updates, so you can patch all your AWS SDKs into a single PR instead of one per package, while keeping major version bumps separate since those need more careful review. Configuration is steeper than Dependabot's out-of-the-box setup, but because the PR volume is manageable, engineers actually merge what it opens.
+Renovate takes grouping further. It gives you much finer control over how updates are grouped, so you can patch all your AWS SDKs into a single PR instead of one per package, while keeping major version bumps separate since those need more careful review. Configuration is steeper than Dependabot's out-of-the-box setup, but because the PR volume is manageable, engineers actually merge what it opens.
 
-Whichever tool you pick, set a schedule. Both support it. Batching updates to run once a week, say Monday morning only, cuts notification noise by roughly 80%. That single setting matters more than which tool's logo is on the PR.
+Whichever tool you pick, set a schedule for routine updates. Both support it, and security fixes still open right away by default. Batching routine updates to run once a week, say Monday morning only, turns a steady trickle of PRs into one weekly review. That single setting matters more than which tool's logo is on the PR.
 
 So the honest answer isn't "Dependabot" or "Renovate." It's whichever one your team won't mute.
 
@@ -29,7 +29,7 @@ This question tests whether a candidate understands that dependency scanning too
 
 **What happens when a team gets too many dependency PRs?** Engineers start ignoring them, which means security patches sit unmerged and the org quietly accumulates the same risk the tool was supposed to eliminate.
 
-**Why does scheduling matter so much?** Batching updates to a fixed window, like Monday mornings only, concentrates review into one sitting instead of a constant drip, which alone cuts noise by about 80%.
+**Why does scheduling matter so much?** Batching updates to a fixed window, like Monday mornings only, concentrates review into one sitting instead of a constant drip, which is often what stops people muting the bot.
 
 ## The common wrong answer
 

@@ -11,11 +11,11 @@ Kubernetes storage questions come up constantly because almost every candidate c
 
 ## The answer interviewers want
 
-Most engineers treat PVs and PVCs as interchangeable. They aren't, and the distinction is the whole point of the question.
+A lot of candidates treat PVs and PVCs as interchangeable. They aren't, and the distinction is the whole point of the question.
 
 Think of it like renting an apartment. The `PersistentVolume` (PV) is the actual apartment: a real piece of storage that exists somewhere, with a defined capacity and access mode. The `PersistentVolumeClaim` (PVC) is your lease application: a request from a workload saying "I need this much storage, with these characteristics." The `StorageClass` is the property management company: it defines the policy for how new apartments (PVs) get built and handed out.
 
-In practice, you rarely create PVs by hand. A `StorageClass` creates them automatically, on demand, when a pod needs storage. The pod references a PVC, the PVC references a `StorageClass`, and the `StorageClass`'s provisioner creates a matching PV behind the scenes. That's the separation of concerns: the application only ever talks to the PVC. It doesn't know or care where the actual storage lives or how it was provisioned.
+In practice, you rarely create PVs by hand. A `StorageClass` creates them automatically, on demand, when a PVC asks for storage (or, with `WaitForFirstConsumer`, once a pod actually uses the claim). The pod references a PVC, the PVC references a `StorageClass`, and the `StorageClass`'s provisioner creates a matching PV behind the scenes. That's the separation of concerns: the application only ever talks to the PVC. It doesn't know or care where the actual storage lives or how it was provisioned.
 
 Here's the detail that trips people up in interviews: a PVC stays in `Pending` state if there's no matching PV and no `StorageClass` available to dynamically create one. The claim just sits there, unbound, until something satisfies its request for size and access mode.
 

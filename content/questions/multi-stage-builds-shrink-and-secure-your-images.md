@@ -13,20 +13,19 @@ A bloated, slow-to-deploy Docker image full of unpatched build tools is one of t
 
 The fix is multi-stage builds. You build your application in one stage that has all your tools installed, then copy just the compiled artifacts into a clean, minimal runtime image. The build stage never ships to production, only its output does.
 
-A minimal example:
+A minimal example for a static frontend:
 
 ```dockerfile
-FROM node:18 AS builder
+FROM node:24 AS builder
 WORKDIR /app
 COPY . .
 RUN npm install && npm run build
 
-FROM alpine:latest AS runtime
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
+FROM nginx:stable-alpine AS runtime
+COPY --from=builder /app/dist /usr/share/nginx/html
 ```
 
-The `AS builder` stage has Node, npm, and whatever compilers or dependencies you need to produce the build. The final `FROM alpine:latest AS runtime` stage starts clean and only pulls in the `dist` folder via `COPY --from=builder`. Everything else from the first stage, including the tools used to build it, gets discarded.
+The `AS builder` stage has Node, npm, and whatever compilers or dependencies you need to produce the build. The final `FROM nginx:stable-alpine AS runtime` stage starts clean with just NGINX and pulls in only the `dist` folder via `COPY --from=builder`. Everything else from the first stage, including the tools used to build it, gets discarded. A Node server app would use a slim Node image as its runtime stage instead.
 
 The part candidates often miss: this isn't just about image size. Build tools like `gcc` and `npm` simply aren't present in the production image anymore. That means fewer packages to patch, a smaller attack surface, and a security team that isn't flagging your image for compiler toolchains sitting in a runtime container that never needs them.
 
@@ -38,7 +37,7 @@ This question separates people who've only ever written single-stage Dockerfiles
 
 **"Why does image size matter beyond disk space?"** Smaller images pull faster, which matters for deploy speed and for autoscaling events where new nodes need the image fast.
 
-**"What would a security scan flag in a single-stage image that it wouldn't in a multi-stage one?"** Build-time tools and dependencies like `gcc` and `npm` that have no reason to be in a running production container, since they only exist to compile or install things during the build.
+**"What would a security scan flag in a single-stage image that it wouldn't in a multi-stage one?"** Known CVEs in build-time tools and dependencies like `gcc` and `npm`, packages that have no reason to be in a running production container, since they only exist to compile or install things during the build.
 
 **"Could you have more than two stages?"** Yes, the pattern extends to as many stages as needed, each one handling a distinct part of the build, with only the final stage being what actually ships.
 

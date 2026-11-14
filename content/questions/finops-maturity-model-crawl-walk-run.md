@@ -1,6 +1,6 @@
 ---
 title: FinOps Maturity Model - Crawl Walk Run
-description: FinOps maturity model explained: Crawl, Walk, and Run stages, why most orgs stall in Walk, and how to answer this in a DevOps interview.
+description: FinOps maturity model explained: Crawl, Walk, and Run stages, why many orgs stall in Walk, and how to answer this in a DevOps interview.
 date: 2026-10-22
 keywords: finops, devops interview questions, finops maturity model, finops interview questions, cloud cost optimization interview, finops crawl walk run
 category: finops
@@ -11,15 +11,15 @@ A cloud bill that doubles every quarter is one of the most common opening lines 
 
 ## The answer interviewers want
 
-The FinOps maturity model has three stages: Crawl, Walk, and Run.
+The FinOps maturity model has three stages: Crawl, Walk, and Run. You rate each capability separately (allocation, forecasting, anomaly management and so on), not the whole org at once.
 
-**Crawl** is reactive firefighting. There's no real process yet, just basic dashboards that show spend after the fact. Teams find out about a cost spike because someone noticed the invoice, not because anything caught it early.
+**Crawl** is reactive. There's very little reporting or tooling, basic processes are defined but not every team follows them. Teams find out about a cost spike because someone noticed the invoice, not because anything caught it early.
 
-**Walk** is where process gets built. This stage implements budgets and alerts, so teams get warned before a number gets out of hand instead of after. There's some ownership of spend, some reporting cadence, some accountability starting to form.
+**Walk** is where process gets built. The capability is understood and followed across the org, and automation or process covers most of what it needs. Budgets and alerts warn teams before a number gets out of hand, and real ownership of spend starts to form.
 
-**Run** is where automation takes over. This stage has ML-driven rightsizing, meaning the system is actively adjusting resource allocation based on usage patterns instead of a human manually resizing instances after a quarterly review.
+**Run** is where every team follows the capability, the hard edge cases get worked, and automation is the preferred approach. For optimization that can mean automated rightsizing, but the stage is defined by adoption and automation, not by a particular tool.
 
-The detail that actually matters in an interview: most organizations get stuck in Walk. They have the dashboards, they have budgets and alerts configured, but they never get to Run. The reason isn't technical. They skip the cultural change. Alerts firing into a channel nobody acts on isn't FinOps maturity, it's just a louder version of Crawl. Getting to Run requires engineering teams to actually own their cost numbers the way they own uptime or latency, and that's an organizational shift, not a dashboard you buy.
+The detail that actually matters in an interview: Walk is a fine place to stop for some capabilities, but a lot of organizations stall there on the ones that need more. They have the dashboards, they have budgets and alerts configured, but nothing moves when the alerts fire. The reason isn't technical. They skip the cultural change. Alerts firing into a channel nobody acts on isn't FinOps maturity, it's just a louder version of Crawl. Getting to Run requires engineering teams to actually own their cost numbers the way they own uptime or latency, and that's an organizational shift, not a dashboard you buy.
 
 ## Why interviewers ask this
 
@@ -27,9 +27,9 @@ This question separates people who've memorized a framework from people who've s
 
 ## Follow-ups to expect
 
-**"Why do most orgs stall in Walk instead of reaching Run?"** Because they treat FinOps as a reporting function instead of an engineering responsibility. The budgets and alerts exist, but no one's job depends on acting on them.
+**"Why do so many orgs stall in Walk instead of reaching Run?"** Because they treat FinOps as a reporting function instead of an engineering responsibility. The budgets and alerts exist, but no one's job depends on acting on them.
 
-**"What's the difference between a Walk-stage alert and a Run-stage response?"** In Walk, an alert tells a human something looks wrong. In Run, the system is already adjusting resources through automated rightsizing before a human needs to look at it.
+**"What's the difference between a Walk-stage alert and a Run-stage response?"** In Walk, detection is automated and the alert gets routed to the team that owns the spend. In Run, automation can suggest or apply the fix, urgent alerts flow into ticketing, and each resolution is recorded to tune future alerts.
 
 **"How would you move a team from Walk to Run?"** Start by making cost a shared metric engineering teams are accountable for, not just something finance reports on, then layer automation on top of that ownership.
 

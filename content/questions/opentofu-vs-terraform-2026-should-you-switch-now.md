@@ -7,13 +7,13 @@ category: terraform
 youtube: B8hqY5jxIX4
 ---
 
-OpenTofu vs Terraform questions show up in almost every senior DevOps interview now, because the fork changed the open-source infrastructure-as-code landscape and interviewers want to know if you actually understand why, not just that it happened.
+OpenTofu vs Terraform questions come up often in senior DevOps interviews now, because the fork changed open-source infrastructure as code and interviewers want to know if you actually understand why, not just that it happened.
 
 ## The answer interviewers want
 
-OpenTofu is the open-source fork of Terraform, created after HashiCorp changed its license away from a fully open-source model. OpenTofu is feature-compatible with Terraform but stays truly open source.
+OpenTofu is the open-source fork of Terraform, created after HashiCorp changed its license away from a fully open-source model. OpenTofu runs most Terraform code unchanged and stays truly open source, though each project has added features the other lacks.
 
-In practice, migration is usually straightforward. Your existing state files work as-is, the HCL syntax is the same, and your providers are the same. For a lot of setups, you can just swap the binary and keep going.
+In practice, migration is usually straightforward. The HCL syntax is the same, your providers are the same, and OpenTofu reads your existing Terraform state. Still, back up state first, then run `tofu init` and `tofu plan` and confirm the plan shows no changes before you apply anything.
 
 The part most people skip over: check your CI/CD pipelines and any automated tooling before you flip the switch. Some enterprise tools still hardcode `terraform` specifically, whether that's a binary path, a plugin, or a wrapper script. If you don't audit those first, you'll find out about them when a pipeline breaks.
 

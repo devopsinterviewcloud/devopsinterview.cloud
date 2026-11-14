@@ -7,7 +7,7 @@ category: networking
 youtube: kaEpMqpqpaA
 ---
 
-A system design or networking round will almost always poke at whether you actually know where a reverse proxy ends and a load balancer or API gateway begins. Most engineers use the terms interchangeably in conversation, which is exactly what trips them up when an interviewer asks for the precise distinction.
+A system design or networking round will often poke at whether you actually know where a reverse proxy ends and a load balancer or API gateway begins. Most engineers use the terms interchangeably in conversation, which is exactly what trips them up when an interviewer asks for the precise distinction.
 
 ## The answer interviewers want
 
@@ -19,7 +19,7 @@ A **load balancer** distributes traffic across multiple backend instances so no 
 
 An **API gateway** manages APIs specifically: routing requests to the right service, handling auth, rate limiting, and request/response transformation. `Kong` is the classic example.
 
-The trick interviewers are listening for is whether you know these aren't mutually exclusive. In a real stack they often work together: a request might hit a reverse proxy for TLS termination, get load balanced across a fleet of API gateway instances, and the gateway then routes it to the correct microservice. Naming one tool and claiming it does all three is the tell that you haven't actually operated this kind of stack.
+The trick interviewers are listening for is whether you know these aren't mutually exclusive. In a real stack they often work together: a request might hit a reverse proxy for TLS termination, get load balanced across a fleet of API gateway instances, and the gateway then routes it to the correct microservice. Treating the three as the same job is the tell that you haven't actually operated this kind of stack. One product like Kong can cover all three; a strong answer says which role it plays where.
 
 ## Why interviewers ask this
 
@@ -31,7 +31,7 @@ This question is a quick way to check whether you understand network request flo
 
 **Where would you put TLS termination in this stack?** Typically at the reverse proxy or load balancer layer, before traffic reaches the API gateway or backend services, so backend instances don't each have to manage certificates.
 
-**Why would you need an API gateway if you already have a load balancer?** Because a load balancer only distributes traffic; it doesn't handle concerns like auth, rate limiting, or routing by API path or version, which is the API gateway's job.
+**Why would you need an API gateway if you already have a load balancer?** Because an API gateway adds API-specific policy: per-client keys and quotas, rate limiting, request transformation. An L7 load balancer like AWS ALB can already route by path and handle OIDC login, so check what you actually need before adding a hop.
 
 ## The common wrong answer
 

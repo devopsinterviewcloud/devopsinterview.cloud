@@ -13,11 +13,11 @@ A pod keeps getting OOMKilled and restarting doesn't fix it. This scenario shows
 
 Work through this in order, and don't skip step one.
 
-**1. Confirm it's actually a leak.** Run `kubectl top pods` over time. You're looking for memory that climbs steadily, not just spikes under load. A spike that gets reclaimed is normal behavior, not a leak.
+**1. Check that it looks like a leak.** Run `kubectl top pods` over time, or better, pull the memory history from your metrics. You're looking for memory that climbs steadily and never levels off, not just spikes under load. A spike that gets reclaimed is normal, and so is a cache that grows to its cap and then plateaus.
 
-**2. Check limits vs requests.** Misconfigured memory limits are a very common cause of false OOMKills. If the limit is set too low for the workload's normal footprint, you'll get killed even with zero leak. Rule this out before you do anything else - most OOMKills aren't leaks at all, they're just limits set too low. Skip this check and you'll burn an hour chasing a leak that doesn't exist.
+**2. Check limits vs requests.** A memory limit set too low is a very common cause of OOMKills that look like leaks. If the limit is below the workload's normal footprint or its peaks, you'll get killed even with zero leak. Rule this out early: plenty of OOMKills aren't leaks at all, just limits set too low. Skip this check and you'll burn an hour chasing a leak that doesn't exist.
 
-**3. Grab a heap dump.** If it's a Go service, use `pprof` to capture a heap profile. For other languages, grab the equivalent (JVM heap dump, Node `--inspect` snapshot, etc.) so you can see what's actually holding memory.
+**3. Grab a heap dump.** If it's a Go service, use `pprof` to capture a heap profile; that's cheap enough to run in prod. For JVM heap dumps or Node heap snapshots, take them from one replica you can afford to lose: they pause the process, and a Node snapshot can double its memory. Then look at what's holding memory.
 
 **4. Look for goroutine or connection leaks.** Unclosed connections, leaked goroutines, or client objects that never get released are classic root causes. The heap dump or profile should point you at what's accumulating.
 
@@ -37,4 +37,4 @@ They want to see a methodical process, not a guess. OOMKilled is one of the most
 
 ## The common wrong answer
 
-Most candidates jump straight to "grab a heap dump and find the leak," skipping the cheaper check of requests vs limits. That's backwards: a huge share of OOMKills are just underprovisioned limits, not actual leaks, and senior engineers rule out the cheap explanation before reaching for profiling tools.
+Most candidates jump straight to "grab a heap dump and find the leak," skipping the cheaper check of requests vs limits. That's backwards: plenty of OOMKills turn out to be underprovisioned limits, not actual leaks, and senior engineers rule out the cheap explanation before reaching for profiling tools.

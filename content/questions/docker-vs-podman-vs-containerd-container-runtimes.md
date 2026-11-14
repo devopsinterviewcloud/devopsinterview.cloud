@@ -15,9 +15,9 @@ These three sit at different layers, not on a single spectrum of "better" to "wo
 
 `Docker` is the full platform: a daemon, an API, and a CLI on top. It's convenient because it bundles everything you need for building, running, and managing containers in one tool.
 
-`Podman` runs daemonless and rootless. There's no long-running background process owning your containers, and it doesn't require root privileges to operate. That changes the security posture significantly, especially in shared or regulated environments.
+`Podman` runs daemonless and can run fully rootless. There's no central daemon owning your containers (each one gets a small `conmon` monitor process), and it doesn't need root to operate. That changes the security posture significantly compared with Docker's default root daemon, especially in shared or regulated environments.
 
-`containerd` is just the runtime. No daemon-level conveniences, no bells and whistles. It does one job: run containers. That's exactly why Kubernetes uses it as a `CRI` implementation.
+`containerd` is the runtime daemon underneath. It pulls images, manages storage and runs containers through a low-level runtime like runc, without Docker's build tools and developer conveniences on top. That's exactly why Kubernetes uses it as a `CRI` implementation.
 
 Match the tool to the use case:
 
@@ -41,4 +41,4 @@ They want to know if you understand what's actually running your containers vers
 
 ## The common wrong answer
 
-Candidates usually describe Docker, Podman, and containerd as if they're interchangeable competitors fighting for the same job, and then pick one based on popularity. The wrong answer treats this as a brand preference instead of recognizing that containerd is a low-level runtime, Docker is a full platform built on top of that kind of runtime, and Podman is a daemonless, rootless alternative aimed at a different security model entirely.
+Candidates usually describe Docker, Podman, and containerd as if they're interchangeable competitors fighting for the same job, and then pick one based on popularity. The wrong answer treats this as a brand preference instead of recognizing that containerd is a high-level runtime, Docker is a full platform built on top of that kind of runtime, and Podman is a daemonless, rootless alternative aimed at a different security model entirely.

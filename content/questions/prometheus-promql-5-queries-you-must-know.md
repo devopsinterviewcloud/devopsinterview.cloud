@@ -11,7 +11,7 @@ PromQL questions in a DevOps or SRE interview rarely ask you to recite functions
 
 ## The answer interviewers want
 
-The trap is thinking PromQL mastery means memorizing every function in the docs. It doesn't. In practice, almost every PromQL interview question maps to one of five patterns: counters, latency, aggregation, forecasting, and absence.
+The trap is thinking PromQL mastery means memorizing every function in the docs. It doesn't. In practice, most PromQL interview questions map to one of five patterns: counters, latency, aggregation, forecasting, and absence.
 
 In production, the queries you actually write are:
 
@@ -19,17 +19,17 @@ In production, the queries you actually write are:
 - **Latency**: `histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))` to pull your p99 off the bucket sums.
 - **Aggregation**: `sum by (service) (...)` to roll metrics up for team-level dashboards.
 - **Forecasting**: trend-projection queries that let you see where a metric is headed, not just where it is now.
-- **Absence**: `absent()` to catch a scrape target that died silently.
+- **Absence**: `absent(up{job="api"})` to catch a job that vanished entirely, which `up == 0` can't see.
 
 The absence pattern is the one most candidates miss. A metric that stops reporting doesn't breach any threshold, so a normal alert on that metric never fires. `absent()` exists specifically to catch that silent failure mode. The interview isn't testing whether you know fifty functions. It's testing whether you know these five query shapes and when each one applies.
 
 ## Why interviewers ask this
 
-This question separates people who've read the PromQL docs from people who've actually run dashboards and alerts in production. Anyone can look up a function signature. Knowing that a dead scrape target is invisible to normal alerting, and that `absent()` is the fix, only comes from having been burned by it or having built alerting rigorously enough to think about it in advance.
+This question separates people who've read the PromQL docs from people who've actually run dashboards and alerts in production. Anyone can look up a function signature. Knowing that a failing target shows up as `up == 0`, while a metric or target that vanishes entirely goes silent until you check it with `absent()`, only comes from having been burned by it or having built alerting rigorously enough to think about it in advance.
 
 ## Follow-ups to expect
 
-**Why would a missing metric not trigger a normal alert?** Because threshold-based alerts evaluate the value of a time series, and if the series doesn't exist, there's nothing to evaluate against. The target can be down for hours with zero signal unless you're explicitly checking for absence.
+**Why would a missing metric not trigger a normal alert?** Because threshold-based alerts evaluate the value of a time series, and if the series doesn't exist, there's nothing to evaluate against. If the target drops out of service discovery, even its `up` series disappears, so it can be gone for hours with zero signal unless you're explicitly checking for absence.
 
 **How do you compute p99 latency from a histogram?** Use `histogram_quantile(0.99, ...)` over the rate of your `_bucket` series summed by `le`, since quantiles are derived from the bucket boundaries, not raw samples.
 

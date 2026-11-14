@@ -1,6 +1,6 @@
 ---
 title: Deployment Broke SSL Certs - Quick Fix
-description: A deployment breaks SSL in production. Here's the diagnostic order interviewers expect: cert status, secret versions, ingress cache.
+description: A deployment breaks SSL in production. Here's the diagnostic order interviewers expect: cert status, the Ingress and its Secret, then the cert actually served.
 date: 2026-10-22
 keywords: scenario, devops interview questions, deployment broke ssl, ssl certificate fix kubernetes, ssl broken after deployment, devops ssl troubleshooting
 category: scenario
@@ -13,11 +13,11 @@ A deployment goes out and suddenly every browser hitting your site throws a secu
 
 Start with the obvious: did a certificate actually expire, or did the deployment just make it look that way? Run `kubectl get certificates` and check the `READY` column. If it says `False`, that's your first signal, something in the cert-manager pipeline isn't reconciling.
 
-Next, check whether the deployment actually updated the certificate secret it depends on. Compare secret versions, if the deployment rolled out a new config but the underlying TLS secret wasn't refreshed (or refreshed to the wrong thing), you'll get a mismatch between what's deployed and what's actually being served.
+Next, check what the deployment changed on the Ingress. A renamed `secretName`, a dropped `tls` block or a new hostname that isn't on the certificate will all break TLS even when the cert itself is fine. Confirm the Ingress points at the Secret you expect and that the cert inside covers the hostname and hasn't expired.
 
-Here's the step most people miss: restart your ingress controller pods. Ingress controllers cache certificates in memory. Even if cert-manager fixed the secret and everything looks correct on paper, the ingress pods can keep serving the old, broken, or expired cert until they're restarted and reload the new one from the secret store.
+Here's the step most people miss: check the cert that's actually being served, not just the Secret. Run `openssl s_client -connect <host>:443 -servername <host>` and compare its expiry and issuer with what's in the Secret. Ingress controllers watch Secrets and normally load a new cert on their own, so if the two differ, read the controller logs to see why. Restart the controller pods only once you've confirmed it's stuck.
 
-In short: verify cert status, verify secret freshness, then clear the ingress cache by restarting. Once you know this sequence, what used to be a 3AM fire drill turns into a five-minute fix.
+In short: verify cert status, verify the Ingress and the Secret it points at, then compare that with the cert being served. Once you know this sequence, what used to be a 3AM fire drill turns into a five-minute fix.
 
 ## Why interviewers ask this
 
@@ -25,12 +25,12 @@ This question tests whether you understand that Kubernetes TLS has multiple laye
 
 ## Follow-ups to expect
 
-**Why would secret versions mismatch after a deployment?** A deployment can reference a secret by name without guaranteeing cert-manager has reconciled a fresh certificate into it yet, so the secret the pod mounts may still hold the old or incomplete data.
+**Why would TLS break after a deployment if nothing expired?** Usually the deploy changed the Ingress: a new `secretName` that cert-manager hasn't issued into yet, or a host the cert doesn't cover. Until a matching cert is in place, the controller typically falls back to its default cert and browsers warn.
 
-**Why does restarting the ingress controller fix it if the secret is already correct?** Because the ingress controller reads the secret into memory at startup or on a watch event, and if it cached the old certificate before the update landed, it'll keep serving that stale version until it's restarted.
+**When would restarting the ingress controller actually help?** Only when you've confirmed the Secret is correct and the controller is still serving something else. Controllers watch Secrets and reload certs on change, so a stuck controller is the exception: check its logs for why it didn't load the new cert, and treat the restart as recovery, not diagnosis.
 
-**What would you check if `kubectl get certificates` shows `READY: True` but browsers still warn?** That points away from cert-manager entirely and toward the ingress controller still serving a cached or mismatched cert, which is why the restart step matters even when the certificate resource looks healthy.
+**What would you check if `kubectl get certificates` shows `READY: True` but browsers still warn?** Ready only means cert-manager has a valid cert matching the Certificate spec, not that browsers trust it. Check the served cert's issuer: a Let's Encrypt staging or self-signed issuer gives exactly this symptom. If the Secret holds a trusted cert and the served one differs, look at the ingress controller.
 
 ## The common wrong answer
 
-Most candidates either blame the CA or jump straight to reissuing certificates from scratch, skipping the cheaper diagnostic steps. They miss that the certificate resource, the secret, and the ingress controller are three separate layers that can each be the culprit, and they almost never mention that ingress controllers cache certs and need a restart, which is usually the actual fix.
+Most candidates either blame the CA or jump straight to reissuing certificates from scratch, skipping the cheaper diagnostic steps. They miss that the certificate resource, the secret, and the ingress controller are three separate layers that can each be the culprit, and they rarely check the cert that's actually being served, which is the quickest way to see which layer broke.

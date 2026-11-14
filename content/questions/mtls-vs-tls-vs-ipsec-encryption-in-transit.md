@@ -7,7 +7,7 @@ category: networking
 youtube: scrol7F7hDQ
 ---
 
-Encryption-in-transit questions show up in almost every networking or security round because they separate people who've memorized acronyms from people who've actually deployed these protocols. Knowing the one-line definition of TLS, mTLS, and IPSec is the easy part. Knowing when to reach for each one, and what it costs you operationally, is what interviewers are actually testing.
+Encryption-in-transit questions show up a lot in networking and security rounds because they separate people who've memorized acronyms from people who've actually deployed these protocols. Knowing the one-line definition of TLS, mTLS, and IPSec is the easy part. Knowing when to reach for each one, and what it costs you operationally, is what interviewers are actually testing.
 
 ## The answer interviewers want
 

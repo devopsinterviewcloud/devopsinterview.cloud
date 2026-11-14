@@ -7,7 +7,7 @@ category: microservices
 youtube: AJ-U-88nH6U
 ---
 
-This question comes up because almost every microservices interview eventually asks you to justify a protocol choice, and "gRPC vs REST" is the easiest way to see if you actually think about architecture or just repeat buzzwords.
+This question comes up because a lot of microservices interviews eventually ask you to justify a protocol choice, and "gRPC vs REST" is the easiest way to see if you actually think about architecture or just repeat buzzwords.
 
 ## The answer interviewers want
 

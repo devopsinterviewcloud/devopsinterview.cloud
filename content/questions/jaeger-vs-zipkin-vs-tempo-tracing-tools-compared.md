@@ -11,7 +11,7 @@ Distributed tracing tools come up constantly in platform and SRE interviews beca
 
 ## The answer interviewers want
 
-Jaeger is the go-to choice for Kubernetes environments. It handles high throughput well and has native Kubernetes operators, which makes it a natural fit if you're already running everything on k8s and want tracing that's managed the same way as the rest of your cluster.
+Jaeger is the go-to choice for Kubernetes environments. It handles high throughput well and deploys on Kubernetes through the OpenTelemetry Operator (the old Jaeger Operator only supported v1 and is archived), which makes it a natural fit if you're already running everything on k8s and want tracing that's managed the same way as the rest of your cluster.
 
 Zipkin is the lightweight option. It has a simpler setup and lower resource usage, which makes it a good fit for smaller distributed systems where you don't need Jaeger's throughput ceiling or its Kubernetes-native tooling.
 
@@ -27,7 +27,7 @@ This question screens for whether you've actually operated a tracing backend ver
 
 **"How does trace retention cost scale differently between these tools?"** Tempo's object storage model avoids the heavier indexing costs that drive up storage spend in other backends, which matters a lot once you're retaining traces for weeks or months instead of days.
 
-**"Would you run two tracing backends in parallel during a migration?"** It's reasonable to mention that teams often run an old backend alongside a new one during cutover to validate trace completeness before fully switching, though the source here doesn't go into migration mechanics.
+**"Would you run two tracing backends in parallel during a migration?"** Yes, for a short window. Put an OpenTelemetry Collector in front and send the same spans to both backends through two exporters, check that traces match, then move dashboards over and retire the old backend once its retention period runs out.
 
 **"What would push you away from Jaeger even in a Kubernetes shop?"** If the team is small and doesn't need Jaeger's throughput or operator-driven complexity, Zipkin's lighter setup can be the more pragmatic call.
 

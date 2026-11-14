@@ -1,5 +1,5 @@
 ---
-title: Spot Instances for CI/CD - Save 90% on Build Costs
+title: Spot Instances for CI/CD - Save Up to 90% on Build Compute
 description: How to cut CI/CD build costs with spot instances, fallback strategies, and mixed instance pools, explained for DevOps interviews.
 date: 2026-10-22
 keywords: finops, devops interview questions, spot instances ci/cd, aws spot instances jenkins, ci/cd cost optimization
@@ -15,7 +15,7 @@ Spot instances are EC2 machines that AWS sells at up to 90% off on-demand pricin
 
 The pattern is to configure your Jenkins agents or GitHub Actions self-hosted runners to launch on spot capacity by default, with a fallback to regular on-demand instances if spot capacity isn't available or gets interrupted mid-build. That fallback path is what keeps the pipeline reliable even when spot pools dry up in a given region or AZ.
 
-The part worth emphasizing in an interview: don't just pin builds to one instance type in one availability zone. Use mixed instance types and spread across multiple availability zones. This reduces interruption risk significantly, by around 80% according to common guidance, because you're no longer dependent on a single spot pool's capacity swings. If `c5.xlarge` in `us-east-1a` gets reclaimed, your autoscaler can still pull `c5.2xlarge` or `m5.xlarge` in `us-east-1b` without falling all the way back to full-price compute.
+The part worth emphasizing in an interview: don't just pin builds to one instance type in one availability zone. Use mixed instance types and spread across multiple availability zones. This reduces interruption risk significantly, because you're no longer dependent on a single spot pool's capacity swings, and a price-capacity-optimized allocation strategy steers launches to the pools least likely to be reclaimed. If `c5.xlarge` in `us-east-1a` gets reclaimed, your autoscaler can still pull `c5.2xlarge` or `m5.xlarge` in `us-east-1b` without falling all the way back to full-price compute.
 
 ## Why interviewers ask this
 
@@ -27,7 +27,7 @@ This question checks whether you think about cost as a first-class engineering c
 
 **Why mix instance types and AZs instead of picking the cheapest single option?** A single instance type in a single AZ is a single point of failure for spot capacity; diversifying across types and zones spreads that risk and cuts interruption frequency substantially.
 
-**Would you run spot for every stage of the pipeline?** The source pattern is built around build workloads specifically, since they're short-lived and safely retryable, which is exactly the profile that tolerates spot interruptions well.
+**Would you run spot for every stage of the pipeline?** No. Builds and test shards are ideal because they're short and safe to retry. Keep deploys, database migrations and release publishing on on-demand runners, since a reclaim halfway through can leave an environment half-changed.
 
 ## The common wrong answer
 

@@ -13,7 +13,7 @@ A team restarted a box every time CPU hit 100%, and ten minutes later it pegged 
 
 `perf top` samples your CPU live and shows exactly which function, kernel space or user space, is burning cycles right now. Run `perf top` to profile the whole system, or add `-p <PID>` to target one process. It sorts by overhead, so the hottest function sits at the top of the list.
 
-One catch: without debug symbols installed, you get hex addresses instead of function names, which is useless for diagnosis. Install the debuginfo packages for the binary or library in question first, otherwise you're profiling garbage data you can't act on. That one step, live sampling plus symbols, is what breaks the restart-reboot-repeat loop and gets you to the actual offending function.
+One catch: stripped binaries often show up as hex addresses instead of function names. You can still see which binary or library is hot, but to name the function you need symbols, so install the debuginfo package for that binary or library and rerun. That one step, live sampling plus symbols, is what breaks the restart-reboot-repeat loop and gets you to the actual offending function.
 
 ## Why interviewers ask this
 

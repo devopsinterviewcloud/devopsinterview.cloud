@@ -7,7 +7,7 @@ category: mlops
 youtube: 4h5ghrSNgFM
 ---
 
-A model that was accurate in validation quietly degrades in production with no code changes anywhere. That's usually a feature problem, not a model problem, and it's why interviewers probe feature stores instead of letting you coast on the word "reusability."
+A model that was accurate in validation quietly degrades in production with no code changes anywhere. That's often a feature problem, not a model problem, and it's why interviewers probe feature stores instead of letting you coast on the word "reusability."
 
 ## The answer interviewers want
 
@@ -17,7 +17,7 @@ Most candidates answer "reusability" and stop. That's not wrong, it's just shall
 
 **Duplicate work.** Without a shared feature layer, every team on every project recomputes the same underlying signals, like user activity windows or aggregated spend. That's wasted engineering time and a second source of divergence between teams' definitions of the "same" feature.
 
-**No lineage.** When a model's performance shifts, nobody can say which exact feature version it was trained on. You can't debug what you can't trace back.
+**No lineage.** When a model's performance shifts, nobody can say which feature version it was trained on unless something recorded it. A feature store gives you that link, though tracing back to raw data still needs pipeline metadata.
 
 On tooling: `Feast` is free and open source, but you own the operational burden of running it. `Tecton` costs money but handles the hard infrastructure problems for you. The right pick depends on your team's size and operational capacity, not on which one is trending.
 

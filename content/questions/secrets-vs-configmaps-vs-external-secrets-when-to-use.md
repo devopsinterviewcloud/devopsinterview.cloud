@@ -15,23 +15,23 @@ The three objects solve different problems and mixing them up is a real-world mi
 
 `ConfigMap` is for non-sensitive configuration: app settings, feature flags, environment-specific values that don't need protection if someone reads them. Use it for things like a log level or a service URL.
 
-`Secret` is for sensitive data: passwords, API keys, tokens. The catch is that Kubernetes `Secret` objects are only base64 encoded, not encrypted. Base64 is an encoding scheme, not a security control, so anyone with `kubectl` access or a copy of your etcd backup can decode it trivially. If you want Secrets actually encrypted at rest, you have to enable etcd encryption yourself. Kubernetes does not do this for you by default.
+`Secret` is for sensitive data: passwords, API keys, tokens. The catch is that Kubernetes `Secret` objects are only base64 encoded, not encrypted. Base64 is an encoding scheme, not a security control, so anyone allowed to read the Secret through the API, or holding a copy of an unencrypted etcd backup, can decode it trivially. Upstream Kubernetes doesn't encrypt Secrets at rest by default; you turn that on with an encryption config on the API server. Some managed services, like EKS on 1.28 and later, do it for you, so check what your provider actually does.
 
-External Secrets is for rotating credentials that live in a dedicated secrets manager, like HashiCorp Vault. An External Secrets Operator pulls the real credential from Vault and syncs it into the cluster as a Kubernetes Secret, so your rotation logic and your long-term credential storage live outside etcd entirely. This is the right call when credentials expire or rotate on a schedule and you don't want to manage that by hand.
+External Secrets is for rotating credentials that live in a dedicated secrets manager, like HashiCorp Vault. An External Secrets Operator pulls the real credential from Vault and syncs it into the cluster as a Kubernetes Secret, so the source of truth and the rotation live in Vault, while the cluster holds a synced copy (which still sits in etcd, so encryption at rest still matters). This is the right call when credentials expire or rotate on a schedule and you don't want to manage that by hand.
 
 The one answer that ends interviews fast: putting a password in a ConfigMap. It signals that the candidate doesn't understand the basic sensitivity boundary Kubernetes draws between the two objects.
 
 ## Why interviewers ask this
 
-They're checking whether you understand that Kubernetes Secrets are not secure by default, which is a common and dangerous misconception. They also want to see if you know where the responsibility boundary sits: Kubernetes gives you the primitive, but encryption at rest and rotation are things you have to set up yourself or delegate to a tool like Vault.
+They're checking whether you understand that Kubernetes Secrets are not secure by default, which is a common and dangerous misconception. They also want to see if you know where the responsibility boundary sits: Kubernetes gives you the primitive, but encryption at rest and rotation are things you have to set up, confirm with your provider, or delegate to a tool like Vault.
 
 ## Follow-ups to expect
 
-**How do you actually encrypt Secrets at rest?** You enable etcd encryption at the cluster level; without it, Secrets sit in etcd as base64, which is reversible by anyone with access to the data store.
+**How do you actually encrypt Secrets at rest?** You configure encryption at rest on the API server, ideally with a KMS provider, or confirm your managed provider does it. Without it, Secrets sit in etcd unencrypted, readable by anyone with access to the data store.
 
-**Why use External Secrets instead of just storing credentials directly as Kubernetes Secrets?** Because credentials that rotate need a system of record outside the cluster, and External Secrets syncs from Vault so you're not manually updating Secret objects every time a credential changes.
+**Why use External Secrets instead of just storing credentials directly as Kubernetes Secrets?** Because rotating credentials usually already live in a system of record outside the cluster, like Vault, and External Secrets syncs from it so you're not manually updating Secret objects every time a credential changes.
 
-**What's wrong with just using ConfigMaps for everything to keep it simple?** ConfigMaps have no sensitivity boundary at all, so any sensitive value stored there is exposed to anyone with read access to the namespace, no decoding required.
+**What's wrong with just using ConfigMaps for everything to keep it simple?** ConfigMaps are meant for non-sensitive data, so read access to them is handed out broadly; the built-in `view` role can read ConfigMaps but not Secrets. Anything sensitive you put there is exposed to far more people, no decoding required.
 
 ## The common wrong answer
 

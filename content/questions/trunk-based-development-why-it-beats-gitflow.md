@@ -15,7 +15,7 @@ Trunk-based development means everyone commits to `main` daily. GitFlow, by cont
 
 With trunk-based development you get continuous integration in the literal sense: changes are integrated into `main` constantly, feedback comes fast, and deployments can happen multiple times per day instead of being bottled up behind a release branch.
 
-The key framing to give an interviewer: GitFlow was designed for scheduled releases, back when software shipped on a calendar, maybe once a month or once a quarter. Modern applications deploy continuously, often many times a day. Long-lived branches are a fine tool for a world that doesn't deploy often. They're a liability in a world that does. So the choice isn't "trunk-based is objectively superior Git hygiene," it's "trunk-based matches how we actually ship now, and GitFlow doesn't."
+The key framing to give an interviewer: GitFlow was built for software that ships as explicit versions on a release schedule, and its own author now says teams doing continuous delivery should use something simpler. Modern web services deploy continuously, often many times a day. Long-lived branches are a fine tool when you ship versioned releases or support several versions in the wild. They're a liability when you deploy continuously. So the choice isn't "trunk-based is objectively superior Git hygiene," it's "trunk-based matches how we actually ship now, and GitFlow doesn't."
 
 ## Why interviewers ask this
 
@@ -23,10 +23,10 @@ They're checking whether you can connect a branching model to a deployment caden
 
 ## Follow-ups to expect
 
-- **How do you handle incomplete features on `main` with trunk-based development?** The source doesn't cover this directly, but the implication is that you lean on practices like feature flags so unfinished work can sit in `main` without being exposed to users, since everyone's committing to the same branch daily.
-- **What breaks if a team adopts trunk-based development without changing anything else?** If deployments still happen on a slow manual cadence, you lose the main benefit, which is fast feedback and frequent deployment. The branching model alone doesn't create velocity.
-- **When would GitFlow still make sense?** Based on its original design intent, it fits teams or products that genuinely ship on a fixed schedule rather than continuously, since that's the release pattern it was built around.
+- **How do you handle incomplete features on `main` with trunk-based development?** Feature flags, so unfinished work merges to `main` switched off and gets turned on when it's ready, and branch by abstraction for large refactors. Keep each change small, and delete flags once a feature is fully rolled out so they don't pile up.
+- **What breaks if a team adopts trunk-based development without changing anything else?** If deployments still happen on a slow manual cadence, you keep the faster integration but lose most of the payoff, which is frequent deployment and fast feedback from production. The branching model alone doesn't create velocity.
+- **When would GitFlow still make sense?** When you ship explicitly versioned software or have to support several released versions at once, like a library, a desktop app or an on-prem product. Its author says as much in his 2020 note on the original post.
 
 ## The common wrong answer
 
-Candidates usually answer with a surface-level comparison: "trunk-based has one branch, GitFlow has many branches, trunk-based is simpler." That's true but shallow, and it misses the actual point interviewers are listening for, which is the link between branching strategy and deployment frequency. Saying GitFlow is "outdated" without explaining it was built for scheduled releases, not continuous ones, reads as a memorized talking point rather than real understanding.
+Candidates usually answer with a surface-level comparison: "trunk-based has one branch, GitFlow has many branches, trunk-based is simpler." That's shallow, and not quite right either, since trunk-based teams still use short-lived branches. It misses the actual point interviewers are listening for, which is the link between branching strategy and deployment frequency. Saying GitFlow is "outdated" without explaining it was built for scheduled releases, not continuous ones, reads as a memorized talking point rather than real understanding.
