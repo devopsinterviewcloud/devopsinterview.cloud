@@ -13,9 +13,9 @@ Every team eventually gets asked this: your Kubernetes secrets are probably sitt
 
 External Secrets Operator (ESO) solves this exact problem. You define a `SecretStore` resource pointing at your Vault instance, then an `ExternalSecret` resource that maps specific Vault paths to keys in a Kubernetes `Secret`. ESO polls Vault on an interval and keeps the Kubernetes Secret in sync automatically. Nothing gets committed to Git because the actual secret value never lives in your repo, only the mapping configuration does.
 
-Here's the detail most people miss: use `ClusterSecretStore`, not `SecretStore`. A `SecretStore` is namespace-scoped, which means if ten teams each need Vault access, you're duplicating that same store config into ten namespaces. A `ClusterSecretStore` is a single, cluster-wide configuration that every namespace's `ExternalSecret` resources can reference. One config instead of N copies, and one place to update if your Vault connection details change.
+Here's the detail most people miss: picking `SecretStore` or `ClusterSecretStore` is a security decision, not just a tidiness one. A `SecretStore` is namespace-scoped, so ten teams means ten copies of the store config, but each can use its own Vault role and reach only that team's paths. A `ClusterSecretStore` is one cluster-wide config every namespace's `ExternalSecret` resources can reference: one place to update, but any namespace can read whatever its Vault credentials reach unless you restrict which namespaces may use it.
 
-When you explain this in an interview, don't stop at "we use Vault." Walk through the sync layer: `ClusterSecretStore` for the connection, `ExternalSecret` for the path-to-key mapping, and ESO's polling loop as the mechanism that keeps Kubernetes Secrets current without anyone touching Git.
+When you explain this in an interview, don't stop at "we use Vault." Walk through the sync layer: `SecretStore` or `ClusterSecretStore` for the connection, `ExternalSecret` for the path-to-key mapping, and ESO's polling loop as the mechanism that keeps Kubernetes Secrets current without anyone touching Git.
 
 ## Why interviewers ask this
 
@@ -27,8 +27,8 @@ This question separates people who've read about Vault from people who've actual
 
 **What happens if Vault is unreachable when ESO polls?** Think through this in terms of the sync model: ESO keeps the last-synced Kubernetes Secret in place until it can successfully reconcile again, so a transient Vault outage shouldn't immediately break running pods.
 
-**Why use ClusterSecretStore over SecretStore specifically?** Because `SecretStore` is namespace-scoped and would need to be duplicated in every team's namespace, while `ClusterSecretStore` is defined once and referenced cluster-wide.
+**When would you pick ClusterSecretStore over SecretStore?** When many namespaces share the same Vault access and you'd otherwise copy the store into each one. Restrict which namespaces can use it, and keep `SecretStore` where a team needs its own Vault role.
 
 ## The common wrong answer
 
-Most candidates either say "we store secrets in Vault" and stop there, with no explanation of how Kubernetes workloads actually get them, or they describe ESO but default to namespace-scoped `SecretStore` everywhere without realizing that doesn't scale past a single-team cluster. Both answers signal theoretical knowledge without hands-on configuration experience.
+Most candidates either say "we store secrets in Vault" and stop there, with no explanation of how Kubernetes workloads actually get them, or they describe ESO but can't say why they'd pick `SecretStore` or `ClusterSecretStore`, which comes down to per-team isolation versus one shared config. Both answers signal theoretical knowledge without hands-on configuration experience.

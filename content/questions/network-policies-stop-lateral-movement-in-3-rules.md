@@ -14,15 +14,15 @@ By default, pods can talk to everything in the cluster. There's no isolation unl
 
 The pattern to describe is simple: start with a default deny-all policy for a namespace, blocking all ingress and egress traffic. Then explicitly allow only the specific traffic you need, service by service. For example, allow the frontend to call the backend API on its port, and nothing else. This way, if an attacker breaches one pod, they can't just pivot sideways through the cluster to everything else, because there's nothing open for them to pivot through.
 
-The catch that trips people up: most CNIs don't enforce network policies by default. You can write a perfectly correct `NetworkPolicy` manifest and have it do absolutely nothing. Calico and Cilium enforce them. Standard `kubenet` does not. So part of a correct answer is checking what CNI the cluster actually runs before assuming network policies are doing any work at all.
+The catch that trips people up: network policies only work if your network plugin enforces them, and not every setup does out of the box. You can write a perfectly correct `NetworkPolicy` manifest and have it do absolutely nothing. Calico and Cilium enforce them. Standard `kubenet` does not. So part of a correct answer is checking what CNI the cluster actually runs before assuming network policies are doing any work at all.
 
 ## Why interviewers ask this
 
-They're checking whether you think about Kubernetes security as a layered problem instead of assuming RBAC or pod security policies cover everything. Lateral movement is one of the most common real-world attack patterns, so they want to know you'd actually contain a breach, not just detect it after the fact. The CNI detail also tests whether you've been burned by assuming a feature works just because the YAML applied cleanly.
+They're checking whether you think about Kubernetes security as a layered problem instead of assuming RBAC or Pod Security Standards cover everything. Lateral movement is one of the most common real-world attack patterns, so they want to know you'd actually contain a breach, not just detect it after the fact. The CNI detail also tests whether you've been burned by assuming a feature works just because the YAML applied cleanly.
 
 ## Follow-ups to expect
 
-- **How would you verify a network policy is actually being enforced?** Check which CNI the cluster runs; `kubenet` won't enforce anything, so you'd need to confirm Calico, Cilium, or another policy-aware CNI is in place and test with a denied connection to see it actually fail.
+- **How would you verify a network policy is actually being enforced?** Check what's enforcing policy in the cluster. `kubenet` on its own won't enforce anything, so you'd need to confirm Calico, Cilium, or another policy engine is in place, then test with a denied connection to see it actually fail.
 - **What's your rollout strategy for default-deny in an existing cluster?** Start with deny-all in a non-critical namespace first, then add explicit allow rules for each known service-to-service path before expanding cluster-wide, since applying deny-all blind in production will break things.
 - **How do network policies interact with namespaces?** Policies are scoped per namespace and selectors can target pods across namespace boundaries using namespace labels, so isolation has to be designed at both the pod and namespace level.
 

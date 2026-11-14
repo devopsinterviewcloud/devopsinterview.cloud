@@ -24,7 +24,7 @@ module "vpc" {
 
 Each environment passes in its own variables (CIDR ranges, instance sizes, tags) while reusing the exact same underlying module code. That's the whole point: one definition, many callers.
 
-The part most people skip: version your modules with Git tags. Don't point production at a module's latest commit on `main`. If someone merges a change to the VPC module for a dev experiment, you do not want that silently flowing into prod the next time someone runs `terraform apply`. Pin production to a specific tagged version, like `source = "git::https://example.com/modules/vpc.git?ref=v1.2.0"`, and bump that tag deliberately when you're ready to roll the change forward.
+The part most people skip: version your modules with Git tags. Don't point production at a module's latest commit on `main`. If someone merges a change to the VPC module for a dev experiment, you do not want that silently flowing into prod the next time a pipeline runs a fresh `terraform init` and `apply`. Pin production to a specific tagged version, like `source = "git::https://example.com/modules/vpc.git?ref=v1.2.0"`, and bump that tag deliberately when you're ready to roll the change forward.
 
 ## Why interviewers ask this
 
@@ -32,7 +32,7 @@ This is a quick filter for whether you understand Terraform as a language with r
 
 ## Follow-ups to expect
 
-**What happens if you don't pin module versions?** Every environment pulling from `main` means an untested change to a dev-only module can land in production the next time anyone runs `apply`, with no review step specific to that environment.
+**What happens if you don't pin module versions?** Every environment pulling from `main` means an untested change to a dev-only module can land in production the next time a fresh `init` pulls it in and someone runs `apply`, with no review step specific to that environment.
 
 **How do you pass different values into the same module?** Through input variables defined in the module and set per-environment, so the module code stays identical while CIDR blocks, sizes, and tags differ between dev, staging, and prod.
 

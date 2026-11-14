@@ -21,7 +21,7 @@ You assign a policy and pick an effect:
 
 Instead of assigning policies one by one, you group related policies into an **Initiative** - the CIS benchmark is a built-in example of this. You assign the initiative once at the Management Group scope, and it cascades down to every subscription underneath that group. That's how you cover hundreds of subscriptions without touching each one individually.
 
-The part most people miss: assigning a policy does not retroactively fix resources that already exist. Policy with `DeployIfNotExists` or `Deny` only governs what happens going forward. If you don't trigger a remediation task manually, you end up with a dashboard that looks clean while actually hiding months of drift on everything created before the policy was assigned.
+The part most people miss: assigning a policy does not retroactively fix resources that already exist. Policy does evaluate existing resources and marks them non-compliant, but `Deny` only blocks new creates and updates, and `DeployIfNotExists` only deploys for new or updated resources until you run a remediation task. Skip that and you get a dashboard full of known non-compliant resources nobody fixed, which is its own audit finding.
 
 ## Why interviewers ask this
 
@@ -31,10 +31,10 @@ This question tests whether you understand governance as an ongoing control loop
 
 **When would you use `Audit` instead of `Deny`?** Audit is useful when you need visibility first, like rolling out a new standard without breaking existing pipelines or blocking teams outright before they've had a chance to adapt.
 
-**How do you handle resources created before the policy existed?** You trigger a remediation task against the policy assignment so `DeployIfNotExists` effects get applied retroactively; without that step those resources stay non-compliant indefinitely.
+**How do you handle resources created before the policy existed?** You trigger a remediation task against the policy assignment so `DeployIfNotExists` and `Modify` effects get applied to existing resources; otherwise they stay non-compliant until someone fixes or updates them.
 
 **Why assign at the Management Group level instead of per-subscription?** Because the assignment cascades to every subscription underneath, so you get consistent enforcement without having to repeat the assignment hundreds of times.
 
 ## The common wrong answer
 
-Most candidates describe Azure Policy correctly at a surface level - define a rule, assign it, done - but assume that assigning the policy instantly fixes everything in the environment. They don't mention remediation tasks at all. That gap is the tell: it means they've read about Policy but never actually had to explain, in a postmortem, why a dashboard said "compliant" while a dozen storage accounts were still publicly exposed.
+Most candidates describe Azure Policy correctly at a surface level - define a rule, assign it, done - but assume that assigning the policy instantly fixes everything in the environment. They don't mention remediation tasks at all. That gap is the tell: it means they've read about Policy but never actually had to explain, in a postmortem, why a dozen storage accounts flagged "non-compliant" for months were still publicly exposed.

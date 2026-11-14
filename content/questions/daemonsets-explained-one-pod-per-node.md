@@ -10,15 +10,15 @@ A monitoring agent that needs to live on every node is a classic Kubernetes inte
 
 ## The answer interviewers want
 
-A DaemonSet ensures exactly one pod runs on every node in your cluster. Think of it like installing software on every server, except Kubernetes handles the rollout and lifecycle automatically instead of you SSHing in one box at a time.
+A DaemonSet ensures one copy of a pod runs on every eligible node in your cluster, meaning every node its selectors and tolerations allow. Think of it like installing software on every server, except Kubernetes handles the rollout and lifecycle automatically instead of you SSHing in one box at a time.
 
-This is the right tool for system-level services that need to be present on each host: log collectors like Fluentd, monitoring agents like Node Exporter, or network plugins that need host-level access. If a Deployment would scatter replicas based on scheduler decisions and resource availability, a DaemonSet pins one copy per node regardless.
+This is the right tool for system-level services that need to be present on each host: log collectors like Fluentd, monitoring agents like Node Exporter, or network plugins that need host-level access. Where a Deployment scatters replicas wherever the scheduler finds room, a DaemonSet targets one copy per node, but each pod still has to fit on its node, which is why node agents often get a high priority class.
 
-Here's the part that trips people up: DaemonSets ignore node taints by default. That means a DaemonSet pod will happily run on master/control-plane nodes even though those nodes are tainted to keep normal workloads off them. If you don't want your agent on master nodes, you have to explicitly handle that - otherwise it schedules there anyway, since DaemonSets bypass the usual taint-based exclusion unless tolerations are configured to say otherwise.
+Here's the part that trips people up: DaemonSets get some tolerations added automatically, but not for every taint. The controller adds tolerations for node conditions like `not-ready`, `unreachable`, `disk-pressure` and `unschedulable`, so DaemonSet pods still land on cordoned nodes and aren't evicted from failing ones. Control-plane nodes are different: their `NoSchedule` taint isn't tolerated by default, so if your agent has to run there too, you add a toleration for `node-role.kubernetes.io/control-plane` yourself.
 
 ## Why interviewers ask this
 
-This question separates people who've memorized "DaemonSet runs one pod per node" from people who've actually operated one in a cluster with mixed node roles. The taint behavior is the detail that only shows up once you've been bitten by an agent accidentally running somewhere it shouldn't, like a master node. Interviewers use it to check whether you understand scheduling behavior beyond the one-line definition.
+This question separates people who've memorized "DaemonSet runs one pod per node" from people who've actually operated one in a cluster with mixed node roles. The taint behavior is the detail that only shows up once you've been bitten, like a log collector that never ran on the control-plane nodes, or one that kept running on a node you'd cordoned. Interviewers use it to check whether you understand scheduling behavior beyond the one-line definition.
 
 ## Follow-ups to expect
 
@@ -30,4 +30,4 @@ This question separates people who've memorized "DaemonSet runs one pod per node
 
 ## The common wrong answer
 
-Most candidates can recite "DaemonSet equals one pod per node" but stop there. They miss the taint behavior entirely and assume DaemonSets respect the same node-exclusion rules as everything else, which leads to confusion later when someone asks why a monitoring agent is running on a master node nobody expected it on.
+Most candidates can recite "DaemonSet equals one pod per node" but stop there. They miss the taint behavior entirely: which tolerations DaemonSets get automatically, and that control-plane nodes are skipped unless you add one. That leads to confusion later when someone asks why the monitoring agent is running on cordoned nodes but missing from the control-plane nodes.

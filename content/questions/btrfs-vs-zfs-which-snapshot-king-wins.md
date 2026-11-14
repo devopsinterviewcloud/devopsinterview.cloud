@@ -17,7 +17,7 @@ ZFS checksums every block and can self-heal through RAID-Z when it detects corru
 
 For actual disaster recovery, `zfs send` and `zfs receive` give you rock-solid incremental backups across hosts. That's the workflow you'd point to for offsite replication or restoring a host from scratch. Btrfs snapshots are lighter and built directly into the kernel, which makes them great for quick local rollbacks, like undoing a bad package upgrade, but they're not a substitute for a real backup strategy.
 
-Two tradeoffs people often skip: ZFS needs serious RAM for its ARC, the Adaptive Replacement Cache, so it's not free to run well. And Btrfs still needs manual scrubs scheduled, or silent corruption can creep in without anyone noticing.
+Two tradeoffs people often skip: ZFS needs serious RAM for its ARC, the Adaptive Replacement Cache, so it's not free to run well. And both need regular scrubs scheduled, or silent corruption in rarely read data can sit there without anyone noticing.
 
 So the honest answer is a split verdict: ZFS wins on integrity and is the better choice for disaster recovery and cross-host backups. Btrfs wins on simplicity and is fine for fast, local, low-stakes rollbacks.
 
@@ -31,7 +31,7 @@ They want to know you can separate "snapshot" from "backup," a distinction a lot
 
 **What does ZFS's ARC cost you operationally?** It needs a meaningful amount of RAM to run effectively, so you have to size hosts for it rather than assuming ZFS runs for free like a typical filesystem.
 
-**If Btrfs also checksums data, why doesn't that make it equivalent to ZFS for backups?** Checksumming alone only detects corruption; without scrubs running regularly and reliable self-healing via something like RAID-Z, that corruption can sit undetected, and Btrfs still requires those scrubs to be set up manually.
+**If Btrfs also checksums data, why doesn't that make it equivalent to ZFS for backups?** Checksumming only detects corruption; fixing it needs a good redundant copy. Btrfs can self-heal from mirrored profiles like RAID1, but its parity RAID is still unsafe, so for checksummed parity redundancy ZFS's RAID-Z is the mature choice. Either way, you need regular scrubs to catch corruption in data nobody reads.
 
 ## The common wrong answer
 

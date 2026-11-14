@@ -19,7 +19,7 @@ To use it, you patch the resources field on the container directly:
 
 The behavior depends on the `resizePolicy` set on the container. If you want a resource change to apply without disrupting the container, set the restart policy for that resource to `NotRequired`. If it's set to `RestartContainer` instead, Kubernetes will restart just that container to apply the new limits, which is still far less disruptive than evicting and rescheduling the whole pod.
 
-The part most people skip: not every container supports in-place resizing. Before you patch anything, check the `resizePolicy` in the pod spec. If you skip that check, you'll get cryptic errors instead of a clean resize, and you'll waste time debugging something that was never going to work in the first place.
+The part most people skip: `resizePolicy` only decides whether a resize needs a restart, not whether it's allowed. The real limits are elsewhere: the pod's QoS class can't change, Windows pods and ephemeral containers can't be resized, and the node needs room. So after you patch, check the pod's `PodResizePending` condition, because a resize can be deferred or marked infeasible instead of applied.
 
 ## Why interviewers ask this
 
@@ -27,7 +27,7 @@ This question separates people who've only read the resource requests and limits
 
 ## Follow-ups to expect
 
-**"What happens if the container doesn't support in-place resize?"** You'll get a cryptic error rather than a graceful fallback, which is why checking the `resizePolicy` field in the pod spec first is part of the correct workflow, not an optional step.
+**"What happens if the container doesn't support in-place resize?"** If the change isn't allowed, say it would change the QoS class, the API server rejects the patch. If it's allowed but the node can't fit it, the pod shows `PodResizePending` with reason `Deferred` or `Infeasible`. `resizePolicy` won't warn you about either.
 
 **"What's the difference between `NotRequired` and `RestartContainer` in the resize policy?"** `NotRequired` applies the new resources without touching the running container; `RestartContainer` restarts just that container to apply the change, still avoiding a full pod reschedule.
 

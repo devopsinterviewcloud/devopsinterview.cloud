@@ -7,7 +7,7 @@ category: microservices
 youtube: 1rdJD98yTuM
 ---
 
-Distributed transactions across microservices come up in almost every system design interview once you mention splitting a monolith apart. Interviewers want to see if you reach for two-phase commit out of habit, because 2PC is a blocking protocol that will take down your cluster the moment one participant stalls or drops.
+Distributed transactions across microservices come up in a lot of system design interviews once you mention splitting a monolith apart. Interviewers want to see if you reach for two-phase commit out of habit, because 2PC is a blocking protocol: if the coordinator dies after participants have voted, they sit holding locks until it comes back, and everything waiting on those rows stalls too.
 
 ## The answer interviewers want
 
@@ -22,7 +22,7 @@ Choreography looks clean on a whiteboard with two or three services. It falls ap
 
 ## Why interviewers ask this
 
-This question separates people who've only read about microservices from people who've had to debug a partial failure in production. The interviewer wants to know you understand why 2PC doesn't survive network partitions and service restarts at scale, and whether you can name the actual tradeoff between choreography and orchestration rather than just reciting "use sagas."
+This question separates people who've only read about microservices from people who've had to debug a partial failure in production. The interviewer wants to know you understand why 2PC blocks during network partitions and coordinator failures, and whether you can name the actual tradeoff between choreography and orchestration rather than just reciting "use sagas."
 
 ## Follow-ups to expect
 

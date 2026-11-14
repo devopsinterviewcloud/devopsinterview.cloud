@@ -11,7 +11,7 @@ Every cloud breach postmortem starts with the same question: who touched this, a
 
 ## The answer interviewers want
 
-Audit logs capture every API call made against your cloud environment: who made it, when, and against which resource. Think of it as a security camera for your infrastructure. Every console click, every `aws` CLI command, every Terraform apply shows up as an event with an identity attached to it.
+Audit logs record the API calls made against your cloud environment: who made it, when, and against which resource. Think of it as a security camera for your infrastructure. Console clicks, `aws` CLI commands and Terraform applies all become API calls, so they show up as events with an identity attached, as long as that type of event is being logged.
 
 The baseline is enabling the platform's native service: `CloudTrail` on AWS, `Activity Log` on Azure. That gets you management-plane events, things like creating an IAM role, launching an instance, or changing a security group.
 

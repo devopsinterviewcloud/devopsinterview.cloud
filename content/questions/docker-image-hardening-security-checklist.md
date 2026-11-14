@@ -7,7 +7,7 @@ category: docker
 youtube: po2qJhklQE4
 ---
 
-A Docker image that works isn't the same as a Docker image that's safe to run in production. This question shows up in almost every DevOps and platform interview because container security mistakes are common, cheap to make, and expensive to clean up after.
+A Docker image that works isn't the same as a Docker image that's safe to run in production. This question shows up a lot in DevOps and platform interviews because container security mistakes are common, cheap to make, and expensive to clean up after.
 
 ## The answer interviewers want
 
@@ -35,7 +35,7 @@ This question separates people who have only ever written a working `Dockerfile`
 
 **What do you do if a non-root user can't bind to certain ports or write to certain paths?** Adjust the application or container configuration, such as using unprivileged ports or explicitly granted write permissions, rather than reverting to root as a shortcut.
 
-**Why not just rely on scanning instead of multi-stage builds?** Scanning catches known vulnerabilities, but it won't stop secrets or build tooling from sitting in image layers; multi-stage builds remove that risk at the source.
+**Why not just rely on scanning instead of multi-stage builds?** Scanning finds known vulnerabilities, and Trivy flags some secrets too, but it only reports what's already in the layers; multi-stage builds keep build tooling and build-time files out of the shipped image in the first place.
 
 ## The common wrong answer
 

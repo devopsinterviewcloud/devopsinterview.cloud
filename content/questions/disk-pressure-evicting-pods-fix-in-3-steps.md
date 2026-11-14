@@ -15,11 +15,11 @@ Three steps, in order.
 
 **Step one: confirm the condition.** Run `kubectl describe node <node>` and check the Conditions section for `DiskPressure=True`. Don't assume - verify it's actually disk and not memory or PID pressure, since the symptoms look similar from the pod's side.
 
-**Step two: find the hog.** SSH onto the node and run `du -sh` against `/var/lib/containerd`. It's almost always one of two things: accumulated container images or unbounded log files. You're looking for what's actually eating the disk, not guessing.
+**Step two: find the hog.** SSH onto the node, run `df -h` and `df -i` (inodes run out too), then `du -sh` against `/var/lib/containerd` for images, `/var/log/pods` for container logs and `/var/lib/kubelet` for emptyDir volumes. It's usually images or unbounded logs. You're looking for what's actually eating the disk, not guessing.
 
 **Step three: fix the root cause, not the symptom.** Set image garbage collection thresholds so kubelet cleans up unused images before disk fills up, and set log rotation so logs don't grow unbounded. This means kubelet reclaims space proactively instead of waiting until it has to start killing pods to free space.
 
-One detail that trips people up: eviction order isn't random. Kubelet evicts pods that are over their resource requests first. If your logging is unbounded, that's very often what pushes a node into DiskPressure before anything else even gets close to its limits.
+One detail that trips people up: eviction order isn't random. For disk space, kubelet first evicts pods using more ephemeral storage than they requested, then ranks by priority and by how far over they are. For inode pressure it goes by priority alone, since inodes have no requests. Logs count toward a pod's usage, so unbounded logging puts it near the front.
 
 ## Why interviewers ask this
 

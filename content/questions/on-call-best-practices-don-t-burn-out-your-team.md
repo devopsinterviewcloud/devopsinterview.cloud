@@ -21,7 +21,7 @@ Proper handoffs matter because context gets lost between shifts. The outgoing on
 
 Follow-the-sun coverage spreads the rotation across time zones so no single team is always eating the 3AM pages. This only works if the teams in each region are genuinely staffed and trained to cover, not just nominally on the schedule.
 
-The part that separates a good answer from a great one: blameless post-mortems for every page, not just major incidents. The goal isn't to find who to blame, it's to fix the alert, not just the issue. If an alert fired and didn't need a human response, that's a bug in your alerting, and it should get fixed the same way a code bug would. Done well, on-call practice saves both the team and the systems it protects.
+The part that separates a good answer from a great one: a blameless review of every page, not just the major incidents that get a full post-mortem. The goal isn't to find who to blame, it's to fix the alert, not just the issue. If an alert fired and didn't need a human response, that's a bug in your alerting, and it should get fixed the same way a code bug would. Done well, on-call practice saves both the team and the systems it protects.
 
 ## Why interviewers ask this
 
@@ -31,7 +31,7 @@ This question probes whether you think about on-call as a system to be engineere
 
 - **What do you do when the same alert keeps paging and turns out to be noise?** Treat it as a bug: tune the threshold, fix the underlying condition, or remove the alert entirely rather than letting people learn to ignore it.
 - **How do you handle a rotation when one region doesn't have enough trained engineers for follow-the-sun?** You can't fake follow-the-sun coverage; until that region is properly staffed and trained, the rotation should reflect reality rather than an aspirational schedule.
-- **Why blameless post-mortems specifically for every page, not just major incidents?** Minor pages are where alert fatigue starts, so catching and fixing noisy alerts early prevents the bigger problem of an on-call engineer missing a real incident later.
+- **Why review every page, not just major incidents?** Minor pages are where alert fatigue starts, so catching and fixing noisy alerts early prevents the bigger problem of an on-call engineer missing a real incident later.
 
 ## The common wrong answer
 

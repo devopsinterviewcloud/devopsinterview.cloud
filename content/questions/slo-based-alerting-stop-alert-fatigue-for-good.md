@@ -1,6 +1,6 @@
 ---
 title: SLO-Based Alerting - Stop Alert Fatigue for Good
-description: How SLO-based alerting stops alert fatigue: error budget burn rate, multi-window alerts, and why starting at 99% beats 99.9%.
+description: How SLO-based alerting stops alert fatigue: error budget burn rate, multi-window alerts, and why you start with a looser SLO.
 date: 2026-10-22
 keywords: observability, devops interview questions, slo based alerting, slo alerting interview questions, stop alert fatigue devops, error budget alerting
 category: observability
@@ -11,11 +11,11 @@ Your on-call rotation pages people for nothing, then the real outage gets ignore
 
 ## The answer interviewers want
 
-SLO-based alerting only fires when user experience actually degrades. Instead of setting a threshold on CPU or memory, you alert on error budget burn rate: how fast you're consuming the acceptable amount of failure defined by your SLO.
+SLO-based alerting ties pages to what users actually experience, measured through an SLI like request success rate or latency. Instead of setting a threshold on CPU or memory, you alert on error budget burn rate: how fast you're consuming the acceptable amount of failure defined by your SLO.
 
-In practice, you set multi-window alerts. A fast burn window catches immediate, severe issues, where you're burning through budget so quickly that a page is justified right now. A slow burn window catches trending problems, where the degradation is real but gradual, so it can route to a ticket instead of waking someone up. Prometheus or Datadog can handle the burn rate math for you, you don't need to hand-roll it.
+In practice, you set multi-window, multi-burn-rate alerts. A fast burn alert catches immediate, severe issues, where you're burning through budget so quickly that a page is justified right now. A slow burn alert catches trending problems, where the degradation is real but gradual, so it can route to a ticket instead of waking someone up. Each alert checks a long window and a short one, so it only fires while the burn is still happening and clears soon after it stops. Prometheus or Datadog can handle the burn rate math for you, you don't need to hand-roll it.
 
-Here's the part most people skip: start with a 99% SLO, not 99.9%. If your target is too tight, you don't have enough error budget to actually burn, and normal, expected variance eats the whole budget on its own. That gives you the same noisy, meaningless alerts you were trying to get away from. A looser starting SLO gives burn rate alerting room to actually mean something, and you tighten it later once you understand your real failure patterns. Done right, this approach gets rid of 3AM pages for nothing, because an alert only fires when it reflects something users are actually experiencing.
+Here's the part most people skip: start with a target the service can actually meet, even if that's 99% rather than 99.9%. If the target is tighter than the service's normal behavior, ordinary variance eats the whole budget on its own. That gives you the same noisy, meaningless alerts you were trying to get away from. Start looser, then tighten it once you understand your real failure patterns. Done right, this gets rid of most 3AM pages for nothing, because you're paging on budget burn users can feel, not on a scary-looking server graph.
 
 ## Why interviewers ask this
 
@@ -25,7 +25,7 @@ They're checking whether you understand SLO methodology beyond the buzzword, spe
 
 **What's the difference between a fast burn and slow burn window?** Fast burn alerts on a short window where you're consuming error budget rapidly, which justifies an immediate page. Slow burn alerts on a longer window where consumption is steady but trending badly, which can wait for a ticket instead of an interrupt.
 
-**Why does starting at 99% work better than 99.9%?** A 99.9% target leaves very little error budget, so ordinary noise burns through it and triggers alerts constantly. Starting looser at 99% gives the burn rate math enough room to distinguish real degradation from normal variance.
+**Why not start at 99.9%?** If the service doesn't already run that well, a 99.9% target leaves less budget than ordinary noise uses, so it burns all the time and alerts constantly. Starting at a target you actually meet, say 99%, gives the burn rate math enough room to separate real degradation from normal variance.
 
 **What should the SLO actually measure?** It should reflect what users experience, like request success rate or latency, not server-level metrics like CPU or memory that can look fine while users are suffering, or look bad while nobody's affected.
 

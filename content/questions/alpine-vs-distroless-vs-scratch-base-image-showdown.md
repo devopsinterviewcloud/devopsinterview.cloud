@@ -12,9 +12,9 @@ A team picks Alpine for every Dockerfile because it's small and familiar, then s
 
 Alpine is not the safe default most people assume it is. It ships a shell and a package manager, which is genuinely useful for debugging, but it's built on musl libc instead of glibc. That difference causes subtle bugs with glibc-linked binaries: code that runs fine on your dev machine or in CI can misbehave inside the Alpine container, and these bugs are hard to trace back to the base image.
 
-`scratch` sits at the other extreme. It has zero attack surface because there's nothing in it, but that also means you're on your own. No shell, no libc, no utilities. If something goes wrong in prod, you can't exec in and poke around.
+`scratch` sits at the other extreme. The base adds zero attack surface because there's nothing in it, so the only thing left to attack is your own binary, but that also means you're on your own. No shell, no libc, no utilities. If something goes wrong in prod, you can't exec in and poke around.
 
-Distroless is the actual sweet spot. No shell, no package manager, so the attack surface stays small, but it includes the runtime your application actually needs, so you don't fight compatibility issues the way you do with Alpine's musl libc. The detail most people don't know: distroless images come in a debug variant. It's the same image with busybox added on top. That means you can run hardened, shell-less distroless in production, and swap to the debug variant when you need to get a shell and investigate an incident.
+Distroless is the actual sweet spot. No shell, no package manager, so the attack surface stays small, but it includes the runtime your application actually needs, so you don't fight compatibility issues the way you do with Alpine's musl libc. The detail most people don't know: distroless base images come in a `:debug` variant with busybox added on top. That means you can run hardened, shell-less distroless in production, and when you need a shell during an incident, attach an ephemeral container with `kubectl debug` or rebuild on the debug variant.
 
 So the real answer isn't "Alpine, because it's small and safe." It's distroless, because it gives you a minimal attack surface in production and a debugging path when you need one, without the glibc/musl landmines Alpine carries.
 
@@ -25,8 +25,8 @@ This is a quick way to check whether a candidate has actually debugged a contain
 ## Follow-ups to expect
 
 - **What kind of bugs does musl libc actually cause?** Binaries compiled against glibc can behave differently or fail outright when run against musl, which is why a glibc-linked binary might work on your laptop and break inside an Alpine container.
-- **When would you still choose `scratch`?** When you want the absolute smallest attack surface and your application is fully self-contained, accepting that you lose any ability to exec in and debug live.
-- **How do you debug a distroless container in production?** Swap in the debug variant of the same image, which adds busybox on top, giving you a shell without changing anything else about the image.
+- **When would you still choose `scratch`?** When you want the absolute smallest attack surface and your application is fully self-contained, accepting that there's no shell to exec into, so live debugging means attaching an ephemeral container with `kubectl debug`.
+- **How do you debug a distroless container in production?** Attach an ephemeral container with `kubectl debug` to get a shell next to the running process without touching the image. You can also rebuild on the `:debug` tag of the same distroless base, which adds busybox.
 
 ## The common wrong answer
 

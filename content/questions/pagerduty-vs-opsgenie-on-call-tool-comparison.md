@@ -15,9 +15,9 @@ PagerDuty and Opsgenie solve the same problem but optimize for different things.
 
 PagerDuty excels at complex escalation policies and has better integrations. If you're running a large enterprise team with complex workflows, multiple services, layered on-call chains, lots of third-party tools to wire in, PagerDuty is the stronger fit.
 
-Opsgenie wins on pricing and has cleaner alert grouping. For smaller teams that need intelligent noise reduction more than elaborate routing logic, Opsgenie tends to be the better choice.
+Opsgenie was the cheaper option with cleaner alert grouping, but Atlassian stopped selling it on June 4, 2025 and shuts it down on April 5, 2027. So the real question now is where Opsgenie users go: Atlassian's path is Jira Service Management, and PagerDuty is the usual alternative.
 
-Here's the part most people miss: Opsgenie's alert grouping actually reduces burnout more than PagerDuty's fancy escalation rules do. Escalation policies are great at making sure *someone* eventually gets paged. Alert grouping is great at making sure your engineers aren't getting paged twenty times for the same underlying failure. Those are different problems, and burnout usually comes from the second one, not the first.
+Here's the part most people miss: alert grouping does more for burnout than fancy escalation rules do. Escalation policies are great at making sure *someone* eventually gets paged. Alert grouping is great at making sure your engineers aren't getting paged twenty times for the same underlying failure. Those are different problems, and burnout usually comes from the second one, not the first.
 
 So the answer isn't "PagerDuty is more mature" or "Opsgenie is cheaper." It's: choose the tool that helps your team sleep, not just the one that routes alerts the fastest.
 
@@ -29,7 +29,7 @@ They're not grading your tool preference. They're checking whether you connect t
 
 **"How would you reduce alert noise before even picking a tool?"** Fix the underlying signal quality first: tune alert thresholds, deduplicate at the source, and make sure every page maps to an actionable runbook. Tooling-level grouping helps, but it's a mitigation, not a fix for noisy monitoring.
 
-**"When would you still pick PagerDuty for a smaller team?"** If the team already has complex escalation needs, like multi-region coverage or strict compliance-driven escalation chains, PagerDuty's escalation policies can be worth the extra cost and setup complexity even at smaller scale.
+**"What would you do if your team is still on Opsgenie?"** Plan the move well before April 2027: choose between Atlassian's migration into Jira Service Management and a switch to PagerDuty or another tool, and use the move to clean up noisy alerts instead of copying them over.
 
 **"How do you measure whether a tool is actually helping?"** Track on-call burden directly: pages per shift, after-hours interruptions, and how often alerts turn out to be actionable versus noise.
 

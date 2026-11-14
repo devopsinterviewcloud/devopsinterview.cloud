@@ -11,7 +11,7 @@ Distributed tracing tools come up constantly in platform and SRE interviews beca
 
 ## The answer interviewers want
 
-Jaeger is the go-to choice for Kubernetes environments. It handles high throughput well and has native Kubernetes operators, which makes it a natural fit if you're already running everything on k8s and want tracing that's managed the same way as the rest of your cluster.
+Jaeger is the go-to choice for Kubernetes environments. It handles high throughput well and deploys on Kubernetes through the OpenTelemetry Operator (the old Jaeger Operator only supported v1 and is archived), which makes it a natural fit if you're already running everything on k8s and want tracing that's managed the same way as the rest of your cluster.
 
 Zipkin is the lightweight option. It has a simpler setup and lower resource usage, which makes it a good fit for smaller distributed systems where you don't need Jaeger's throughput ceiling or its Kubernetes-native tooling.
 

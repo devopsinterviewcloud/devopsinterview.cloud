@@ -13,9 +13,9 @@ Interviewers love asking candidates to compare Crossplane and Terraform because 
 
 The core difference is execution model. Terraform runs once, applies a plan, and then drifts. If someone changes a resource out of band, Terraform doesn't know until the next `terraform plan` or `apply` catches the diff.
 
-Crossplane takes a different approach: it turns cloud resources into Kubernetes CRDs, and controllers reconcile them continuously, forever. There's no "run once and hope" step. The control loop is always watching the actual state against the desired state and correcting drift in real time, the same way a Kubernetes Deployment controller keeps your pod count correct.
+Crossplane takes a different approach: it turns cloud resources into Kubernetes CRDs, and controllers reconcile them continuously, forever. There's no "run once and hope" step. The control loop keeps checking the actual state against the desired state, polling the cloud API on a regular interval, and corrects any drift it finds, the same way a Kubernetes Deployment controller keeps your pod count correct.
 
-In production, the workflow looks like this: install a provider, such as `provider-aws`, define a `Composition` and an `XRD` (Composite Resource Definition), then let developers apply a simple `Claim` using `kubectl`. The `Composition` is where the real leverage is. It hides cloud complexity behind an abstraction: a developer claims a database, and the platform team controls the guardrails underneath, things like instance size limits, encryption, networking, and tagging policy. The developer never sees the underlying `RDSInstance` or VPC wiring, they just file a `Claim`.
+In production, the workflow looks like this: install a provider, such as `provider-aws`, define a `Composition` and an `XRD` (Composite Resource Definition), then let developers apply a simple composite resource in their own namespace using `kubectl`. In Crossplane v1 that was a `Claim`; v2 doesn't need one. The `Composition` is where the real leverage is. It hides cloud complexity behind an abstraction: a developer claims a database, and the platform team controls the guardrails underneath, things like instance size limits, encryption, networking, and tagging policy. The developer never sees the underlying `RDSInstance` or VPC wiring, they just apply a short `Database` manifest.
 
 That's the point worth stating directly in an interview: Helm-wrapped Terraform isn't Kubernetes-native infrastructure. It's still a one-shot apply model, just templated differently. Crossplane's reconciliation loop is what makes it Kubernetes-native, because the control plane itself continuously owns the resource lifecycle.
 
@@ -26,7 +26,7 @@ This question separates people who've used Crossplane as a buzzword from people 
 ## Follow-ups to expect
 
 - **What happens if someone manually changes a cloud resource that Crossplane manages?** The controller detects the drift on its next reconcile pass and corrects it back to the desired state defined in the Composition, unlike Terraform which only notices on the next run.
-- **Why would a platform team choose Compositions over raw provider resources?** Compositions let the platform team encode guardrails, like limits, encryption, and networking rules, once, so developers only interact with a simplified Claim instead of raw cloud config.
+- **Why would a platform team choose Compositions over raw provider resources?** Compositions let the platform team encode guardrails, like limits, encryption, and networking rules, once, so developers only interact with a simplified composite resource (a Claim in v1) instead of raw cloud config.
 - **Is Helm-wrapped Terraform good enough for a Kubernetes platform?** No. It still runs as a one-shot apply with drift between runs. The thing that makes infrastructure Kubernetes-native is the continuous reconciliation loop, which Helm-wrapped Terraform doesn't have.
 
 ## The common wrong answer

@@ -15,7 +15,7 @@ Moved blocks exist to tell Terraform's state file that a resource didn't disappe
 
 The workflow is simple. You add a `moved` block specifying the `from` and `to` addresses, run `terraform plan` to confirm Terraform reports a move operation rather than a destroy/create, then run `terraform apply`. Terraform updates the state file to reflect the new address. Your actual infrastructure, the real AWS resources or whatever provider you're on, is never touched.
 
-The part most people miss: moved blocks aren't limited to renaming a resource within the same provider. They work across provider boundaries too. That means you can use them to migrate a resource's state tracking when moving infrastructure between different AWS accounts, not just when you rename something inside one config file.
+The part most people miss: moved blocks only work inside one state. You can rename a resource, move it into or out of a module, and since Terraform 1.8 move it to a different resource type if the provider supports that. You can't use them to move a resource into another state file or another AWS account. Splitting state takes a `removed` block with `destroy = false` in the old config and an `import` block in the new one.
 
 ## Why interviewers ask this
 
@@ -27,7 +27,7 @@ This question separates engineers who treat Terraform state as a black box from 
 
 **Does applying a moved block change anything in the actual infrastructure?** No. It only updates the state file's record of which address maps to which real resource. The infrastructure itself stays untouched.
 
-**Can moved blocks help with cross-account migrations?** Yes. Moved blocks work across provider boundaries, which is how they get used to migrate resources between different AWS accounts without tearing anything down.
+**Can moved blocks help with cross-account migrations?** No. A moved block only changes an address inside one state, and the real resource stays in its account. Moving it to another account is a service-specific job, like copying a snapshot, and then you `import` the new copy.
 
 ## The common wrong answer
 

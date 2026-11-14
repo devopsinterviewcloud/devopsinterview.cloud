@@ -15,7 +15,7 @@ OpenTelemetry creates a breadcrumb trail for a request as it moves through your 
 
 Getting it running is mechanically simple: add the OpenTelemetry SDK to your app, instrument your HTTP calls, and configure an exporter to ship the data somewhere you can view it (a backend like Jaeger, Tempo, or a vendor collector). In practice that's a handful of lines of code for full request visibility across the call chain.
 
-The part candidates usually skip: always set sampling rates in production. Tracing every single request sounds great until you realize full tracing will crush your performance and your bill. You don't need 100% of traces to find the slow service or the failing dependency, you need a representative sample plus the ability to capture the interesting ones (errors, high latency) reliably.
+The part candidates usually skip: set a sampling policy before production. Keeping every trace is fine for a low-volume service, but at real traffic full tracing will crush your performance and your bill. You don't need 100% of traces to find the slow service or the failing dependency, you need a representative sample plus the ability to capture the interesting ones (errors, high latency) reliably.
 
 ## Why interviewers ask this
 
@@ -25,7 +25,7 @@ They want to know if you can go from "something's slow" to "here's the exact spa
 
 **How would you decide what to sample?** You'd keep a baseline rate for normal traffic but bias toward always capturing errors and high-latency requests, since those are the traces you actually need when debugging.
 
-**What happens if one service in the chain isn't instrumented?** The trace breaks at that point. You lose visibility into anything downstream of the gap, which is usually how teams discover which services still need the SDK added.
+**What happens if one service in the chain isn't instrumented?** You lose that service's spans, and usually the link too: if it doesn't forward the trace headers, downstream services start a new trace, so you see two disconnected pieces instead of one path. That's usually how teams discover which services still need the SDK added.
 
 **Where does the exported data actually go?** You configure an exporter to send spans to a backend for storage and querying. Without that step, instrumentation alone doesn't give you anything to look at.
 

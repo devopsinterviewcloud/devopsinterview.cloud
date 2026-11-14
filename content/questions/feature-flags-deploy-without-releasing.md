@@ -20,9 +20,9 @@ else:
     run_old_checkout()
 ```
 
-You can build this with a managed service like `LaunchDarkly` or `Flagsmith`, or keep it simple with a database table that your app checks. Either way, the deploy and the release become two separate events. Shipping the code is low risk because nothing changes for users until you decide to turn it on.
+You can build this with a managed service like `LaunchDarkly` or `Flagsmith`, or keep it simple with a database table that your app checks. Either way, the deploy and the release become two separate events. Shipping the code is lower risk because the new path stays off until you turn it on, though the deploy can still break things outside the flag, so test the flag-off path too.
 
-What a lot of candidates miss is that flags aren't just for gating new features. They also work as kill switches. If a newly released feature starts causing errors or a dependency goes down, you flip the flag off and the system falls back to the old path instantly, no rollback, no redeploy, no waiting on a pipeline.
+What a lot of candidates miss is that flags aren't just for gating new features. They also work as kill switches. If a newly released feature starts causing errors or a dependency goes down, you flip the flag off and the system falls back to the old path within seconds, no rollback, no redeploy, no waiting on a pipeline. It won't undo writes the bad path already made, though.
 
 ## Why interviewers ask this
 

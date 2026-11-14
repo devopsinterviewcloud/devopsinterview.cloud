@@ -13,7 +13,7 @@ Multi-tenant SaaS deployment is one of those system design questions that looks 
 
 Structure the pipeline around three layers: tenant routing, isolated databases, and GitOps per environment.
 
-Tenant routing sits at the edge and directs incoming requests to the correct tenant context before anything else happens. Isolated databases keep each tenant's data separated, so a bad migration or a noisy-neighbor query doesn't bleed across customers. GitOps per environment means your deployment state for staging, prod, and any per-region environments lives in git and gets reconciled continuously rather than pushed by hand.
+Tenant routing sits at the edge and directs incoming requests to the correct tenant context before anything else happens. Isolated databases keep each tenant's data separated, so a bad migration doesn't bleed across customers. Stopping noisy-neighbor queries also takes separate instances, not just separate databases on one server. GitOps per environment means your deployment state for staging, prod, and any per-region environments lives in git and gets reconciled continuously rather than pushed by hand.
 
 On top of that, use `ArgoCD` with tenant-specific overlays, and `Terraform` for the underlying infrastructure. The overlays let you express what's different about each tenant (resource limits, feature flags, routing rules) without forking the base manifests, while Terraform provisions the infrastructure those overlays depend on.
 
@@ -27,7 +27,7 @@ This question tests whether you understand the difference between a pipeline tha
 
 **How would you onboard a new tenant without a deploy?** Add a tenant metadata entry that drives the ArgoCD overlay and routing config; the pipeline reconciles the new state automatically instead of shipping new code.
 
-**Why isolated databases instead of a shared schema with a tenant_id column?** Isolation limits blast radius: a bad query, migration, or resource spike on one tenant doesn't affect others sharing a database.
+**Why isolated databases instead of a shared schema with a tenant_id column?** Isolation limits blast radius: a bad query or migration on one tenant can't touch another tenant's data, and if tenants also get separate instances, a resource spike stays contained too.
 
 **What's the role of Terraform versus ArgoCD here?** Terraform provisions and manages the underlying infrastructure, while ArgoCD handles the GitOps reconciliation of application state per environment and per tenant overlay.
 

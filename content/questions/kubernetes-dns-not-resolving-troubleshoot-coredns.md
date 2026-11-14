@@ -11,7 +11,7 @@ Pods that were talking fine yesterday suddenly can't resolve service names today
 
 ## The answer interviewers want
 
-Start with the basics: check whether the `CoreDNS` pods are actually running, usually with `kubectl get pods -n kube-system` and a filter for the `coredns` label. Most DNS issues in Kubernetes come down to CoreDNS being down or misconfigured, so this is the first thing to rule out before you go any deeper.
+Start with the basics: check whether the `CoreDNS` pods are actually running, usually with `kubectl get pods -n kube-system -l k8s-app=kube-dns` (CoreDNS keeps the old `kube-dns` label for compatibility). Most DNS issues in Kubernetes come down to CoreDNS being down or misconfigured, so this is the first thing to rule out before you go any deeper.
 
 If CoreDNS pods are healthy, the next step is verifying the cluster DNS settings and confirming that pods can actually reach the DNS service IP. That means checking the `kube-dns` (or `coredns`) Service and making sure pods are pointed at the right resolver in their `/etc/resolv.conf`-equivalent config.
 

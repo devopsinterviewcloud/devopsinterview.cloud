@@ -1,5 +1,5 @@
 ---
-title: BuildKit vs Legacy Builder - 10x Faster Docker Builds
+title: BuildKit vs Legacy Builder - Faster Docker Builds
 description: BuildKit vs the legacy Docker builder: parallel stages, cache mounts, and why your builds are slower than they should be.
 date: 2026-10-22
 keywords: docker, devops interview questions, docker buildkit, docker buildkit vs legacy builder, docker build cache optimization, docker interview questions
@@ -13,7 +13,7 @@ A lot of candidates can run `docker build` all day and still freeze when asked w
 
 The legacy builder executes every layer sequentially, one instruction at a time, even if two stages in a multi-stage build have no dependency on each other. It builds everything it's told to, whether you need the result or not.
 
-BuildKit changes that model. It parallelizes independent build stages and skips stages that aren't required to produce the final image. If your Dockerfile has a test stage or a debug stage that the final `COPY --from` doesn't reference, BuildKit won't waste time building it.
+BuildKit changes that model. It parallelizes independent build stages and skips stages that aren't required to produce the final image. If your Dockerfile has a test stage or a debug stage that the target stage doesn't depend on, through `FROM` or `COPY --from`, BuildKit won't waste time building it.
 
 You can turn it on with a single environment variable: `DOCKER_BUILDKIT=1 docker build .`. In practice you probably don't need to do this manually anymore. BuildKit has been the default builder since Docker 23, so if you're on a reasonably current install, you're already using it.
 
@@ -27,9 +27,9 @@ This question is a proxy for whether you've actually optimized a build pipeline 
 
 **How do you check which builder you're currently using?** Run `docker build` and look at the output format. BuildKit's output shows stage-by-stage progress with timing; the legacy builder's output is a flat, linear log.
 
-**What happens to cache mounts if you build on a different machine or a fresh CI runner?** The cache is local to the builder instance, so a brand new runner starts cold. This is why teams pair cache mounts with a persistent or remote cache backend in CI rather than relying on the CI runner's local disk alone.
+**What happens to cache mounts if you build on a different machine or a fresh CI runner?** The cache is local to the builder instance, so a brand new runner starts cold. This is why teams pair cache mounts with a persistent builder in CI, a long-lived or remote BuildKit instance, since exporting the layer cache to a registry doesn't carry cache mount contents with it.
 
-**Can BuildKit skip a stage and still fail silently if that stage has a side effect you needed?** Yes, if a stage isn't referenced by the final image and you were relying on it running anyway, like a lint check with no output consumed, it won't run under BuildKit unless you explicitly target it.
+**Can BuildKit skip a stage and still fail silently if that stage has a side effect you needed?** Yes, if the target stage doesn't depend on it and you were relying on it running anyway, like a lint check with no output consumed, it won't run under BuildKit unless you explicitly target it.
 
 ## The common wrong answer
 

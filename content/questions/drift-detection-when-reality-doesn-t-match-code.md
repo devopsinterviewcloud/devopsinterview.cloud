@@ -1,6 +1,6 @@
 ---
 title: Drift Detection - When Reality Doesn't Match Code
-description: How to detect Terraform drift: terraform plan, Checkov, Driftctl, and CI automation to catch manual changes before deployments break.
+description: How to detect Terraform drift: terraform plan, Driftctl, HCP Terraform health assessments, and CI automation to catch manual changes before deployments break.
 date: 2026-10-22
 keywords: iac, devops interview questions, drift detection terraform, terraform drift detection tools, infrastructure as code drift, terraform plan drift check
 category: iac
@@ -12,9 +12,9 @@ Someone made a manual change in the console, or an auto-scaling event altered so
 
 Drift detection is the practice of comparing your desired state, what's defined in your Terraform code, against your actual infrastructure, what's really running in the cloud. When those two diverge, you've got drift, and left unnoticed it causes failed applies, inconsistent environments, and surprises during incidents.
 
-The simplest way to catch drift is running `terraform plan` regularly. A plan with no changes means reality matches code. A plan with unexpected changes means something happened outside of Terraform.
+The simplest way to catch drift is running `terraform plan` regularly. A plan with no changes means what Terraform manages matches the code. A plan with unexpected changes often means something happened outside of Terraform, though a provider upgrade or changed data source can do it too.
 
-Beyond that, there are dedicated tools built for this. Checkov and Driftctl are two options worth knowing. They're built to scan your actual cloud resources and flag differences from your IaC definitions, rather than relying on someone remembering to run a plan.
+Beyond that, there are dedicated tools. Driftctl scans your actual cloud resources and flags anything that differs from Terraform state, though it's now in maintenance mode, and HCP Terraform health assessments do the same job on a schedule. Checkov often gets named here, but it scans IaC files for misconfigurations, not live drift.
 
 The real answer interviewers want isn't just "I know what drift is," it's "I automate catching it." Set up automated drift detection in your CI pipeline. Running `terraform plan` (or a tool like Driftctl) on a schedule, and failing a build or alerting a team when drift shows up, catches manual changes before they break a deployment. That's the difference between finding out about drift during a 3AM page and finding out about it in a Slack notification during business hours.
 

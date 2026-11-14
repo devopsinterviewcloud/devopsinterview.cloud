@@ -13,7 +13,7 @@ ISO 27001 comes up in DevOps interviews more often than people expect, especiall
 There's a myth that ISO 27001 is just paperwork. It isn't, and five controls come up repeatedly when interviewers probe this:
 
 1. **Least-privilege access on CI/CD service accounts.** Pipeline identities should only have the permissions they need for their specific job, nothing broader.
-2. **Immutable audit logs.** This means infrastructure-level logging like AWS CloudTrail, not just application logs. Auditors want a record that can't be edited after the fact.
+2. **Immutable audit logs.** This means infrastructure-level logging like AWS CloudTrail, not just application logs, written to storage nobody can edit (an S3 bucket with Object Lock, say) with log file validation on. Auditors want a record that can't be edited after the fact.
 3. **Every pipeline change tracked via pull request.** Changes to pipeline config and infrastructure-as-code need a reviewable trail, not direct pushes.
 4. **Automated vulnerability scanning in the pipeline.** Tools like `trivy` or `snyk` both work; the point is that scanning is automated and runs on every build, not done manually before audits.
 5. **Documented incident response runbooks, tested at least annually.** Having a runbook isn't enough; it needs to actually be exercised on a regular cadence.
@@ -28,7 +28,7 @@ This question separates engineers who've only heard of compliance from those who
 
 - **How would you prove least-privilege access to an auditor?** Show the IAM policy attached to the CI/CD service account and explain why each permission is there, ideally with a review process that catches scope creep.
 - **What happens if your vulnerability scanner flags something in production code?** The pipeline should have a defined policy for blocking builds on high-severity findings, with a documented exception process for anything that gets waived.
-- **How often should incident response runbooks be tested?** At least annually, per the source controls, though some teams tie testing to major infrastructure changes as well.
+- **How often should incident response runbooks be tested?** ISO doesn't set a number, but annually is the usual baseline, and some teams also test after major infrastructure changes.
 
 ## The common wrong answer
 

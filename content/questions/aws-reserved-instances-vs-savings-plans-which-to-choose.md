@@ -6,22 +6,22 @@ keywords: finops, devops interview questions, aws reserved instances vs savings 
 category: finops
 ---
 
-Cost optimization questions show up in almost every DevOps and SRE interview now, because cloud bills are a line item executives actually read. This one separates people who've skimmed an AWS pricing page from people who've actually managed a commitment portfolio.
+Cost optimization questions show up in a lot of DevOps and SRE interviews now, because cloud bills are a line item executives actually read. This one separates people who've skimmed an AWS pricing page from people who've actually managed a commitment portfolio.
 
 ## The answer interviewers want
 
 Reserved Instances (RIs) and Savings Plans both trade commitment for discount, but they trade different things away.
 
-RIs lock you to a specific instance type and region. You're committing to the infrastructure shape, not just the spend. That's fine if the workload is genuinely stable, but it's a liability if you're still iterating on instance families or might shift regions.
+Standard RIs lock you to an instance family and region. Regional Linux RIs flex across sizes in the family and Convertible RIs can be exchanged for other families, but you're still committing to the infrastructure shape, not just the spend. That's fine if the workload is genuinely stable, but it's a liability if you're still iterating on instance families or might shift regions.
 
 Savings Plans are flexible across compute services. A Compute Savings Plan covers `EC2`, `Lambda`, and `Fargate` under one usage commitment, measured in dollars per hour rather than instance type. You're committing to spend, not shape.
 
 So the decision isn't "which one is better," it's "what are you actually trying to lock in."
 
-- Use **Reserved Instances** for predictable, stable workloads that won't change in instance type or region for the life of the term.
+- Use **Reserved Instances** for predictable, stable workloads that won't change instance family or region for the life of the term.
 - Use **Compute Savings Plans** when you need flexibility across `EC2`, `Lambda`, and `Fargate`, or when the workload shape might shift.
 
-The part most candidates miss: these aren't mutually exclusive. A mature cost strategy combines both. Start with a Compute Savings Plan to cover your baseline usage, since that gives you a flexible floor of discount without betting on a specific instance type. Then layer Reserved Instances on top for the workloads you're certain won't change, your steady-state databases, your fixed-size worker fleets. That combination captures the discount on predictable spend while keeping room to move on everything else.
+The part most candidates miss: these aren't mutually exclusive. A mature cost strategy combines both. Put Reserved Instances on the workloads you're certain won't change, your steady-state databases, your fixed-size worker fleets. Then size a Compute Savings Plan against the baseline that's left, a flexible floor of discount without betting on a specific instance type. AWS applies RIs before Savings Plans, so EC2 RIs bought later can leave part of the plan's commitment unused. That combination captures the discount on predictable spend while keeping room to move on everything else.
 
 ## Why interviewers ask this
 
@@ -29,9 +29,9 @@ This question filters for people who understand commitment as a risk management 
 
 ## Follow-ups to expect
 
-**"What happens if a workload covered by an RI gets decommissioned?"** You're still paying for the commitment since it's tied to instance type and region, not actual usage, which is exactly why RIs should only go on workloads you're confident won't change.
+**"What happens if a workload covered by an RI gets decommissioned?"** You're still paying for the commitment since it's tied to instance attributes and region, not actual usage, which is exactly why RIs should only go on workloads you're confident won't change.
 
-**"Why not just use Savings Plans for everything?"** You could, but RIs can get you better discounts on workloads you're fully confident in, so an all-Savings-Plans approach leaves money on the table for your most stable infrastructure.
+**"Why not just use Savings Plans for everything?"** For EC2 you could, since EC2 Instance Savings Plans match Standard RI discounts. Databases are different: RDS Reserved Instances still discount much deeper than Database Savings Plans, so an all-Savings-Plans approach leaves money on the table for your most stable infrastructure.
 
 **"How would you structure this for a team that's still scaling and unsure of its final architecture?"** Lean heavily on Compute Savings Plans for the baseline, since the flexibility across `EC2`, `Lambda`, and `Fargate` matters more than squeezing out the last bit of discount while the architecture is still moving.
 

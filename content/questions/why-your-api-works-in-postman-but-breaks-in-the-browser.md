@@ -11,7 +11,7 @@ A candidate says the API works fine in Postman, so the backend must be fine, and
 
 ## The answer interviewers want
 
-Postman and the browser are not equivalent clients. Postman isn't a browser, so it skips CORS entirely. It sends no `Origin` header and runs no preflight check. Browsers are the ones enforcing that policy, which is why a `fetch()` call from your frontend just dies with a CORS error while the exact same request succeeds in Postman.
+Postman and the browser are not equivalent clients. The Postman desktop app isn't a browser, so it skips CORS entirely. It sends no `Origin` header unless you add one and runs no preflight check. Browsers are the ones enforcing that policy, which is why a `fetch()` call from your frontend just dies with a CORS error while the exact same request succeeds in Postman.
 
 The fix lives on the server, not the client. You need to:
 
@@ -19,19 +19,19 @@ The fix lives on the server, not the client. You need to:
 - Handle the `OPTIONS` preflight request correctly
 - Whitelist your actual frontend domain instead of guessing
 
-There's a trap most people don't know about until it bites them: setting a wildcard origin (`*`) together with `credentials: true` fails silently. Browsers reject that combination outright, no matter how correct the rest of your headers look. So the API wasn't broken, and Postman wasn't lying to you. The browser was simply enforcing rules that Postman never checks in the first place.
+There's a trap most people don't know about until it bites them: a wildcard origin (`*`) doesn't work for credentialed requests. If the frontend sends cookies (`credentials: 'include'`), the server must echo the exact origin and send `Access-Control-Allow-Credentials: true`; with `*`, the browser blocks the response. So the API wasn't broken, and Postman wasn't lying to you. The browser was simply enforcing rules that Postman never checks in the first place.
 
 ## Why interviewers ask this
 
-This question checks whether a candidate understands that CORS is a browser-enforced security boundary, not a server bug. It also surfaces whether they know the difference between a request that fails to send (network error) and one that sends fine but gets its response blocked by the browser, which is exactly what happens with CORS failures. Someone who jumps straight to blaming the backend hasn't internalized where the enforcement actually happens.
+This question checks whether a candidate understands that CORS is a browser-enforced security boundary, not a server bug. It also surfaces whether they know a CORS failure comes in two forms: a failed preflight, where the real request never goes out, and a request that reaches the server fine but gets its response blocked by the browser. Someone who jumps straight to blaming the backend hasn't internalized where the enforcement actually happens.
 
 ## Follow-ups to expect
 
 **Why does the preflight OPTIONS request happen at all?** The browser sends it ahead of the real request to ask the server which origins, methods, and headers are allowed, and only proceeds if the server responds correctly.
 
-**What happens if you set `Access-Control-Allow-Origin: *` with credentials enabled?** It fails silently. Browsers explicitly reject wildcard origins paired with `credentials: true`, so you have to whitelist the specific frontend domain instead.
+**What happens if you set `Access-Control-Allow-Origin: *` with credentials enabled?** The browser blocks the response and logs a CORS error; your `fetch()` just sees a network error. Credentialed requests (`credentials: 'include'`) can't use a wildcard, so you have to whitelist the specific frontend domain instead.
 
-**Why does the request succeed in Postman but not in the browser?** Postman doesn't implement CORS at all. No `Origin` header, no preflight, no enforcement, so it can't reproduce a CORS failure even if one exists.
+**Why does the request succeed in Postman but not in the browser?** The Postman desktop app doesn't implement CORS at all. No `Origin` header unless you add one, no preflight, no enforcement, so it can't reproduce a CORS failure even if one exists.
 
 ## The common wrong answer
 

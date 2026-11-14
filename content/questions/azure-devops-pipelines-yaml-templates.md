@@ -7,7 +7,7 @@ category: azure
 youtube: Q7A8gIsxm1g
 ---
 
-A team I know ran forty pipelines that were all 90% identical YAML, copy-pasted and drifting out of sync. This question shows up constantly because it separates engineers who've only ever clicked through the pipeline UI from ones who've actually maintained a fleet of pipelines at scale.
+Picture forty pipelines that are 90% identical YAML, copy-pasted and drifting out of sync. This question shows up constantly because it separates engineers who've only ever clicked through the pipeline UI from ones who've actually maintained a fleet of pipelines at scale.
 
 ## The answer interviewers want
 

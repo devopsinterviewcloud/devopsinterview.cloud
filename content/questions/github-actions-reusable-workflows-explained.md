@@ -34,7 +34,7 @@ jobs:
       environment: staging
 ```
 
-The detail that trips people up: always version your reusable workflows with tags, never reference `main` in production. If you call a reusable workflow at `@main`, someone can merge a breaking change to that branch and silently break every single pipeline that depends on it, with no warning and no rollback path. Pinning to a tag like `@v1.2.0` means consumers only pick up changes when they explicitly bump the version, the same discipline you'd apply to any shared library dependency.
+The detail that trips people up: version your reusable workflows, never reference `main` in production. If you call a reusable workflow at `@main`, someone can merge a breaking change to that branch and silently break every pipeline that depends on it on its next run. Pinning to a release tag like `@v1.2.0` means consumers pick up changes when they bump the version, the same discipline you'd apply to any shared library dependency. Tags can be moved, though, so for the strictest pinning use the full commit SHA, which GitHub calls the safest option.
 
 Done right, this eliminates copy-paste workflows cluttering your repos and gives you one place to fix bugs or add steps.
 

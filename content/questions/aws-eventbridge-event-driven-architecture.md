@@ -13,9 +13,9 @@ A platform team wiring up event-driven services eventually hits this question in
 
 EventBridge isn't just another queue or topic. It's a smart event router. Where SQS gives you a queue and SNS gives you pub/sub fan-out, EventBridge routes events based on content, using rules and event patterns written as JSON.
 
-In production, the workflow looks like this: you create a custom event bus, define rules that match on event patterns (source, detail type, fields in the payload), and route matching events to multiple targets at once, things like `Lambda`, `SQS`, or even external APIs via API destinations. That content-based routing is the piece SQS and SNS don't do on their own. SNS fans out to subscribers, but it doesn't inspect the event body and route differently depending on what's inside it the way EventBridge rules do.
+In production, the classic workflow looks like this: you create a custom event bus, define rules that match on event patterns (source, detail type, fields in the payload), and route matching events to multiple targets at once, things like `Lambda`, `SQS`, or even external APIs via API destinations. The newer Custom Event Bus (September 2026) swaps rules for subscribers, each with one filter and one target. SQS doesn't route at all. SNS can filter, though: a subscription filter policy can match message attributes or, since 2022, fields in the JSON body. The real difference is scope. EventBridge adds richer patterns, input transformation, archive and replay, and receives AWS service and SaaS partner events with no wiring.
 
-The detail that trips people up in real deployments: EventBridge charges per event published, not per hour or per queue. If you design your events at too fine a granularity, chatty services firing off tiny events constantly, the bill can get away from you fast. Getting event granularity right up front matters as much as getting the routing logic right.
+The detail that trips people up in real deployments: EventBridge bills by usage, not per hour or per queue: per event on classic buses, per GB on the newer Custom Event Bus. If you design your events at too fine a granularity, chatty services firing off tiny events constantly, the bill can get away from you fast. Getting event granularity right up front matters as much as getting the routing logic right.
 
 The bigger point to land in an interview: EventBridge changes how you think about decoupling services. Instead of each service knowing where to send its output, services publish events and EventBridge decides, based on rules, who gets them.
 
@@ -33,4 +33,4 @@ They're checking whether you understand the actual mechanism differences between
 
 ## The common wrong answer
 
-Most candidates describe EventBridge as "SNS but newer" or say all three services basically do pub/sub, and leave it there. That misses the core distinction: EventBridge routes on content using rules and patterns, which SQS and SNS don't do, and it misses the per-event cost model entirely, which is exactly the kind of production detail interviewers are listening for.
+Most candidates describe EventBridge as "SNS but newer" or say all three services basically do pub/sub, and leave it there. That misses the real distinction. SNS can filter on message content too, so the case for EventBridge is its richer routing, transformation and replay, and it misses the cost model entirely, which is exactly the kind of production detail interviewers are listening for.

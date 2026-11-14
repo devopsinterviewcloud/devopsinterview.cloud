@@ -15,7 +15,7 @@ An API gateway handles traffic coming in from outside your system: authenticatio
 
 In a typical production setup, you'd run something like Kong or AWS API Gateway at the edge, and Istio or Linkerd inside the cluster. They layer on top of each other rather than competing. The gateway is the front door; the mesh is the internal nervous system.
 
-The part most candidates miss is the operational cost of adding a mesh too early. If you only have three services, skip it. Istio in particular adds real overhead, extra sidecars, extra latency, extra moving parts to debug at 3AM, and that cost isn't justified when your service graph is small and traceable by hand. A reasonable rule of thumb: start with just a gateway, and add a mesh once you're running something like 10-plus services, where tracking retries, mTLS, and cross-service observability manually becomes unmanageable.
+The part most candidates miss is the operational cost of adding a mesh too early. If you only have three services, skip it. Istio in particular adds real overhead, extra proxies (sidecars, or ztunnel and waypoints in ambient mode), extra latency, extra moving parts to debug at 3AM, and that cost isn't justified when your service graph is small and traceable by hand. A reasonable rule of thumb: start with just a gateway, and add a mesh once you're running something like 10-plus services, where tracking retries, mTLS, and cross-service observability manually becomes unmanageable.
 
 ## Why interviewers ask this
 
@@ -23,9 +23,9 @@ This question screens for whether a candidate actually understands what each too
 
 ## Follow-ups to expect
 
-**"What problems does a service mesh actually solve that a gateway can't?"** Mesh gives you mTLS between internal services, automatic retries, and per-call observability without instrumenting every service individually, none of which a gateway touches since it only sees traffic entering the system.
+**"What problems does a service mesh actually solve that a gateway can't?"** Mesh gives you mTLS between internal services, automatic retries, and per-call observability without instrumenting every service individually. A gateway can do some of that, but only for traffic routed through it, and direct service-to-service calls don't go through it.
 
-**"Why not just run a mesh from day one to be future-proof?"** Because Istio adds real overhead, sidecars, added latency, and new failure modes, and that complexity isn't worth paying for until the service count and interdependency actually demand it.
+**"Why not just run a mesh from day one to be future-proof?"** Because Istio adds real overhead, extra proxies, added latency, and new failure modes, and that complexity isn't worth paying for until the service count and interdependency actually demand it.
 
 **"How do you decide the point at which you add a mesh?"** Watch the service count and the pain of tracking retries, failures, and traffic patterns manually; once that becomes unmanageable, generally somewhere past ten services, a mesh starts paying for itself.
 

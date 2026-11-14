@@ -11,7 +11,7 @@ Your production box just got popped. Before you touch anything, interviewers wan
 
 ## The answer interviewers want
 
-Step one is always preserve the crime scene. Before the attacker notices you're onto them, dump memory, snapshot disks, and capture the current network state. Memory is volatile, it disappears on reboot, so if you're going to lose evidence it's the first thing you lose. Do this before you kill any process or pull a cable.
+Step one is preserve the crime scene without letting the attacker keep working. Don't reboot or power off; if they're still active, cut the box off at the network level, with a security group or switch port rather than the power cable. Then dump memory, snapshot disks, and capture the current network state. Memory is volatile, it disappears on reboot, so if you're going to lose evidence it's the first thing you lose. Do this before you kill any process.
 
 Step two is hunting for artifacts. Walk through `~/.bash_history`, `/var/log/auth.log` (or the equivalent on your distro), recently modified files, and any unusual network connections. You're building a timeline of what the attacker touched and how they got in.
 

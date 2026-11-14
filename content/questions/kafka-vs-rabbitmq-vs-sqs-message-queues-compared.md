@@ -1,6 +1,6 @@
 ---
 title: Kafka vs RabbitMQ vs SQS - Message Queues Compared
-description: Kafka vs RabbitMQ vs SQS for interviews: when to pick each, and why backpressure and missing dead-letter queues cause outages, not the broker.
+description: Kafka vs RabbitMQ vs SQS for interviews: when to pick each, and why unbounded retries and missing dead-letter queues cause outages, not the broker.
 date: 2026-10-22
 keywords: microservices, devops interview questions, kafka vs rabbitmq vs sqs, message queue interview questions, kafka rabbitmq sqs comparison, microservices interview questions
 category: microservices
@@ -19,7 +19,7 @@ That maps directly to when you'd pick each:
 - **RabbitMQ** for complex routing, when messages need to go to different places based on content, priority, or topology.
 - **SQS** when you just want AWS to handle it and don't want to run or tune a broker yourself.
 
-Here's the part nobody tells you in the "pick a tool" answer: the outage in the scenario wasn't Kafka's fault. There was no dead-letter queue, so failing messages kept retrying without bound. Backpressure killed the system, not the broker. The real lesson is that it's never about picking the fastest broker. It's about matching backpressure handling to your failure mode - what happens when a consumer slows down, a message keeps failing, or a downstream service goes dark.
+Here's the part nobody tells you in the "pick a tool" answer: the outage in the scenario wasn't Kafka's fault. There was no dead-letter queue, so failing messages kept retrying without bound. Unbounded retries and the backlog they built killed the system, not the broker. The real lesson is that it's never about picking the fastest broker. It's about matching backpressure handling to your failure mode - what happens when a consumer slows down, a message keeps failing, or a downstream service goes dark.
 
 ## Why interviewers ask this
 
@@ -31,7 +31,7 @@ This question filters out people who memorized a comparison chart from people wh
 
 **How would you design for message replay?** Kafka keeps a log you can re-read, which is why it fits event streaming; RabbitMQ and SQS generally remove messages once they're acknowledged, so replay isn't their strength.
 
-**What happens when consumers can't keep up with producers?** That's backpressure, and without a plan for it - DLQs, bounded retries, slowing producers - the system backs up and fails regardless of which broker you chose.
+**What happens when consumers can't keep up with producers?** The backlog grows. Scale consumers, apply backpressure so producers slow down, and alert on lag before retention throws away unread messages. DLQs and bounded retries solve a different problem, messages that keep failing.
 
 ## The common wrong answer
 

@@ -17,7 +17,7 @@ Datadog and New Relic are full-stack observability platforms. They give you adva
 
 The smart pattern most mature teams land on: use OpenTelemetry to instrument and collect telemetry, then decide on a backend later. You can send that data to Datadog, New Relic, an open-source stack, or anything that speaks OTLP. The instrumentation layer stays yours. The backend becomes a swappable component instead of a foundational commitment.
 
-The key point to make explicit in an interview: avoid the vendor trap from day one. If you instrument directly against a proprietary SDK, switching vendors later means rewriting instrumentation across every service. If you instrument with OpenTelemetry first, switching vendors is a configuration change in your collector, not a migration project.
+The key point to make explicit in an interview: avoid the vendor trap from day one. If you instrument directly against a proprietary SDK, switching vendors later means replacing the agent and reworking custom instrumentation in every service. If you instrument with OpenTelemetry first, switching where the data goes is a configuration change in your collector. You still rebuild dashboards and alerts, but you don't touch application code.
 
 ## Why interviewers ask this
 
@@ -25,7 +25,7 @@ This question is a proxy for architectural judgment, not product trivia. Intervi
 
 ## Follow-ups to expect
 
-**Why not just use Datadog's native agent and skip OpenTelemetry?** You can, and it's often faster to get started, but every bit of instrumentation becomes Datadog-specific, so a future vendor switch or cost renegotiation gets expensive fast.
+**Why not just use Datadog's native agent and skip OpenTelemetry?** You can, and it's often faster to start, but code instrumented with Datadog's own tracing libraries is Datadog-specific, so a vendor switch or cost renegotiation gets expensive fast. The agent itself accepts OTLP, so OpenTelemetry SDKs feeding it keep that option open.
 
 **Does using OpenTelemetry mean you don't need Datadog or New Relic at all?** No. OpenTelemetry is the collection layer; you still need a backend to store, query, and visualize the data, and that backend can absolutely be Datadog or New Relic.
 

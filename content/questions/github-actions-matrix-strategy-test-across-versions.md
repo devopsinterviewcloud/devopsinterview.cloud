@@ -20,7 +20,7 @@ strategy:
     node-version: [16, 18, 20]
 ```
 
-GitHub Actions automatically spins up a separate runner for each value in that array. You can extend this beyond language versions. Add an `os` array with values like `ubuntu-latest` and `windows-latest` to get cross-platform testing, and the matrix expands to cover every combination of the two dimensions.
+GitHub Actions automatically spins up a separate runner for each value in that array. You can extend this beyond language versions. Add an `os` array with values like `ubuntu-latest` and `windows-latest`, set `runs-on: ${{ matrix.os }}` to get cross-platform testing, and the matrix expands to cover every combination of the two dimensions.
 
 Two details matter here that people skip. First, set `fail-fast: false`. By default, GitHub Actions cancels all other matrix jobs the moment one of them fails, which defeats the purpose if you want to see results across every version. Second, use `exclude` to remove specific combinations that don't make sense for your project, for example if a given Node version doesn't need to be tested on Windows at all.
 

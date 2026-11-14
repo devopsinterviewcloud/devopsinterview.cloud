@@ -10,11 +10,11 @@ A classic container security question: why not just pass credentials as environm
 
 ## The answer interviewers want
 
-Environment variables are not a secure way to hand credentials to a container. They show up in process listings, they show up in `docker inspect` output on the host, and they have a habit of ending up in application logs when something crashes and dumps its environment. Anyone with access to the container or the host can read them in plain text with basic tools.
+Environment variables are not a secure way to hand credentials to a container. They show up in process listings, they show up in `docker inspect` output on the host, and they have a habit of ending up in application logs when something crashes and dumps its environment. Anyone who can exec into the container, run `docker inspect`, or read the process's environment as root on the host can see them in plain text.
 
-Docker Secrets takes a different approach. Secrets are encrypted at rest and stored in Swarm's Raft log, which means they're replicated and encrypted as part of the cluster state rather than sitting in a config file or an env var. When a service actually needs a secret, Docker mounts it as a file under `/run/secrets/` inside the container, and that file lives in memory only, not on disk. So the credential never gets written to the container's filesystem and never shows up in `docker inspect` or process output.
+Docker Secrets takes a different approach. Secrets are encrypted at rest and stored in Swarm's Raft log, which means they're replicated and encrypted as part of the cluster state rather than sitting in a config file or an env var. When a service actually needs a secret, Docker mounts it as a file under `/run/secrets/` inside the container, and on Linux that file lives in memory only (tmpfs), not on disk. So the credential never gets written to the container's filesystem and never shows up in `docker inspect` or process output.
 
-The practical advice worth repeating in an interview: use `docker-compose` secrets even on a single-node development machine, not just in a Swarm production cluster. It won't give you the full Raft-backed encryption benefit on a single node, but it builds the habit of treating secrets as mounted files instead of env vars, so the transition to production doesn't require rewriting how the application reads its credentials.
+The practical advice worth repeating in an interview: use `docker-compose` secrets even on a single-node development machine, not just in a Swarm production cluster. Plain Compose secrets are just files bind-mounted from the host, so you don't get Swarm's encrypted Raft storage (a single-node Swarm would), but it builds the habit of treating secrets as mounted files instead of env vars, so the transition to production doesn't require rewriting how the application reads its credentials.
 
 ## Why interviewers ask this
 
@@ -22,11 +22,11 @@ This question separates people who've only ever run `docker run -e DB_PASSWORD=.
 
 ## Follow-ups to expect
 
-**How would you check if a container is leaking secrets through its environment?** Inspect the container with `docker inspect` and check `docker top` or `/proc/<pid>/environ` on the host, since both commands can expose env vars directly.
+**How would you check if a container is leaking secrets through its environment?** Inspect the container with `docker inspect`, which lists its env vars under `Config.Env`, and read `/proc/<pid>/environ` on the host as root to see what the running process actually has.
 
 **Does Docker Secrets work outside of Swarm mode?** The source describes Secrets as a Swarm feature, with the Raft log storage; on single-node Compose setups you get the file-mounting workflow but not the clustered encrypted storage.
 
-**Why mount secrets as files instead of injecting them directly?** Files in a memory-backed mount avoid the process-list and inspect-output exposure that environment variables have, and they don't get written to disk.
+**Why mount secrets as files instead of injecting them directly?** Files in a memory-backed mount avoid the process-list and inspect-output exposure that environment variables have, and with Swarm on Linux they don't get written to disk.
 
 ## The common wrong answer
 

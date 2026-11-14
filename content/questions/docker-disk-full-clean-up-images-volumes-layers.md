@@ -13,11 +13,11 @@ A Docker host running out of disk space is one of those incidents that looks tri
 
 First, don't delete anything yet. Run `docker system df` to see what's actually eating space: images, containers, volumes, and build cache, broken down by category. This tells you where the problem actually is before you touch anything.
 
-Once you know what's consuming space, start with `docker system prune`. This safely removes unused containers, unused networks, and dangling images (image layers that are no longer tagged and aren't referenced by anything). It's the low-risk option because it only touches things Docker considers orphaned.
+Once you know what's consuming space, start with `docker system prune`. It removes all stopped containers, unused networks, dangling images (untagged images nothing references) and unused build cache, and it lists that before asking you to confirm. It's the lower-risk option, as long as none of those stopped containers holds something you still need.
 
-If you still need more space, `docker image prune -a` removes all unused images, not just dangling ones. This is more aggressive because it will delete images that aren't dangling but also aren't currently used by a running container, so anything you need pulled fresh later has to be re-pulled from the registry.
+If you still need more space, `docker image prune -a` removes all unused images, not just dangling ones. This is more aggressive because it deletes tagged images too, anything no container (running or stopped) references, so anything you need later has to be re-pulled from the registry, or rebuilt if it was never pushed.
 
-For volumes, `docker volume prune` removes unused volumes. This is the one to be most careful with on a production host, since volumes often hold persistent data, and an unused volume today might be a database that was just stopped for maintenance rather than something truly disposable.
+For volumes, `docker volume prune` removes anonymous volumes no container references, and `--all` extends that to named volumes. This is the one to be most careful with on a production host, since volumes often hold persistent data, and an unreferenced volume today might belong to a database whose container was removed for maintenance and is about to be recreated.
 
 The pattern interviewers want to hear: check first with `system df`, clean conservatively with `system prune`, then escalate to `image prune -a` and `volume prune` only as needed, understanding what each one actually removes.
 
@@ -29,9 +29,9 @@ This question separates people who've memorized a cleanup command from people wh
 
 **How would you prevent this from happening again instead of just reacting to it?** You'd want some form of scheduled cleanup or monitoring on disk usage so you catch it before it's an emergency, rather than relying on someone noticing the host is full.
 
-**What's the risk of running `docker volume prune` on a production host?** It can delete volumes attached to containers that are stopped but not actually disposable, like a database volume for a service that's temporarily down, so you lose data that looked unused but wasn't.
+**What's the risk of running `docker volume prune` on a production host?** It can delete volumes whose containers were removed but whose data still matters, like a database volume for a service torn down to be recreated, and with `--all` that includes named volumes, so you lose data that looked unused but wasn't.
 
-**What's the difference between a dangling image and an unused image?** A dangling image is an untagged layer left behind after a rebuild with no references at all, while an unused image is a full image that simply isn't backing any running container right now; `system prune` only touches the former, `image prune -a` touches both.
+**What's the difference between a dangling image and an unused image?** A dangling image is an untagged image left behind after a rebuild, the `<none>:<none>` entries, while an unused image is any image, tagged or not, that no container references, running or stopped; `system prune` only removes the dangling ones by default, `image prune -a` removes both.
 
 ## The common wrong answer
 

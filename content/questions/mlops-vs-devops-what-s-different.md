@@ -19,7 +19,7 @@ That difference forces MLOps to add three things DevOps pipelines don't normally
 - **Model monitoring** - tracking whether the model's predictions are still accurate, not just whether the service is up.
 - **Retraining pipelines** - automated or semi-automated processes to refresh the model when its performance degrades.
 
-The real difference, though, isn't the tooling. It's what you watch. A DevOps pipeline cares about system health: is the service up, is latency acceptable, are error rates normal. MLOps has to monitor business metrics on top of that: is the model's accuracy holding up, is conversion rate dropping, is the recommendation engine still recommending things people actually click. A model can pass every infrastructure health check and still be quietly wrong.
+The real difference, though, isn't the tooling. It's what you watch. A DevOps pipeline mostly watches system health: is the service up, is latency acceptable, are error rates normal. MLOps has to watch model quality on top of that: is the model's accuracy holding up, are the input features drifting, is the recommendation engine still recommending things people actually click. A model can pass every infrastructure health check and still be quietly wrong.
 
 ## Why interviewers ask this
 

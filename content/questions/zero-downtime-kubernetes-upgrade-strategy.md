@@ -17,11 +17,11 @@ The order matters: control plane first, then worker nodes in batches. The contro
 
 In practice, the worker node upgrade looks like this:
 
-- `kubectl drain <node>` each node gracefully, moving its pods elsewhere before touching it
+- `kubectl drain <node> --ignore-daemonsets` each node gracefully, moving its pods elsewhere before touching it
 - Upgrade one node at a time, not the whole fleet in parallel
 - Validate health checks between each node before moving to the next one
 
-This batching is what gives you zero downtime. If something breaks after node 1, you stop, you haven't touched nodes 2 through N, and your workloads are still running on the nodes you haven't touched yet.
+Batching limits the blast radius, but zero downtime also needs workloads that survive a drain: two or more replicas spread across nodes, a PodDisruptionBudget so a drain can't evict them all at once, and spare capacity to land on. If something breaks after node 1, you stop, and nodes 2 through N are untouched.
 
 The part candidates often skip: always test the upgrade path in staging first, and keep a rollback plan ready before you start. If staging doesn't match production closely enough, the upgrade can still surprise you, so the rollback plan is your real safety net, not the staging test alone.
 

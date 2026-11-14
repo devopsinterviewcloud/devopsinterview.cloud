@@ -6,7 +6,7 @@ keywords: career, devops interview questions, devops, roadmap, beginner
 category: career
 ---
 
-A version of this question comes up whenever an interviewer wants to know how you'd mentor a junior engineer, or when they're sizing up whether your own foundations are solid before they dig into Kubernetes or cloud specifics. It also surfaces in "tell me about your learning path" conversations, which are more common in 2026 as teams hire people transitioning into DevOps from sysadmin or dev roles.
+A version of this question comes up whenever an interviewer wants to know how you'd mentor a junior engineer, or when they're sizing up whether your own foundations are solid before they dig into Kubernetes or cloud specifics. It also surfaces in "tell me about your learning path" conversations, which come up a lot for people moving into DevOps from sysadmin or dev roles.
 
 ## The answer interviewers want
 

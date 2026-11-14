@@ -11,11 +11,11 @@ A classic Docker interview question: how do you pass credentials, API keys, or p
 
 ## The answer interviewers want
 
-The core problem is that Docker images are built from layers, and anything written during a `RUN` or `COPY` step gets committed to a layer. If you copy a secrets file in and then delete it in a later step, the file is gone from the final filesystem view, but it's still sitting in the image history. Anyone who runs `docker history` or pulls apart the layers can recover it.
+The core problem is that Docker images are built from layers, and anything left on disk at the end of a `RUN` or `COPY` step gets committed to a layer. If you copy a secrets file in and then delete it in a later step, the file is gone from the final filesystem view, but it's still sitting in the image history. `docker history` shows the step that added it, and anyone who pulls apart the layers can recover it.
 
-The fix is BuildKit's secret mount: `RUN --mount=type=secret,id=mysecret cat /run/secrets/mysecret`. This mounts the secret into the container filesystem only for the duration of that specific `RUN` instruction. It's never written to a layer, so it doesn't persist in the image at all.
+The fix is BuildKit's secret mount: `RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci`. This mounts the secret into the container filesystem only for the duration of that specific `RUN` instruction. It's never written to a layer, so it doesn't persist in the image at all.
 
-The part most people miss is pairing this with multi-stage builds. Use the secret in your build stage, do whatever you need with it, then in your final stage only `COPY --from=build` the compiled artifacts over. The build stage with the secret mount never ships. The result is a build that can safely use credentials and a final image that's clean of any trace of them.
+The part most people miss is pairing this with multi-stage builds. Use the secret in your build stage, do whatever you need with it, then in your final stage only `COPY --from=build` the compiled artifacts over. The build stage with the secret mount never ships. The result is a build that can safely use credentials and a final image with no trace of them, as long as the artifacts you copy over don't have the secret baked in.
 
 ## Why interviewers ask this
 
@@ -23,7 +23,7 @@ This question separates people who've only run `docker build` from people who've
 
 ## Follow-ups to expect
 
-- **What about build args for secrets?** Build args get stored in the image history and in `docker inspect` output, so they're not safe for anything sensitive, even if they feel convenient.
+- **What about build args for secrets?** Build args show up in the image history and can land in build provenance, so they're not safe for anything sensitive, even if they feel convenient.
 - **What if you're stuck on a Docker version without BuildKit secret mounts?** You'd need to rely on external secret injection at runtime, or orchestrate the build so secrets are fetched and used outside the layer that gets committed, which is messier and why BuildKit's approach is preferred.
 - **How do you confirm no secret leaked into the final image?** Inspecting `docker history` and the actual layer contents for the final stage is the practical check, since multi-stage builds mean the build stage layers simply aren't part of the shipped image.
 

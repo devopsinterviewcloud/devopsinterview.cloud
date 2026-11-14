@@ -1,6 +1,6 @@
 ---
 title: AWS SSM vs SSH - Stop Opening Port 22
-description: Why interviewers ask SSM Session Manager vs SSH for EC2 access: no open port 22, no SSH keys, full CloudTrail audit logging.
+description: Why interviewers ask SSM Session Manager vs SSH for EC2 access: no open port 22, no SSH keys, and audit logging through CloudTrail and session logs.
 date: 2026-10-22
 keywords: aws, devops interview questions, AWS SSM vs SSH, AWS Session Manager vs SSH, close port 22 AWS, AWS Systems Manager interview questions
 category: aws
@@ -13,13 +13,13 @@ Open port 22 on an EC2 security group and you've put a front door out for attack
 
 AWS Systems Manager (SSM) Session Manager connects through the SSM agent running on the instance, which reaches out to AWS outbound. There's no inbound port 22 to open, no bastion host to maintain, and no SSH keys to issue, rotate, or lose track of.
 
-In practice, the setup is simple: attach the SSM managed policy to the EC2 instance role, make sure the SSM agent is installed and running, then connect with:
+In practice, the setup is simple: attach `AmazonSSMManagedInstanceCore` to the instance role, make sure the SSM agent is running and can reach SSM over outbound HTTPS (NAT or VPC endpoints), install the Session Manager plugin for the AWS CLI, then connect with:
 
 ```
 aws ssm start-session --target <instance-id>
 ```
 
-That's it. The part most candidates miss is the audit trail. Every session started through Session Manager is logged to CloudTrail automatically, and you can optionally stream session activity to S3 or CloudWatch Logs for a full record of what commands ran and when. SSH gives you none of that out of the box. So the short version: port 22 stays closed, there are zero keys to manage, and you get full audit logging by default. That combination is the answer that gets you the follow-up question.
+That's it. The part most candidates miss is the audit trail. Every session started through Session Manager is logged to CloudTrail automatically, and you can optionally stream session activity to S3 or CloudWatch Logs for a full record of what commands ran and when. SSH gives you login entries in the server's local auth log and not much more. So the short version: port 22 stays closed, there are zero keys to manage, every session start lands in CloudTrail by default, and turning on session logging gives you the commands too. That combination is the answer that gets you the follow-up question.
 
 ## Why interviewers ask this
 

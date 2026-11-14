@@ -11,11 +11,11 @@ A pod keeps restarting with no clear error in your logs, just a status flag you 
 
 ## The answer interviewers want
 
-OOMKilled means Out Of Memory Killed. The kernel terminated your container because it exceeded its memory limits. This is a kernel-level kill, not an application crash, so your app's own error handling never gets a chance to run.
+OOMKilled means Out Of Memory Killed. The kernel's OOM killer terminated your container, usually because it went over its memory limit, though a node running out of memory overall can do it too. This is a kernel-level kill, not an application crash, so your app's own error handling never gets a chance to run.
 
-To debug it, start with current usage: `kubectl top pod`. This shows you what the container is actually consuming right now. Then run `kubectl describe pod <name>` to look at the last termination reason, which will confirm whether OOMKilled is what actually happened and give you the exit code and timing.
+To debug it, start with current usage: `kubectl top pod <name> --containers`. This shows what each container is using right now, though it's a sampled number and can miss the spike that caused the kill. Then run `kubectl describe pod <name>` to look at the last termination reason, which will confirm whether OOMKilled is what actually happened and give you the exit code and timing.
 
-Once you've confirmed the cause, the fix is in how you size requests and limits. Set memory requests to about 80% of the container's actual observed usage, and set limits to about 120% of that usage. Requests set too low mean the scheduler under-provisions the node and you get contention. Requests set too high waste capacity you're paying for. Limits set too low mean you get killed for normal operation; limits set too high mean a single pod can starve its neighbors before the kernel steps in. Sizing requests near real usage and limits with headroom above it is what prevents both starvation and waste.
+Once you've confirmed the cause, the fix is in how you size requests and limits. Set memory requests close to the container's real usage under normal load, and set limits with headroom above the peaks you've seen in your metrics, not a single reading from `kubectl top`. Requests set too low mean the scheduler under-provisions the node and you get contention. Requests set too high waste capacity you're paying for. Limits set too low mean you get killed for normal operation; limits set too high mean a single pod can starve its neighbors before the kernel steps in. Sizing requests near real usage and limits with headroom above it is what prevents both starvation and waste.
 
 ## Why interviewers ask this
 

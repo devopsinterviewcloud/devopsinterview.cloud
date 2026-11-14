@@ -7,7 +7,7 @@ category: linux
 youtube: 19Gims2Qy_A
 ---
 
-A weak SSH config is behind most server breaches, which is exactly why interviewers keep coming back to this topic. It's a cheap way to check whether a candidate actually hardens boxes in production or just knows the theory.
+A weak SSH config is an easy way into a server, which is exactly why interviewers keep coming back to this topic. It's a cheap way to check whether a candidate actually hardens boxes in production or just knows the theory.
 
 ## The answer interviewers want
 
@@ -18,7 +18,7 @@ PermitRootLogin no
 PasswordAuthentication no
 ```
 
-Root access over SSH is like leaving your house key under the doormat. Disabling it means an attacker who gets a password can't log in as root directly, and they'd need both a valid non-root account and a key. Disabling password auth forces key-based login, which kills brute force guessing outright.
+Root access over SSH is like leaving your house key under the doormat. Disabling it means an attacker who gets a password can't log in as root directly, and they'd need both a valid non-root account and a key. Disabling password auth (and `KbdInteractiveAuthentication`, which can still prompt for a password via PAM) leaves keys as the way in, which kills brute force guessing outright.
 
 After that, three more steps:
 
@@ -32,7 +32,7 @@ The step most configs forget is `AllowUsers`, used to whitelist specific account
 AllowUsers deploy admin
 ```
 
-Without it, any valid user on the box can attempt SSH login, not just the ones who should be remoting in. That's the gap that gets missed even in configs that otherwise look hardened.
+Without it, any valid user on the box can log in over SSH, not just the ones who should be remoting in. That's the gap that gets missed even in configs that otherwise look hardened.
 
 ## Why interviewers ask this
 
@@ -44,7 +44,7 @@ This question separates people who've memorized a checklist from people who've a
 
 **Does changing the port actually improve security?** Not against a targeted attacker, but it drastically reduces log noise and opportunistic scanning, which makes real threats easier to spot.
 
-**How does `fail2ban` interact with `AllowUsers`?** They solve different problems: `AllowUsers` restricts who can even attempt login, while `fail2ban` punishes repeated failed attempts from whoever is still allowed to try.
+**How does `fail2ban` interact with `AllowUsers`?** They solve different problems and stack well: `AllowUsers` limits which accounts can log in at all, while `fail2ban` bans the IPs behind repeated failures, including attempts on accounts `AllowUsers` already rejects.
 
 ## The common wrong answer
 

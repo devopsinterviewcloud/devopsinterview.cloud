@@ -16,11 +16,11 @@ Use the STAR method: Situation, Task, Action, Result. Skipping straight to the t
 
 **Task** - your role. State it plainly: "I owned incident response."
 
-**Action** - what you actually did. For example: switched to a read replica, implemented a circuit breaker, and automated failover.
+**Action** - what you actually did. For example: promoted a read replica to primary, added a circuit breaker, and automated failover.
 
 **Result** - the business impact, in numbers. This is the part seniors get right and juniors skip. In this example: MTTR dropped from 45 minutes to 8 minutes.
 
-Always close with metrics: downtime reduced, money saved, team productivity gained. A story that ends on the technical action and never states the outcome reads as incomplete, even if the engineering was solid.
+Always close with the outcome, in numbers where you have real ones: downtime reduced, money saved, team productivity gained. A story that ends on the technical action and never states the outcome reads as incomplete, even if the engineering was solid.
 
 ## Why interviewers ask this
 

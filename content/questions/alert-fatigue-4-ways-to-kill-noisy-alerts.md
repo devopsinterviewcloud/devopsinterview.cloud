@@ -20,7 +20,7 @@ There are four moves that actually fix the problem:
 3. **Route by severity** - not every alert deserves a page at 3AM. Critical, user-facing issues go to on-call; everything else goes to a dashboard or ticket queue.
 4. **Tie thresholds to SLOs** - set alert thresholds against your service level objectives, not arbitrary numbers someone picked because they looked reasonable in a dashboard once.
 
-The detail most candidates miss: if an alert fires and nobody pages or responds, delete it. A dead alert doesn't just waste a notification, it erodes trust in every alert that comes after it. Once engineers learn that some alerts are noise, they start treating all alerts as noise, including the ones that matter. That's the real mechanism behind alert fatigue, and it's why the fix isn't more tuning, it's ruthless deletion.
+The detail most candidates miss: if an alert fires and nobody responds, find out why. If it isn't actionable, delete it; if it is, fix the routing or ownership. A dead alert doesn't just waste a notification, it erodes trust in every alert that comes after it. Once engineers learn that some alerts are noise, they start treating all alerts as noise, including the ones that matter. That's the real mechanism behind alert fatigue, and it's why the fix isn't more tuning, it's ruthless deletion.
 
 Get this right and the next time 300 alerts fire at 3AM, you know exactly which ones matter and which ones are static.
 
@@ -30,7 +30,7 @@ This question separates people who treat monitoring as a checklist from people w
 
 ## Follow-ups to expect
 
-**How do you decide what severity an alert gets?** Tie it to user impact and SLO burn rate: anything that threatens the SLO or affects users directly gets paged, anything informational goes to a dashboard or low-priority channel.
+**How do you decide what severity an alert gets?** Tie it to user impact and SLO burn rate: a fast burn that threatens the SLO or hurts users right now gets paged, a slow burn becomes a ticket, and anything informational goes to a dashboard or low-priority channel.
 
 **What do you do with an alert that nobody ever acts on?** Delete it. If it's not actionable and nobody responds, it's just noise that trains people to ignore real alerts.
 

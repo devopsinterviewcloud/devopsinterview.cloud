@@ -13,7 +13,7 @@ Slow Docker builds are one of those things everyone complains about but few engi
 
 The classic Docker builder runs build stages sequentially, even when those stages don't depend on each other. BuildKit fixes this by analyzing the dependency graph of your Dockerfile and running independent stages in parallel instead of one after another.
 
-You enable it either by setting the environment variable `DOCKER_BUILDKIT=1` before your build command, or by using the newer `docker buildx build` command, which uses BuildKit by default.
+On Docker Engine 23.0 and later it's already on, since plain `docker build` uses BuildKit by default. On older installs you enable it by setting `DOCKER_BUILDKIT=1` before your build command, or by using `docker buildx build`.
 
 Enabling BuildKit alone isn't enough, though. You have to structure your Dockerfile so that stages which don't depend on each other are actually written as independent stages. If every stage references the output of the previous one, BuildKit has nothing to parallelize, because the dependency chain forces sequential execution regardless of which builder you use. The win comes from designing multi-stage builds where, say, your dependency-fetching stage and your asset-compilation stage don't block each other, so BuildKit can run them at the same time and cut your overall build time.
 
@@ -30,7 +30,7 @@ You get no parallelism benefit. BuildKit can only run stages concurrently if the
 Look for steps that don't need each other's output, like fetching separate sets of dependencies or building unrelated artifacts, and give each one its own stage so BuildKit's scheduler can run them in parallel.
 
 **Is `DOCKER_BUILDKIT=1` the same as using `docker buildx build`?**
-Both get you BuildKit, but `buildx` is the newer, more actively developed path and is BuildKit by default, while the environment variable is more of a flag you set to opt the classic CLI into BuildKit behavior.
+Both get you BuildKit. On Docker Engine 23.0 and later, plain `docker build` already uses BuildKit through buildx, so `DOCKER_BUILDKIT=1` only matters on older installs where the classic builder is still the default.
 
 ## The common wrong answer
 

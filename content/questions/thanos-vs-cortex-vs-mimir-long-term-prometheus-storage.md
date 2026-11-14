@@ -13,9 +13,9 @@ Any shop running Prometheus past a handful of clusters eventually hits the reten
 
 Thanos is the federation king. It sits in front of multiple Prometheus instances and gives you effectively unlimited retention by shipping blocks to object storage (S3, GCS, etc). Pick it when you've got several Prometheus servers across clusters or regions and need a single global query view with cheap, long-term retention.
 
-Cortex excels at multi-tenancy. If you're running a SaaS platform and need to fully isolate each customer's metrics from every other customer's, Cortex was built for exactly that isolation model.
+Cortex excels at multi-tenancy. If you're running a SaaS platform and need to isolate each customer's metrics from every other customer's, Cortex was built for exactly that model. It trusts the `X-Scope-OrgID` header completely, though, so you put an authenticating proxy in front that sets it.
 
-Mimir is Grafana's rewrite of Cortex, and it has noticeably better query performance. It's built on the same multi-tenant architecture Cortex pioneered but is actively eating Cortex's lunch in terms of adoption, largely because of that query speed improvement.
+Mimir is Grafana Labs' fork of Cortex, and it has noticeably better query performance. It's built on the same multi-tenant architecture Cortex pioneered, and it's the one Grafana actively develops and runs Grafana Cloud on.
 
 So the short version: Thanos for federating existing Prometheus instances with long retention, Cortex/Mimir for multi-tenant, horizontally scalable metrics backends, and Mimir specifically when you want that Cortex-style architecture with better query performance out of the box.
 
@@ -25,9 +25,9 @@ This question separates people who've only run single-node Prometheus from peopl
 
 ## Follow-ups to expect
 
-- **How does object storage change the retention story?** Shipping blocks to S3 or GCS decouples retention from local disk, which is what lets Thanos offer effectively unlimited history instead of the weeks you'd get from local Prometheus storage alone.
+- **How does object storage change the retention story?** Shipping blocks to S3 or GCS decouples retention from local disk, which is what lets Thanos offer effectively unlimited history. Local Prometheus defaults to 15 days; you can raise that, but you're capped by one node's disk, with no replication.
 - **Why would a SaaS company pick Cortex or Mimir over Thanos?** Because strict per-tenant isolation is a first-class design goal in Cortex and Mimir's architecture, whereas Thanos is built around federating and globally querying what are usually trusted, internal Prometheus instances.
-- **Why is Mimir gaining ground over Cortex?** It's a rewrite of the same multi-tenant model with meaningfully better query performance, so teams already bought into Cortex's architecture get a faster drop-in replacement.
+- **Why is Mimir gaining ground over Cortex?** It's a fork of the same multi-tenant model with meaningfully better query performance, and Grafana documents a migration path from Cortex. It isn't drop-in, though: you convert the config with `mimirtool` and check renamed parameters and changed defaults.
 
 ## The common wrong answer
 

@@ -7,7 +7,7 @@ category: kubernetes
 youtube: D2INBVeJE1w
 ---
 
-Batch processing questions show up in almost every Kubernetes interview because they separate people who've only read the docs from people who've actually run workloads in production. The Job vs CronJob question looks simple, but the follow-up about runaway pods is where most candidates fall apart.
+Batch processing questions come up often in Kubernetes interviews because they separate people who've only read the docs from people who've actually run workloads in production. The Job vs CronJob question looks simple, but the follow-up about runaway pods is where a lot of candidates fall apart.
 
 ## The answer interviewers want
 

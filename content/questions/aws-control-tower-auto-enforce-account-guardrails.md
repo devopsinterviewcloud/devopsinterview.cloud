@@ -11,11 +11,11 @@ A new AWS account with zero guardrails is a live risk the moment it exists. Some
 
 ## The answer interviewers want
 
-Control Tower enforces compliance through two types of guardrails. Preventive guardrails are Service Control Policies (SCPs) that block disallowed actions outright, the account literally cannot perform them. Detective guardrails are rules that catch drift after the fact, flagging resources or configurations that fall out of compliance.
+Control Tower enforces compliance through three types of guardrails. Preventive guardrails are Service Control Policies (SCPs), plus some resource control policies, that block disallowed actions outright, the account literally cannot perform them. Detective guardrails are AWS Config rules that catch drift after the fact, flagging resources or configurations that fall out of compliance. Proactive guardrails are CloudFormation hooks that check resources before they're provisioned.
 
 You don't attach these manually. New accounts get enrolled through Account Factory, and once an account lands in an Organizational Unit (OU), the guardrails attached to that OU apply automatically. There's no manual IAM policy work involved, the governance is inherited by structure, not by someone remembering to configure it.
 
-The detail most people miss: mandatory guardrails cannot be disabled, not even by the root user of the account. That's not a soft default you can override under pressure, it's a hard guarantee baked into the account's position in the OU hierarchy. So if a risky account tries to do something a preventive guardrail blocks, it gets stopped at the API call, at creation time, before any damage happens. That's the actual promise of "automatic compliance": prevention that can't be turned off, plus detection that catches whatever slips past.
+The detail most people miss: mandatory guardrails cannot be disabled, not even by the root user of the account. That's not a soft default a member account can override under pressure, the SCPs sit above it in AWS Organizations. The catch: a management-account admin can still edit those SCPs outside Control Tower, which shows up as drift. So if a risky account tries to do something a preventive guardrail blocks, it gets stopped at the API call, at creation time, before any damage happens. That's the actual promise of "automatic compliance": prevention that can't be turned off, plus detection that catches whatever slips past.
 
 ## Why interviewers ask this
 
@@ -25,7 +25,7 @@ They want to know you understand the difference between a policy that's document
 
 **Could you explain SCPs versus Config rules cold?** SCPs are preventive and act at the IAM/API layer, blocking actions before they execute. Config rules (the mechanism behind detective guardrails) are evaluative, they check existing resource state and flag violations after the fact.
 
-**What happens if an account needs an exception to a guardrail?** Mandatory guardrails are non-negotiable by design, they can't be disabled even by root, so exceptions have to be handled by moving the account to a different OU with a different guardrail set, not by disabling the control.
+**What happens if an account needs an exception to a guardrail?** Most mandatory guardrails apply to every registered OU, so moving the account doesn't escape them. They protect the Control Tower baseline (CloudTrail, Config, its own roles), so exceptions are rare. For optional controls, move the account to an OU that doesn't enable that control instead of disabling it for everyone.
 
 **How do new accounts get the right guardrails without manual setup?** They're enrolled through Account Factory and placed into an OU, and the guardrails attached to that OU apply automatically with no manual IAM configuration needed.
 

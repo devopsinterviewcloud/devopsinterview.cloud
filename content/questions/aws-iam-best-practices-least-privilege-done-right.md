@@ -7,7 +7,7 @@ category: aws
 youtube: ZVxmIXuNUfE
 ---
 
-Almost every AWS shop has at least one IAM policy with a wildcard resource and a wildcard action sitting somewhere in production. Interviewers know this, which is why "how do you implement least privilege in IAM" is a near-universal screening question for anyone claiming AWS experience.
+Plenty of AWS accounts have at least one IAM policy with a wildcard resource and a wildcard action sitting somewhere in production. Interviewers know this, which is why "how do you implement least privilege in IAM" comes up in so many screens for anyone claiming AWS experience.
 
 ## The answer interviewers want
 
@@ -15,7 +15,7 @@ Start from zero. Don't begin with a broad managed policy and try to trim it down
 
 Two AWS tools do the heavy lifting here. Use **IAM Access Analyzer** to find permissions that exist on a policy but are never actually used, so you can identify what to strip out. Use **CloudTrail** to look at actual API usage patterns over time, since that tells you what a role genuinely calls versus what it was granted "just in case." Together they turn least privilege from a one-time policy review into an ongoing, evidence-based process: grant narrowly, observe real usage, then tighten further.
 
-The other piece is **permission boundaries**. A permission boundary caps the maximum permissions an identity can ever have, even if someone later attaches a broader policy to it or an attacker manages to escalate privileges through a misconfigured trust relationship. It's a backstop that limits blast radius even when the primary controls fail.
+The other piece is **permission boundaries**. A permission boundary caps what identity-based policies can grant a user or role, so attaching a broader policy later doesn't widen its access. It has limits: it doesn't follow the identity into another role it assumes, and some same-account resource-based policies can still grant access past it. It's a backstop that limits blast radius even when the primary controls fail.
 
 ## Why interviewers ask this
 

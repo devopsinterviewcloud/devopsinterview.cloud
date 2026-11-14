@@ -13,9 +13,9 @@ A team scaling EKS or any Kubernetes cluster eventually has to justify its autos
 
 Cluster Autoscaler scales existing node groups. It adds or removes nodes from pre-defined groups, which means your node shapes are fixed ahead of time and often oversized for the actual pod mix. Karpenter skips node groups entirely. It provisions exact-fit nodes in seconds, matching instance type and size to what the pending pods actually need.
 
-In production, that difference shows up directly in the bill. Karpenter picks spot instances automatically when workloads tolerate them, bin-packs pods tighter onto fewer nodes, and cuts the idle capacity that Cluster Autoscaler tends to leave running because it's working with coarser node group boundaries.
+In production, that difference shows up directly in the bill. Karpenter picks spot instances when NodePool and pod requirements allow them, bin-packs pods tighter onto fewer nodes, and cuts the idle capacity that Cluster Autoscaler tends to leave running because it's working with coarser node group boundaries.
 
-The part most people skip: Karpenter's consolidation feature, where it actively repacks and terminates underused nodes, can save twenty to thirty percent on compute. But that savings isn't free. Consolidation needs tuned disruption budgets, or it reschedules pods too aggressively and you trade cost savings for instability.
+The part most people skip: Karpenter's consolidation feature, where it actively repacks and terminates underused nodes, is where much of the saving comes from, and how much depends on how fragmented your nodes were. But that savings isn't free. Consolidation needs disruption budgets and PDBs that fit your workloads, or it can move pods more often than they tolerate and you trade cost savings for instability.
 
 So when someone asks "Karpenter versus Cluster Autoscaler," the real answer is cost. Karpenter wins on bin-packing efficiency and spot adoption, but only if you've done the work to tune disruption behavior.
 
@@ -25,11 +25,11 @@ This question separates people who've read the docs from people who've run eithe
 
 ## Follow-ups to expect
 
-**What is a disruption budget and why does it matter here?** It's the setting that controls how aggressively Karpenter can terminate and reschedule nodes during consolidation. Left untuned, Karpenter optimizes purely for cost and will disrupt pods more than your workloads can tolerate.
+**What is a disruption budget and why does it matter here?** It's the setting that controls how aggressively Karpenter can terminate and reschedule nodes during consolidation. Out of the box it caps disruption at 10% of a NodePool's nodes at a time and respects PodDisruptionBudgets, so the real risk is workloads with no PDBs or a budget that doesn't fit them.
 
-**What happens if you don't tune it?** Karpenter reschedules too aggressively, which can cause availability problems even though the compute bill looks great. You end up fighting restarts instead of saving money.
+**What happens if you don't tune it?** Pods without PDBs or `karpenter.sh/do-not-disrupt` get moved whenever consolidation finds a cheaper layout, which can cause availability problems even though the compute bill looks great. You end up fighting restarts instead of saving money.
 
-**Why does Cluster Autoscaler leave idle capacity running?** Because it scales fixed node groups rather than computing an exact-fit node per pending pod, so the node sizes rarely match the actual workload footprint, leaving unused capacity on each node.
+**Why does Cluster Autoscaler leave idle capacity running?** Because every node in a group has the same fixed shape, the pod mix rarely fills each one, and Cluster Autoscaler only removes a node once it's mostly idle (under 50% requested by default) and its pods fit elsewhere. Karpenter picks instance types to fit the pending pods, so less is left over.
 
 ## The common wrong answer
 

@@ -6,13 +6,13 @@ keywords: iac, devops interview questions, infrastructure as code interview ques
 category: iac
 ---
 
-A team lost their entire production environment when the one engineer who understood it left the company. Nothing was written down outside his head and the consoles he'd clicked through for years. This is why interviewers ask what IaC actually matters for, not just what it is.
+Picture the one engineer who understands production leaving the company, with nothing written down outside their head and the consoles they'd clicked through for years. The next time something breaks, nobody can rebuild it. This is why interviewers ask what IaC actually matters for, not just what it is.
 
 ## The answer interviewers want
 
 Infrastructure as Code means your servers, networks, and configuration are defined in code, using tools like `terraform`, `ansible`, or CloudFormation, instead of clicking through a cloud console by hand. That code gets checked into version control, reviewed like any other change, and applied the same way every time.
 
-The automation angle is real but it's not the point most candidates miss. IaC isn't primarily about saving time on provisioning. It's about making infrastructure knowledge explicit and shared instead of living in one person's head. When the setup is a Terraform module or an Ansible playbook sitting in a repo, anyone on the team can read it, understand it, and rebuild it. No single engineer leaving, getting sick, or going on vacation can take down your ability to reproduce or recover your environment. The code is the documentation, and it's documentation that can't go stale the way a wiki page does, because it's the thing that actually runs.
+The automation angle is real but it's not the point most candidates miss. IaC isn't primarily about saving time on provisioning. It's about making infrastructure knowledge explicit and shared instead of living in one person's head. When the setup is a Terraform module or an Ansible playbook sitting in a repo, anyone on the team can read it, understand it, and rebuild it. No single engineer leaving, getting sick, or going on vacation can take down your ability to reproduce or recover your environment. The code is the documentation, and it's much harder to let go stale than a wiki page, because it's the thing that actually runs, as long as changes go through it instead of the console.
 
 ## Why interviewers ask this
 

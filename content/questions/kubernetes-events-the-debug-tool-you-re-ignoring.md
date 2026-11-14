@@ -11,9 +11,9 @@ A pod is crashing or stuck pending and you need to find out why, fast. This ques
 
 ## The answer interviewers want
 
-Kubernetes events are effectively your cluster's audit log. They show exactly what happened to a resource: scheduling failures, failed image pulls, hitting resource limits, and similar lifecycle problems. When a pod misbehaves, events are where you look before you do anything else.
+Kubernetes events are the cluster's short-lived record of what it did to a resource (not the audit log, which is a separate API server feature). They show scheduling failures, failed image pulls, hitting resource limits, and similar lifecycle problems. When a pod misbehaves, events are where you look before you do anything else.
 
-In practice: run `kubectl get events`, sort by timestamp, and scan for `Warning` or `Error` entries. If you're chasing a specific issue, filter by namespace so you're not wading through noise from unrelated workloads:
+In practice: run `kubectl get events`, sort by timestamp, and scan for `Warning` entries (event types are only `Normal` or `Warning`). If you're chasing a specific issue, filter by namespace so you're not wading through noise from unrelated workloads:
 
 ```
 kubectl get events -n <namespace> --sort-by=.metadata.creationTimestamp
@@ -31,8 +31,8 @@ This is a filter for production instinct versus textbook knowledge. Anyone can s
 
 **"What kind of problems show up in events versus logs?"** Scheduling failures, image pull errors, and resource limit issues show up in events because they happen before or outside the application process; logs only capture what's happening inside the running container.
 
-**"How would you narrow down events in a busy cluster?"** Filter by namespace to cut out unrelated noise, then sort by timestamp and scan for `Warning` or `Error` severity to find the signal quickly.
+**"How would you narrow down events in a busy cluster?"** Filter by namespace to cut out unrelated noise, then sort by timestamp and add `--field-selector type=Warning` to find the signal quickly.
 
 ## The common wrong answer
 
-Most candidates jump straight to `kubectl logs` or describing a pod and start reasoning from application output, treating events as an afterthought if they mention them at all. That approach works eventually, but it's slower and it ignores the fact that events often explain problems the application itself never even gets a chance to log, like a pod that never got scheduled in the first place. It also ignores the one-hour expiry, so candidates who don't mention checking events early are signaling they haven't actually been burned by losing that data in a real incident.
+Most candidates jump straight to `kubectl logs` and start reasoning from application output, treating events as an afterthought if they mention them at all. That approach works eventually, but it's slower and it ignores the fact that events often explain problems the application itself never even gets a chance to log, like a pod that never got scheduled in the first place. It also ignores the one-hour expiry, so candidates who don't mention checking events early are signaling they haven't actually been burned by losing that data in a real incident.

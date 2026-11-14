@@ -7,7 +7,7 @@ category: compliance
 youtube: kWrXz3seTHI
 ---
 
-Ask any engineer who has inherited an AWS account with no guardrails: compliance is broken by default. Nothing stops someone from spinning up a public S3 bucket or an unencrypted volume unless you build the checks yourself. This question comes up because interviewers want to know if you can automate that enforcement instead of relying on quarterly audits and spreadsheets.
+Ask any engineer who has inherited an AWS account with no guardrails: compliance is broken by default. New S3 buckets block public access by default now, but anyone with permission can turn that off, and EBS default encryption is an opt-in Region setting. Nothing flags those gaps unless you build the checks. This question comes up because interviewers want to know if you can automate that enforcement instead of relying on quarterly audits and spreadsheets.
 
 ## The answer interviewers want
 
@@ -16,9 +16,9 @@ AWS Config Rules continuously evaluate your resources against compliance policie
 You have two ways to define what "compliant" means:
 
 - **Managed rules**: AWS ships a library of pre-built rules for common policies, things like `s3-bucket-public-read-prohibited` or `encrypted-volumes`. You deploy these with minimal setup and get coverage for standard best practices fast.
-- **Custom rules**: When a managed rule doesn't fit your policy, you write a custom Lambda-based rule. The Lambda function contains your evaluation logic, Config invokes it whenever a resource changes, and it returns a compliant or non-compliant verdict.
+- **Custom rules**: When a managed rule doesn't fit your policy, you write a custom rule, either a Lambda function or a Guard policy. Config runs your evaluation logic when a matching resource changes or on a schedule, and it returns a compliant or non-compliant verdict.
 
-The part that actually closes the loop is remediation. By default, Config just tells you something is wrong, which leaves you back in manual-fix territory. Enabling remediation actions lets Config automatically fix violations instead of just alerting. You attach a remediation action, often an SSM Automation document, to a rule, and when a resource goes non-compliant, AWS runs that document to bring it back into line. No one has to notice the alert and act on it; the fix happens on its own.
+The part that actually closes the loop is remediation. By default, Config just tells you something is wrong, which leaves you back in manual-fix territory. Enabling remediation actions lets Config fix violations instead of just alerting. You attach an SSM Automation document to a rule as its remediation action and turn on automatic remediation, and when a resource goes non-compliant, AWS runs that document to bring it back into line. No one has to notice the alert and act on it; the fix happens on its own.
 
 ## Why interviewers ask this
 
@@ -28,7 +28,7 @@ They're checking whether you think about compliance as a continuous, automated c
 
 **How do you handle a rule that needs logic AWS doesn't provide out of the box?** Write a custom Lambda-based Config rule: Config invokes your function on resource changes and your code returns the compliance result.
 
-**What happens if remediation itself fails or isn't appropriate for a given violation?** The source doesn't go into failure handling, but the expected framing is that remediation still beats alert-only setups because it removes the dependency on a human noticing and acting.
+**What happens if remediation itself fails or isn't appropriate for a given violation?** Config records each remediation execution, so alert on failed runs and cap the retries instead of letting it loop. If an automatic fix could disrupt a workload, keep that rule on manual remediation or document an exception. Auto-remediation is for fixes that are safe without a human checking first.
 
 **Why not just alert and let humans fix it?** Alerting alone reintroduces the manual compliance nightmare Config is meant to eliminate; auto-remediation is what actually enforces the policy instead of just reporting on it.
 

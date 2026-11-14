@@ -13,9 +13,9 @@ PCI DSS compliance questions show up in DevOps interviews because the interviewe
 
 There are four controls a compliant pipeline has to enforce, and interviewers are usually listening for all four.
 
-First, encrypt data at rest. Anything touching cardholder data, databases, backups, build artifacts, needs encryption as a default state, not a manual step someone remembers.
+First, protect stored card data. PCI DSS requires stored card numbers to be unreadable, through tokenization, truncation, hashing or strong encryption, wherever they land: databases, backups, build artifacts. Make that the default state, not a manual step someone remembers.
 
-Second, mask test data. Non-production environments can't contain real card data. If your staging or QA systems use production dumps, that's an automatic finding, so the pipeline should generate or mask synthetic data before it lands anywhere non-production.
+Second, mask test data. Live card numbers don't belong in non-production: PCI DSS only allows them there if that environment is inside the cardholder data environment and meets every requirement that applies. If your staging or QA systems use production dumps outside that scope, that's a finding, so the pipeline should generate or mask synthetic data before it lands anywhere non-production.
 
 Third, scan for secrets. Credentials, API keys, and tokens should never reach a commit. A tool like `GitLeaks` running in the pipeline catches these before merge, and secrets management itself should go through something like `Vault` rather than living in config files or environment variables checked into source.
 
@@ -23,7 +23,7 @@ Fourth, log all access. Every touch of sensitive systems and data needs an audit
 
 On top of those four, environments need real separation: network isolation between production, staging, and dev, so a breach in one tier doesn't give lateral access to the next.
 
-The control most candidates forget is requirement 6.5. Your pipeline has to automatically scan for OWASP Top 10 vulnerabilities as part of the build, not as a quarterly manual pentest. If that scan isn't wired into CI, you're not actually meeting the requirement, you're just scheduling an audit finding.
+The control most candidates forget is secure code review. In PCI DSS v4.0.1, requirements 6.2.3 and 6.2.4 cover reviewing custom code before release and defending it against common attacks like the OWASP Top 10 (older answers cite 6.5, the v3.2.1 number). Review can be manual or automated, but SAST in CI is how you make sure it happens on every change.
 
 ## Why interviewers ask this
 

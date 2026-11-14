@@ -7,7 +7,7 @@ category: career
 youtube: HWGQy3K2cxc
 ---
 
-This isn't really a technical question, but it shows up in behavioral rounds and in recruiter screens, because companies want to know if you'll negotiate hard or just take the first number. How you handle it signals whether you understand your own value in the market, which is a proxy for how you'll advocate for your team's resourcing later.
+This isn't really a technical question, but salary expectations come up in recruiter screens and again at the offer stage, mostly to check you fit the budget for the role. How you handle it still matters: a number backed by market data and real impact lands very differently from a guess.
 
 ## The answer interviewers want
 

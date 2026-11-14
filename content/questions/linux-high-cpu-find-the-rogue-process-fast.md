@@ -15,13 +15,13 @@ Start with `top`. Once it's open, press `P` (capital) to sort processes by CPU u
 
 If `htop` is available, use it instead for better visibility: colored bars, a cleaner layout, easier navigation. Press `F6` inside `htop` to pick CPU percent as the sort key explicitly.
 
-You can get the same answer without a full-screen tool by running `ps aux` and piping it into `sort` by the CPU column, something like `ps aux | sort -nrk 3 | head`. This is useful in scripts or when you only have a minimal shell.
+You can get a rougher version without a full-screen tool by running `ps aux` and piping it into `sort` by the CPU column, something like `ps aux | sort -nrk 3 | head`. This is useful in scripts or when you only have a minimal shell.
 
-The part most candidates miss: a single snapshot from `top` or `ps` only shows CPU usage at that instant. If the spike is intermittent, you can walk away thinking everything's fine. Use `top -p <PID>` to watch one or more specific process IDs continuously over time. That catches processes that spike, idle, and spike again, which a one-off snapshot will never show you.
+The part most candidates miss: neither tool gives you history. `top` shows CPU over its last refresh, and `ps` averages CPU over the process's lifetime, which can hide a recent spike. If the spike is intermittent, you can walk away thinking everything's fine. Use `top -p <PID>` to watch one or more specific process IDs continuously over time. That catches processes that spike, idle, and spike again, which a one-off snapshot will never show you.
 
 ## Why interviewers ask this
 
-They're checking that you have a default first move instead of freezing or guessing randomly. They're also checking whether you understand the limits of your own tools, since knowing that `top` and `ps` give you point-in-time snapshots is what separates someone who's actually debugged production from someone who's only read the man page. A strong answer shows a progression: quick check, better tool, then sustained monitoring for anything non-obvious.
+They're checking that you have a default first move instead of freezing or guessing randomly. They're also checking whether you understand the limits of your own tools, since knowing that `top` only covers its last refresh and `ps` averages over a process's lifetime is what separates someone who's actually debugged production from someone who's only read the man page. A strong answer shows a progression: quick check, better tool, then sustained monitoring for anything non-obvious.
 
 ## Follow-ups to expect
 

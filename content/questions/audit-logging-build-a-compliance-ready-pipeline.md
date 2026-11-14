@@ -7,7 +7,7 @@ category: compliance
 youtube: k9CJrGHNuIA
 ---
 
-Auditors don't care how pretty your dashboards are. They care whether your logs are complete, tamper-proof, and still around when they ask for them eighteen months later. This question shows up in compliance-heavy DevOps and platform roles because most teams have logging, but almost none of them have logging an auditor would trust.
+Auditors don't care how pretty your dashboards are. They care whether your logs are complete, tamper-proof, and still around when they ask for them eighteen months later. This question shows up in compliance-heavy DevOps and platform roles because plenty of teams have logging, but far fewer have logging an auditor would trust.
 
 ## The answer interviewers want
 

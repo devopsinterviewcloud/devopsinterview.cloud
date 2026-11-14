@@ -17,7 +17,7 @@ First, generate a correlation ID, a unique identifier for the request, at the ed
 
 Second, propagate that ID through everything: every HTTP header, every queue message, every log line the request generates downstream. No exceptions. If one service drops the header when it calls the next service, or a background job strips it when publishing to a queue, you lose the thread right there and you're back to guessing.
 
-Third, ship all your logs to one place, Elasticsearch, Loki, or whatever your stack uses, and index by that correlation ID. That's what lets you run a single search and see the full request journey across all ten services in one view, instead of SSHing into ten boxes and grepping by timestamp.
+Third, ship all your logs to one place, Elasticsearch, Loki, or whatever your stack uses, and make that correlation ID searchable: an indexed field in Elasticsearch, structured metadata in Loki (never a label). That's what lets you run a single search and see the full request journey across all ten services in one view, instead of SSHing into ten boxes and grepping by timestamp.
 
 Do those three things and you go from ten services and zero clues to one ID and the full story.
 

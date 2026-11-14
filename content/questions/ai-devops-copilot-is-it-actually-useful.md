@@ -15,7 +15,7 @@ AI DevOps tools are mostly hype right now, and it's worth being direct about tha
 
 For generating Terraform and YAML, they're solid. They can produce basic configs fast, which is useful for boilerplate: a starter `main.tf`, a skeleton Kubernetes manifest, a CI pipeline stub. That's a real time saver.
 
-But for troubleshooting, they're mostly useless. An AI copilot can't read your actual logs, can't see your real architecture, and doesn't know the history of why a system is wired the way it is. Production incidents need that context, and the tool just doesn't have it.
+Troubleshooting is where you have to be careful. A plain chat copilot can't see your logs, your real architecture, or why a system is wired the way it is. Tools connected to your telemetry, like CloudWatch investigations, can pull real logs and metrics and suggest likely causes, but treat that as a hypothesis to check, not a diagnosis.
 
 The practical stance: use AI for boilerplate, not for production fixes. Always review what it generates before applying it. It speeds up the first draft; it doesn't replace judgment.
 
@@ -29,10 +29,10 @@ They want to know if you've actually used these tools in a real workflow, not ju
 
 **Where exactly have you used AI tools in your workflow?** Generating a first draft of a Terraform module or a YAML manifest, then reviewing and editing it by hand before applying anything.
 
-**Would you trust an AI suggestion during an incident?** No. Troubleshooting needs access to real logs and knowledge of the architecture, which the tool doesn't have, so incident response stays a human job.
+**Would you trust an AI suggestion during an incident?** Not blindly. If it's connected to our telemetry it can point at a likely cause fast, but I'd check the evidence it cites and own any fix myself, so incident response stays a human job.
 
 **What's the risk of over-relying on these tools?** Shipping a config you didn't fully review. The fix is simple: always review the output, treat it as boilerplate, not a finished answer.
 
 ## The common wrong answer
 
-Candidates tend to go to one extreme or the other. Some oversell it, claiming AI can basically do the job of a DevOps engineer now, which signals they haven't actually tested these tools against a real incident. Others dismiss AI entirely and say they never use it, which can read as out of touch given how common these tools are in day to day config work. The stronger answer is specific: these tools are fast for boilerplate, blind for troubleshooting, and everything they produce still needs a human review before it touches production.
+Candidates tend to go to one extreme or the other. Some oversell it, claiming AI can basically do the job of a DevOps engineer now, which signals they haven't actually tested these tools against a real incident. Others dismiss AI entirely and say they never use it, which can read as out of touch given how common these tools are in day to day config work. The stronger answer is specific: these tools are fast for boilerplate, only as good as the context you give them for troubleshooting, and everything they produce still needs a human review before it touches production.

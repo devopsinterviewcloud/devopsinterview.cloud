@@ -17,7 +17,7 @@ Next, verify the image actually exists. Check your registry directly and confirm
 
 Then test pulling the image manually on the node itself, using `docker pull` or `crictl pull` depending on your container runtime. If it fails manually the same way it fails for the kubelet, you've isolated the problem away from Kubernetes scheduling and onto the pull path itself.
 
-Here's the part most people skip: check `imagePullSecrets` on the pod or service account, and check node network connectivity to the registry. Most real-world `ImagePullBackOff` failures come down to either a missing or expired auth secret, or DNS resolution failing on the node when it tries to reach the registry endpoint.
+Here's the part most people skip: check `imagePullSecrets` on the pod or service account, and check node network connectivity to the registry. If the image reference is right, the usual suspects are a missing or expired pull secret, DNS failing on the node when it tries to reach the registry, or registry rate limits like Docker Hub's.
 
 ## Why interviewers ask this
 
@@ -33,4 +33,4 @@ This question tests whether you have a repeatable debugging process or just star
 
 ## The common wrong answer
 
-The typical wrong answer jumps straight to "check the image name" or "restart the pod" without ever looking at `kubectl describe pod`. Candidates who skip the events section end up guessing at causes instead of reading what Kubernetes is already telling them, and they often miss that the real culprit is almost always auth or DNS, not a typo in the image name.
+The typical wrong answer jumps straight to "check the image name" or "restart the pod" without ever looking at `kubectl describe pod`. Candidates who skip the events section end up guessing at causes instead of reading what Kubernetes is already telling them, and they often miss that the cause can be auth, DNS or rate limits, not just a typo in the image name.

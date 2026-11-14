@@ -14,7 +14,7 @@ The tool here is Service Control Policies (SCPs). Think of them as IAM, but scop
 
 For this specific problem, you'd write a JSON policy that denies `RunInstances` for anything larger than `m5.large`. Attach it to the OU containing your dev/sandbox accounts, and every account in that OU inherits the restriction.
 
-Two details matter a lot here. First, SCPs can't grant permissions, only restrict them. They set a ceiling on what's allowed; IAM policies still have to grant the actual access underneath. Second, SCPs apply even to the root user of an account. That's the detail that actually enforces the guardrail. Without it, someone could just use root to bypass IAM restrictions. With an SCP in place, root gets blocked too, so that expensive instance launch fails no matter who's trying it.
+Two details matter a lot here. First, SCPs can't grant permissions, only restrict them. They set a ceiling on what's allowed; IAM policies still have to grant the actual access underneath. Second, SCPs apply even to the root user of an account. That's the detail that actually enforces the guardrail. Without it, someone could just use root to bypass IAM restrictions. With an SCP in place, root gets blocked too, so that expensive instance launch fails for any user or role in the account. The one exemption is service-linked roles, which SCPs don't restrict.
 
 ## Why interviewers ask this
 
@@ -24,7 +24,7 @@ This question checks whether you understand preventive controls versus detective
 
 **How is an SCP different from an IAM policy?** IAM grants and denies permissions to users and roles within an account. SCPs never grant anything; they just define the maximum permissions available to an account, including its root user.
 
-**What happens if you attach the SCP to the organization root instead of a specific OU?** It applies to every account in the entire organization, including production, which is usually not what you want. Scoping it to a dev or sandbox OU keeps the restriction isolated from accounts that legitimately need bigger instances.
+**What happens if you attach the SCP to the organization root instead of a specific OU?** It applies to every member account in the organization, including production, which is usually not what you want. Only the management account is exempt, because SCPs never restrict it. Scoping it to a dev or sandbox OU keeps the restriction isolated from accounts that legitimately need bigger instances.
 
 **How do you handle a legitimate exception, like a team that needs an m5.xlarge?** Move that account into a different OU with a looser SCP, or write the policy with a condition that scopes the restriction by tag or account ID rather than a blanket deny.
 

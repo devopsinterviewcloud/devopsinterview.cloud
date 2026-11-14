@@ -13,9 +13,9 @@ A scan comes back with 500 CVEs and nobody touched the application code. This sh
 
 Most CVEs in a container image aren't in your code. They're in the base image. Something like `FROM ubuntu:latest` or `FROM python:3` pulls in hundreds of packages you never use and never asked for: package managers, compilers, shells, libraries for use cases that have nothing to do with your app. Each of those packages carries its own CVE history, and you inherit all of it on day one.
 
-The fix is to switch your base image to something minimal. Move to a distroless image or Alpine, and you typically go from 500 CVEs down to under 10. You're not patching your way out of this problem; you're removing the attack surface that was never necessary in the first place.
+The fix is to switch your base image to something minimal. Move to a distroless image or Alpine, and the count usually drops to a small fraction of what you started with. Scan the new image to confirm rather than promising a number. You're not patching your way out of this problem; you're removing the attack surface that was never necessary in the first place.
 
-The part most people miss is when you scan. Scanning right before deploy is too late, it just tells you the problem after it's already built. Scan in CI, on every build, with a tool like Trivy or Docker Scout. Fail the build when a critical CVE is found. That turns vulnerability scanning from a report nobody reads into a gate that actually stops bad images from shipping.
+The part most people miss is when you scan. Scanning only right before deploy means you find out late, after the image is already built and pushed. Scan in CI, on every build, with a tool like Trivy or Docker Scout. Fail the build when a critical CVE is found. That turns vulnerability scanning from a report nobody reads into a gate that actually stops bad images from shipping.
 
 ## Why interviewers ask this
 
@@ -23,7 +23,7 @@ This question separates people who treat container security as a checkbox scan f
 
 ## Follow-ups to expect
 
-**Why not just patch the packages in the base image instead of switching?** You can, but you're still carrying packages you don't need and will keep re-patching them every release. Removing unused packages by switching to a minimal base is a one-time fix instead of an ongoing chase.
+**Why not just patch the packages in the base image instead of switching?** You can, but you're still carrying packages you don't need and will keep re-patching them every release. Switching to a minimal base removes those packages once, so the ongoing chase shrinks to the few that are left, which you keep current by rebuilding regularly.
 
 **What if distroless breaks our debugging workflow?** That's a real tradeoff since distroless images often lack a shell, so some teams keep a debug variant for troubleshooting while running distroless in production.
 

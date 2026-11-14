@@ -19,7 +19,7 @@ In production, the general guidance is:
 - Use `XFS` for databases and large file storage, where its strength with big files and throughput pays off.
 - Use `ZFS` when you need snapshots and data integrity guarantees, not just raw speed.
 
-The part most people leave out: ZFS is expensive in RAM. It's commonly understood to need a serious memory budget, at least 8GB just for the filesystem layer, before you even account for your application. That's why a lot of startups can't justify it for every box. They end up reserving it for the systems where snapshots and integrity checks actually matter, and running `ext4` or `XFS` everywhere else.
+The part most people leave out: ZFS wants RAM. It runs on 2GB, but OpenZFS recommends 8GB or more for good performance, its ARC will take a big share of memory unless you cap it, and deduplication needs far more. That's why a lot of startups don't run it on every box. They end up reserving it for the systems where snapshots and integrity checks actually matter, and running `ext4` or `XFS` everywhere else.
 
 ## Why interviewers ask this
 
@@ -29,7 +29,7 @@ They're checking if you reason about tradeoffs instead of reciting a default. A 
 
 **Why wouldn't you just use ZFS everywhere if it's safer?** Because the RAM overhead is real money and complexity at scale. If every general-purpose server needs extra memory just for the filesystem, that cost adds up fast across a fleet, and most workloads don't need its snapshot or integrity features.
 
-**When would XFS be the wrong choice?** For workloads dominated by many small files rather than large ones, since XFS is optimized for large file throughput, not that access pattern.
+**When would XFS be the wrong choice?** For single-threaded workloads that create and delete lots of small files, where ext4 is often faster, or for any volume you might need to shrink later, since XFS can grow but can't shrink.
 
 **What would push you toward ZFS despite the cost?** A workload where data integrity guarantees and snapshotting are non-negotiable, like certain storage-heavy or compliance-driven systems, where the RAM cost is worth paying.
 

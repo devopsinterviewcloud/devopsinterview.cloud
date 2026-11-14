@@ -13,9 +13,9 @@ One engineer clicks around in the console to fix something fast, and six hours l
 
 Drift means your live infrastructure no longer matches what's in your Terraform state. Someone clicks around in the console, a script runs outside your pipeline, an auto-scaling event changes something, and reality diverges from what your code says should exist.
 
-The fix is continuous detection, not just careful deploys. Run `terraform plan` on a schedule, even when nobody's pushing changes, and treat any non-empty diff as a signal worth investigating. Tools like `driftctl` or Terraform Cloud's built-in drift detection can automate this instead of relying on someone remembering to check. Alert on any diff, don't wait for someone to notice behavior is off.
+The fix is continuous detection, not just careful deploys. Run `terraform plan` on a schedule, even when nobody's pushing changes, and treat any non-empty diff as a signal worth investigating. Tools like `driftctl` or HCP Terraform's built-in drift detection can automate this instead of relying on someone remembering to check. Alert on any diff, don't wait for someone to notice behavior is off.
 
-The key insight is timing: drift happens between deploys, not during them. Your CI/CD pipeline only checks state at the moment of apply. The gap between deploys is where drift accumulates silently, which is exactly why a point-in-time check isn't enough and you need something running continuously.
+The key insight is timing: drift can land at any moment, but your CI/CD pipeline only compares code against reality when it runs a plan. The gap between deploys is where drift accumulates silently, which is exactly why a point-in-time check isn't enough and you need something running continuously.
 
 ## Why interviewers ask this
 
@@ -27,7 +27,7 @@ This question separates people who understand Terraform as a one-time provisioni
 
 **What do you do once you detect drift?** Treat it as an incident worth investigating, not just a diff to auto-apply away, since the manual change that caused it might have been an emergency fix that encodes real information about what's happening in prod.
 
-**How do you stop people from clicking in the console in the first place?** That's a prevention question separate from detection, but the practical answer tied to this approach is that locking down console access matters less if you're already catching drift continuously, since you'll see the result even when you can't see the action.
+**How do you stop people from clicking in the console in the first place?** That's a prevention question separate from detection. Lock console write access down with least privilege, keep an audited break-glass role for emergencies, and treat drift detection as the backstop: it only tells you after the change, so it can't replace access controls.
 
 ## The common wrong answer
 

@@ -15,9 +15,9 @@ Platform Engineering and DevOps overlap but solve different problems.
 
 Platform Engineering builds internal tools for developers. That means self-service portals, golden paths, and abstractions that hide infrastructure complexity so application teams don't need to understand Kubernetes manifests or cloud networking to ship code. The platform team's customer is other engineers inside the company.
 
-DevOps focuses on deployment pipelines and monitoring. DevOps Engineers own CI/CD, and they're the ones handling incident response when something breaks in production. The focus is on the flow of code from commit to running service, and on keeping that service healthy.
+DevOps is a set of practices, not a team: developers and operations share responsibility for shipping and running software, backed by automation like CI/CD and monitoring. Where a company hires DevOps Engineers, they usually build that automation and often join incident response, but the exact split varies by company.
 
-The distinction worth remembering: Platform Engineering is DevOps for developers, not operations. It takes the DevOps mindset of automation and self-service and applies it specifically to improving the developer experience, rather than to the operational side of running and monitoring systems. They're related disciplines, but they are not the same job.
+The distinction worth remembering: DevOps is the way of working, and Platform Engineering is one way to scale it. Instead of every team building its own pipelines, infrastructure and monitoring, a platform team packages them, operational pieces included, as a self-service internal product. They're related disciplines, but they are not the same job.
 
 ## Why interviewers ask this
 
@@ -27,10 +27,10 @@ They're checking whether you understand what you'd actually be doing day to day 
 
 **Who are the "customers" of a platform team versus a DevOps team?** Platform Engineering's customers are internal developers using the self-service portals and abstractions. DevOps Engineers are more directly tied to the deployment pipeline and the production service itself, with incident response as part of that ownership.
 
-**Could one engineer do both jobs?** The source doesn't rule that out, but the core difference is where the effort is pointed: toward developer-facing tooling and abstraction, or toward the pipeline and monitoring of running systems.
+**Could one engineer do both jobs?** Yes, and at smaller companies one often does. The difference is where the effort is pointed: building a shared platform that many teams self-serve from, or automating delivery and operations for specific services.
 
 **Why would a company invest in Platform Engineering instead of just scaling DevOps?** Because self-service portals and infrastructure abstraction reduce the cognitive load on every development team, rather than routing every infrastructure need through a central DevOps or ops group.
 
 ## The common wrong answer
 
-Most candidates say Platform Engineering is "just DevOps with a new name" or list identical responsibilities for both roles. That answer misses the actual split: DevOps centers on deployment pipelines, monitoring, and incident response, while Platform Engineering centers on building the internal tools and self-service abstractions that developers use. Treating them as interchangeable tells an interviewer you haven't worked closely with a platform team, or haven't thought about who the end user of each role actually is.
+Most candidates say Platform Engineering is "just DevOps with a new name" or list identical responsibilities for both roles. That answer misses the actual split: DevOps is the shared practice of building and running software, while Platform Engineering builds an internal platform, run as a product, that lets every team follow that practice through self-service. Treating them as interchangeable tells an interviewer you haven't worked closely with a platform team, or haven't thought about who the end user of each role actually is.

@@ -1,6 +1,6 @@
 ---
 title: GCP Committed Use Discounts - How They Actually Work
-description: How GCP Committed Use Discounts differ from sustained use discounts, when to commit, and why most teams buy CUDs too early.
+description: How GCP Committed Use Discounts differ from sustained use discounts, when to commit, and why buying CUDs too early is a common mistake.
 date: 2026-10-22
 keywords: finops, devops interview questions, gcp committed use discounts, google cloud committed use discounts finops, gcp cost optimization interview questions, finops interview questions
 category: finops
@@ -11,11 +11,11 @@ GCP cost questions show up constantly in platform and SRE interviews because clo
 
 ## The answer interviewers want
 
-Committed Use Discounts, or CUDs, are contracts. You commit to Google that you'll use a certain amount of compute or other resources for a 1-3 year term, and in exchange Google gives you a discount of up to 57% off on-demand pricing.
+Committed Use Discounts, or CUDs, are contracts. You commit to Google that you'll use a certain amount of compute or other resources for a 1-3 year term, and in exchange Google gives you a discount of up to 55% off on-demand pricing for most machine types, or up to 70% for memory-optimized ones.
 
-The key thing to understand is how CUDs differ from sustained use discounts. Sustained use discounts are automatic. If your workload runs consistently throughout a billing month, GCP applies the discount on its own, no contract, no commitment, no risk. CUDs are the opposite: they require you to predict your usage in advance and lock yourself into it. If your workload isn't predictable, a CUD can cost you more than it saves, because you're paying for committed capacity whether you use it or not.
+The key thing to understand is how CUDs differ from sustained use discounts. Sustained use discounts are automatic. If your workload runs on an eligible series (N1, N2, N2D, C2, M1, M2, not E2 or newer ones like C3) for over a quarter of the month, GCP applies the discount on its own, no contract, no commitment, no risk. CUDs are the opposite: they require you to predict your usage in advance and lock yourself into it. If your workload isn't predictable, a CUD can cost you more than it saves, because you're paying for committed capacity whether you use it or not.
 
-The practical sequencing that experienced teams follow: start with sustained use discounts, since they cost nothing and require no commitment. Only move to CUDs once a workload has proven itself steady over time, meaning you've watched its usage pattern long enough to trust that the 1-3 year commitment won't become dead weight. Most teams get this backwards. They buy CUDs too early, often right after a new workload launches, before they actually know if its resource usage will stay stable.
+The practical sequencing that experienced teams follow: start with sustained use discounts, since they cost nothing and require no commitment. Only move to CUDs once a workload has proven itself steady over time, meaning you've watched its usage pattern long enough to trust that the 1-3 year commitment won't become dead weight. Plenty of teams get this backwards. They buy CUDs too early, often right after a new workload launches, before they actually know if its resource usage will stay stable.
 
 ## Why interviewers ask this
 
@@ -27,7 +27,7 @@ This question tests whether a candidate understands cloud cost optimization as a
 
 **What happens if you commit to a CUD and then the workload usage drops?** You still pay for the committed capacity regardless of actual use, which is why premature commitment is the main failure mode teams run into.
 
-**Would you recommend CUDs for all workloads eventually?** No, only for the steady-state ones. Spiky or unproven workloads should stay on sustained use discounts since there's no commitment risk there.
+**Would you recommend CUDs for all workloads eventually?** No, only for the steady-state ones. Spiky or unproven workloads should stay on on-demand pricing, picking up sustained use discounts where the machine series qualifies, since there's no commitment risk there.
 
 ## The common wrong answer
 

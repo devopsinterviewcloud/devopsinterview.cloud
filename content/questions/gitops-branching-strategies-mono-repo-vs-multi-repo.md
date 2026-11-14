@@ -7,7 +7,7 @@ category: gitops
 youtube: uCGgAr62rYs
 ---
 
-GitOps architecture questions sound like a tooling preference debate, but interviewers use them to check whether you think about organizational structure before infrastructure structure. This question shows up constantly in platform and SRE interviews because the "right" answer depends on context, not on which option sounds more modern.
+GitOps architecture questions sound like a tooling preference debate, but interviewers use them to check whether you think about organizational structure before infrastructure structure. This question comes up a lot in platform and SRE interviews because the "right" answer depends on context, not on which option sounds more modern.
 
 ## The answer interviewers want
 

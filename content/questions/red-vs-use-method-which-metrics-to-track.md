@@ -30,7 +30,7 @@ This question separates people who've memorized acronyms from people who've actu
 ## Follow-ups to expect
 
 - **Which one would you alert on first?** Usually RED for user-facing impact, since that's what customers feel directly, but USE metrics often give you earlier warning before RED degrades.
-- **Give an example where RED looks fine but USE doesn't.** A disk slowly filling up from log growth: requests still succeed and latency is normal, but saturation is climbing toward failure.
+- **Give an example where RED looks fine but USE doesn't.** A disk slowly filling up from log growth: requests still succeed and latency is normal, but capacity utilization is climbing toward failure.
 - **How would you structure dashboards for a new service?** Put RED metrics on the top-level service dashboard for on-call triage, and USE metrics on a lower-level infra dashboard so you can correlate the two when something looks off.
 
 ## The common wrong answer

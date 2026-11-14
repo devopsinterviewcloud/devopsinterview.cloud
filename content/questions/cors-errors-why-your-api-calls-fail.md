@@ -11,11 +11,11 @@ An API that works fine in Postman but fails in the browser is one of the most co
 
 ## The answer interviewers want
 
-CORS (Cross-Origin Resource Sharing) exists to prevent malicious sites from stealing data through requests made on a user's behalf. The browser enforces this, not the server and not Postman, which is why the request succeeds outside the browser but gets blocked inside it. The browser blocks cross-origin requests unless the server explicitly allows them.
+CORS (Cross-Origin Resource Sharing) exists to prevent malicious sites from stealing data through requests made on a user's behalf. The browser enforces this, not the server and not Postman, which is why the request succeeds outside the browser but gets blocked inside it. Unless the server explicitly allows it, the browser won't let your JavaScript read a cross-origin response.
 
-The fix lives on the backend: you add response headers that tell the browser which origins, methods, and headers are permitted. The key ones are `Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, and `Access-Control-Allow-Headers`. Without these, the browser refuses to hand the response back to your JavaScript code even if the server processed the request fine.
+The fix lives on the backend: you add response headers that tell the browser which origins, methods, and headers are permitted. The key ones are `Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, and `Access-Control-Allow-Headers`. Without a matching `Access-Control-Allow-Origin`, the browser refuses to hand the response back to your JavaScript code even if the server processed the request fine; the other two only matter on the preflight.
 
-For anything beyond a simple GET, the browser sends a preflight request first. This is an `OPTIONS` call the browser fires automatically before the real request, asking the server "are you going to allow this?" If the server doesn't respond to that `OPTIONS` call with the right headers, the actual request never goes out.
+For anything beyond a simple request (a GET, HEAD or form-style POST with only basic headers), the browser sends a preflight request first. This is an `OPTIONS` call the browser fires automatically before the real request, asking the server "are you going to allow this?" If the server doesn't respond to that `OPTIONS` call with the right headers, the actual request never goes out.
 
 To debug it, open browser dev tools and check the Network tab. Look for the `OPTIONS` request, check its response headers, and compare them against what the browser is asking for. That's usually enough to spot whether the `Allow-Origin`, `Allow-Methods`, or `Allow-Headers` values are missing or don't match what the frontend is sending.
 

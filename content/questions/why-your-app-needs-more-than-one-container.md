@@ -11,17 +11,17 @@ A classic interview scenario: you're asked to review a Dockerfile that runs the 
 
 ## The answer interviewers want
 
-One container should do one job. If you cram your app and your database into the same container, a crash in either one takes the whole thing down. Split them, and only the broken piece restarts.
+One container should do one job. If you cram your app and your database into the same container, they share one lifecycle: if the main process dies, both go down, and if the other one dies, Docker doesn't notice or restart it. Split them, and only the broken piece restarts.
 
 In practice: run your app in its own container, then attach a sidecar for logging, metrics, or a proxy like `nginx`. You wire these together with Docker Compose or, in Kubernetes, with a pod spec that groups the containers that need to share a network namespace or volume.
 
-The detail most candidates miss: each container gets its own restart policy. That means your logging sidecar can crash and get reloaded without ever touching your main app container. The app keeps serving traffic while the sidecar recovers on its own.
+The detail most candidates miss: each container restarts on its own. Compose gives every service its own restart policy, and in Kubernetes the kubelet restarts just the failed container in the pod. That means your logging sidecar can crash and get reloaded without ever touching your main app container. The app keeps serving traffic while the sidecar recovers on its own.
 
 So the point isn't "never run two processes near each other." It's about splitting responsibility so failure in one component doesn't cascade into the others.
 
 ## Why interviewers ask this
 
-They're checking if you understand the single-responsibility principle as it applies to containers, not just as a buzzword. They also want to see if you know how restart policies and process isolation actually work, since that's the mechanism that makes splitting containers useful rather than just tidy. A candidate who can explain the failure mode (one crash takes both services down) shows they've thought about production behavior, not just build-time convenience.
+They're checking if you understand the single-responsibility principle as it applies to containers, not just as a buzzword. They also want to see if you know how restart policies and process isolation actually work, since that's the mechanism that makes splitting containers useful rather than just tidy. A candidate who can explain the failure mode (a shared lifecycle, where one crash takes both down or goes unnoticed) shows they've thought about production behavior, not just build-time convenience.
 
 ## Follow-ups to expect
 
@@ -31,4 +31,4 @@ They're checking if you understand the single-responsibility principle as it app
 
 ## The common wrong answer
 
-Candidates often say "just use `docker-compose` to split services" without explaining why that matters operationally. That answer sounds right but skips the actual mechanism: independent restart policies per container. Without naming that, it's unclear whether the candidate understands the benefit or just memorized that microservices use multiple containers.
+Candidates often say "just use `docker-compose` to split services" without explaining why that matters operationally. That answer sounds right but skips the actual mechanism: independent restarts per container. Without naming that, it's unclear whether the candidate understands the benefit or just memorized that microservices use multiple containers.

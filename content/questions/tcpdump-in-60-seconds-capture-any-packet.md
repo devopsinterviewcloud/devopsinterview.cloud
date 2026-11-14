@@ -7,7 +7,7 @@ category: linux
 youtube: Hga7nSq0egI
 ---
 
-Most engineers have run plenty of `curl` commands and never once reached for tcpdump. But when an API is timing out or a service can't reach its database, packet capture is often the only way to prove where traffic is actually going. That's why interviewers bring it up: it's a quick check on whether you can debug below the application layer.
+A lot of engineers have run plenty of `curl` commands and never once reached for tcpdump. But when an API is timing out or a service can't reach its database, packet capture is often the only way to prove where traffic is actually going. That's why interviewers bring it up: it's a quick check on whether you can debug below the application layer.
 
 ## The answer interviewers want
 
@@ -33,7 +33,7 @@ Filter by host, to see everything going to or from one IP:
 tcpdump -i eth0 host 10.0.0.5
 ```
 
-That covers the vast majority of what you'll need day to day. Seniors almost always add `-nn` to these:
+That covers the vast majority of what you'll need day to day. Seniors usually add `-nn` to these:
 
 ```
 tcpdump -nn -i eth0 host 10.0.0.5
@@ -41,7 +41,7 @@ tcpdump -nn -i eth0 host 10.0.0.5
 
 `-nn` skips DNS and port-name resolution, so you see raw IPs and port numbers immediately instead of waiting on slow reverse lookups - which matters a lot when the network itself is the thing that's degraded.
 
-With these three filters, you can trace an API failure down to whether packets are leaving the box, reaching the destination, or never showing up at all.
+With these three filters, you can trace an API failure down to whether packets are leaving the box, getting replies, or never showing up at all. Capture on both ends when you need to prove where they're lost.
 
 ## Why interviewers ask this
 

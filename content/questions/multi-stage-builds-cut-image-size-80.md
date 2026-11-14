@@ -16,10 +16,10 @@ Multi-stage builds are the standard fix. A Dockerfile can have multiple `FROM` s
 A typical example:
 
 ```
-FROM golang:1.22 AS builder
+FROM golang:1.27 AS builder
 WORKDIR /app
 COPY . .
-RUN go build -o myapp
+RUN CGO_ENABLED=0 go build -o myapp
 
 FROM scratch
 COPY --from=builder /app/myapp /myapp
@@ -40,7 +40,7 @@ They want to know you understand Docker's layer model, not just the CLI. Image s
 
 - **How does layer caching interact with multi-stage builds?** Each stage caches independently, so ordering `COPY` and `RUN` steps to put rarely-changing dependencies before frequently-changing source code still matters, even across stages.
 - **Why not just use `alpine` instead of `scratch`?** Alpine still gives you a shell and a package manager (`apk`), which is fine for debugging but adds attack surface compared to scratch or distroless; it's a tradeoff between convenience and minimalism.
-- **What do you lose by using `scratch`?** No shell means no `docker exec` into a running container for debugging, and no package manager for installing diagnostic tools on the fly, so some teams keep a debug-variant image around.
+- **What do you lose by using `scratch`?** No shell means no `docker exec -it <container> sh` into a running container for debugging, and no package manager for installing diagnostic tools on the fly, so some teams keep a debug-variant image around.
 
 ## The common wrong answer
 

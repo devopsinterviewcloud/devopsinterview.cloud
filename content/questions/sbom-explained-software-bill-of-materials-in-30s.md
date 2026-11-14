@@ -7,7 +7,7 @@ category: compliance
 youtube: dxJL91-yJBg
 ---
 
-A security audit flags your app because nobody can say what's actually running inside it. That's the scenario behind this question, and it comes up constantly because SBOMs have moved from "nice to have" to a hard gate in most release pipelines.
+A security audit flags your app because nobody can say what's actually running inside it. That's the scenario behind this question, and it comes up constantly because SBOMs have moved from "nice to have" to a hard gate in a lot of regulated release pipelines.
 
 ## The answer interviewers want
 
@@ -15,7 +15,7 @@ An SBOM, or Software Bill of Materials, is your application's ingredient list. I
 
 You don't build this by hand. Tools like `syft` scan your container images and generate the SBOM automatically, typically output as JSON or XML, in formats like CycloneDX or SPDX. That scan becomes part of your build or CI pipeline, so the SBOM stays current with every release instead of going stale the moment someone bumps a dependency.
 
-The important shift to call out: compliance teams now require an SBOM before anything goes to production. It's not a document you generate after the fact for an audit. It's a gate in the pipeline, and if it's missing or incomplete, the deployment doesn't ship.
+The important shift to call out: where an SBOM is required, by a government contract, the EU Cyber Resilience Act or your own policy, it's not a document you generate after the fact for an audit. It's a gate in the pipeline, and if it's missing or incomplete, the deployment doesn't ship.
 
 ## Why interviewers ask this
 

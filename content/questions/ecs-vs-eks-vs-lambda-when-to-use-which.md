@@ -28,7 +28,7 @@ They want to know if you default to the trendiest option or actually reason abou
 
 **"What would make you migrate from ECS to EKS later?"** Needing multi-cloud portability, complex networking that ECS can't handle, or inheriting a team with deep existing Kubernetes expertise that would go to waste on ECS.
 
-**"Why not just run everything on Lambda?"** Lambda has a hard ceiling at 15 minutes of execution time, so anything longer-running or stateful doesn't fit. It's built for event-driven, short-lived work, not persistent services.
+**"Why not just run everything on Lambda?"** A standard Lambda invocation still stops at 15 minutes. Managed Instances allow 90 minutes for async and event-source invocations, and durable functions can checkpoint longer workflows, but Lambda is still built for event-driven work, not persistent services.
 
 **"What's the risk of choosing EKS too early?"** You take on Kubernetes's operational complexity, cluster management, networking, and upgrade overhead, before you have the scale or requirements that justify it. That's extra burden on the team for no real payoff yet.
 

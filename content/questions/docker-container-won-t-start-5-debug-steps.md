@@ -15,7 +15,7 @@ Start with logs and the exit code. Run `docker logs <container_name>` to see wha
 
 Second, verify the image and its dependencies actually exist and are what you think they are. Run `docker images` to confirm the image is built and tagged the way you expect. Then run the image interactively with `docker run -it <image>` to test it manually instead of relying on whatever command or script normally launches it.
 
-A useful trick here is overriding the entrypoint entirely: `docker run --entrypoint /bin/sh <image>`. This drops you into a shell inside the container before the application ever tries to start, so you can look around, check that files exist, check environment variables, and run the actual start command by hand to see exactly where it breaks.
+A useful trick here is overriding the entrypoint entirely: `docker run -it --entrypoint /bin/sh <image>`. This drops you into a shell inside the container before the application ever tries to start, so you can look around, check that files exist, check environment variables, and run the actual start command by hand to see exactly where it breaks.
 
 ## Why interviewers ask this
 
@@ -27,7 +27,7 @@ This question is really checking whether you have a repeatable debugging process
 
 **Why override the entrypoint instead of just checking the Dockerfile?** The Dockerfile tells you what should happen, but overriding the entrypoint with `/bin/sh` lets you actually get inside the running environment and verify what's really there, including files, permissions, and env vars, before the application's own startup logic gets in the way.
 
-**What would you check if `docker images` doesn't show the image you expect?** That points to a build or tagging problem upstream, not a runtime problem, so the fix is in your build pipeline rather than in the container's startup behavior.
+**What would you check if `docker images` doesn't show the image you expect?** First check the name and tag you're using, and that you're on the right host or Docker context. If the image should be there and isn't, that points to a build, push or tagging problem upstream, not a runtime problem.
 
 ## The common wrong answer
 

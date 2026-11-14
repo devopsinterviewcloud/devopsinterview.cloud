@@ -23,7 +23,7 @@ They're checking whether you think about platform engineering as a product with 
 
 **What happens if a developer decides to go off the Golden Path?** They're allowed to, since it's not mandatory. The platform's job is to make the paved road so much easier and safer that opting out is rarely worth the effort, not to block the exit.
 
-**How would you know if your Golden Paths are actually working?** The honest signal is voluntary adoption: developers choosing the Terraform modules, templates, and scaffolding on their own rather than being told to. Low adoption means the path isn't actually easier, whatever the documentation claims.
+**How would you know if your Golden Paths are actually working?** The honest signal is voluntary adoption: developers choosing the Terraform modules, templates, and scaffolding on their own rather than being told to. Low adoption usually means the path isn't actually easier, whatever the documentation claims, and the teams routing around it can tell you why.
 
 **How is this different from just standardizing your toolchain and requiring everyone to use it?** A mandated toolchain is enforced through policy or CI gates regardless of how usable it is. A Golden Path is a voluntary choice that wins because it's the path of least resistance, with guardrails already built into the modules and templates instead of bolted on as checks.
 
