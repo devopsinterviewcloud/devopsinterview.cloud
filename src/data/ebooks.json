@@ -105,6 +105,7 @@
   {
     "id": "5",
     "slug": "senior-devops-handbook",
+    "kindleAsin": "B0HS53M9BL",
     "title": "SRE & Production Operations: SLOs, Observability & Incident Response Interview Questions",
     "description": "Advanced, senior-level DevOps and SRE interview preparation: 50 questions answered the way a senior engineer actually would. Covers observability foundations (metrics, logs, traces, OpenTelemetry), telemetry cost engineering and distributed tracing, SRE with SLOs, error budgets and multi-burn-rate alerting, incident command and production debugging, security and zero-trust, AIOps and platform engineering, resilience engineering and chaos, and architecting and leading for the future.",
     "price": 9.99,
