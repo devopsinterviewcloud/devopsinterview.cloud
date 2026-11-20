@@ -87,8 +87,10 @@ const nextConfig = {
   async redirects() {
     return [
       // Next's built-in trailing-slash redirect (308), minus /relay. Unlike the
-      // built-in one it can't cover /_next paths, which Next reserves.
-      { source: '/:first((?!relay(?:/|$))[^/]+)/:rest*/', destination: '/:first/:rest*', permanent: true },
+      // built-in one it can't cover /_next paths, which Next reserves. One-segment
+      // paths need their own rule: an empty :rest* keeps the slash and loops.
+      { source: '/:first((?!relay(?:/|$))[^/]+)/', destination: '/:first', permanent: true },
+      { source: '/:first((?!relay(?:/|$))[^/]+)/:rest+/', destination: '/:first/:rest+', permanent: true },
       { source: '/home', destination: '/', permanent: true },
       // The Playbook stopped being a standalone product (now a free bonus); Google
       // still has the old URL, so send it to the catalog instead of a 404.
