@@ -2,6 +2,7 @@
 title: Jaeger vs Zipkin vs Tempo - Tracing Tools Compared
 description: Jaeger vs Zipkin vs Tempo for distributed tracing interviews: when to pick each, what interviewers probe for, and common mistakes.
 date: 2026-10-22
+updated: 2026-11-20
 keywords: observability, devops interview questions, jaeger vs zipkin vs tempo, distributed tracing tools comparison, observability interview questions, jaeger zipkin tempo differences
 category: observability
 youtube: 9MvW_fWRWSE
@@ -18,6 +19,50 @@ Zipkin is the lightweight option. It has a simpler setup and lower resource usag
 Tempo is the newer entrant. It's Grafana's tracing backend, and it's built to work closely with the rest of the Grafana observability stack (metrics, logs, dashboards) so you're not stitching together separate tools for correlation. The detail most people skip: Tempo uses object storage under the hood, which means significantly lower costs for long-term trace retention compared to the index-heavy storage models older tracing backends use.
 
 So the short version: Jaeger for Kubernetes-native, high-throughput environments. Zipkin for smaller systems where simplicity and low resource footprint matter more than scale. Tempo when cost-effective long-term retention and tight integration with Grafana's stack are the priority.
+
+## Side by side
+
+| | Jaeger | Zipkin | Tempo |
+|---|---|---|---|
+| Origin | Uber, now a CNCF graduated project | Twitter, now run by the OpenZipkin community | Grafana Labs |
+| Storage | Elasticsearch or OpenSearch, or Cassandra (ClickHouse support is still experimental) | Elasticsearch, Cassandra or MySQL | Object storage: S3, GCS or Azure Blob |
+| Searching traces | Its own UI, by service, operation and tags | Its own UI, with similar search | Grafana, with TraceQL queries |
+| Ingest | OTLP natively; Jaeger v2 is built on the OpenTelemetry Collector | Zipkin format; OTLP only through an experimental add-on, or the Collector converts to Zipkin format | OTLP, Jaeger and Zipkin formats |
+| What gets expensive | Running and scaling the search index | The same | Query compute for big searches; storage itself is cheap |
+
+## Keep the choice reversible
+
+Instrument with OpenTelemetry and put a Collector in front, so the backend is a config detail. This Collector config sends the same traces to Jaeger and Tempo, which is also how you'd run a migration:
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+exporters:
+  otlp_grpc/jaeger:
+    endpoint: jaeger-collector:4317
+    tls:
+      insecure: true
+  otlp_grpc/tempo:
+    endpoint: tempo-distributor:4317
+    tls:
+      insecure: true
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [otlp_grpc/jaeger, otlp_grpc/tempo]
+```
+
+`insecure: true` is only for traffic that stays inside the cluster. Collector versions from before the rename call this exporter `otlp`. There's no `batch` processor either: it was deprecated in November 2026, and batching is now set in each exporter's `sending_queue`.
+
+## The cost lever people forget: sampling
+
+Whichever backend you pick, the volume you send decides most of the bill. Head sampling decides at the start of a request, in the SDK. It's cheap but blind, and it can drop the one slow request you needed. Tail sampling, in the Collector's `tail_sampling` processor, holds a trace's spans for a short decision window and then keeps what matters: traces with an error or over a latency threshold, plus a small share of the rest. The catch is that every span of a trace has to reach the same Collector, so at scale you put a load-balancing exporter in front that routes by trace ID.
+
+[Distributed tracing with OpenTelemetry](/questions/distributed-tracing-with-opentelemetry-quick-start) covers the instrumentation side, and [the OpenTelemetry Collector](/questions/opentelemetry-collector-unified-telemetry-pipeline) explains the pipeline these configs plug into.
 
 ## Why interviewers ask this
 

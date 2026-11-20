@@ -2,6 +2,7 @@
 title: Docker Networking - Bridge Host None Overlay
 description: Docker networking modes explained: bridge, host, none, and overlay, when to use each, and what interviewers listen for in your answer.
 date: 2026-10-22
+updated: 2026-11-20
 keywords: docker, devops interview questions, docker networking modes, docker bridge vs host network, docker overlay network explained, docker interview questions
 category: docker
 youtube: 9hfSLPZY8QI
@@ -20,6 +21,36 @@ Docker has more drivers than these (macvlan and ipvlan, for example), but these 
 **None** removes networking entirely. The container gets a loopback interface and nothing else. This is for workloads that genuinely don't need network access, or where you're attaching custom networking outside Docker's normal path.
 
 **Overlay** connects containers across multiple Docker hosts, not just within one. It's what Swarm uses so containers on different physical or virtual machines can talk to each other as if they were on the same network. Without it, containers on different hosts can only reach each other through published ports on the host IPs, or networking you set up yourself.
+
+## Side by side
+
+| | bridge | host | none | overlay |
+|---|---|---|---|---|
+| Network namespace | Its own | The host's | Its own, loopback only | Its own, on a network that spans hosts |
+| Container IP | From the bridge subnet (172.17.0.0/16 on the default bridge) | The host's addresses | None | From the overlay subnet |
+| Reached from outside by | Ports published with `-p` | The host's ports directly (`-p` is ignored) | Nothing | Ports published through the Swarm routing mesh, or directly on each node with `mode=host` |
+| DNS by container name | Only on user-defined bridge networks | Not applicable | Not applicable | Yes, by service name |
+| Typical use | Most single-host apps | Measured network bottlenecks, host monitoring agents | Jobs that must not touch the network | Swarm services across hosts |
+
+## The default bridge trap
+
+The row people miss is DNS. Containers on the default `bridge` network can't find each other by name, while containers on a network you create can. Docker Compose creates one for each project, which is why names work there and then fail when someone runs the same containers by hand:
+
+```bash
+docker network create app-net
+docker run -d --name db --network app-net -e POSTGRES_PASSWORD=example postgres:16
+
+# a few seconds later
+docker run --rm --network app-net postgres:16 pg_isready -h db
+# db:5432 - accepting connections
+
+docker run --rm postgres:16 pg_isready -h db
+# db:5432 - no response   (default bridge: the name doesn't resolve)
+```
+
+One more production gotcha: a published port like `-p 8080:80` listens on every interface, and Docker's own firewall rules can bypass UFW, so the port can be reachable from outside even when UFW says it's closed. Bind to localhost with `-p 127.0.0.1:8080:80` when only a local reverse proxy needs it. With Docker's default iptables backend, put your own filtering rules in the `DOCKER-USER` chain.
+
+[Docker bridge vs host vs none](/questions/docker-bridge-vs-host-vs-none-3-network-modes) goes deeper on the single-host modes, and [container can't reach the host](/questions/docker-networking-issues-container-can-t-reach-host) covers the most common debugging case.
 
 ## Why interviewers ask this
 

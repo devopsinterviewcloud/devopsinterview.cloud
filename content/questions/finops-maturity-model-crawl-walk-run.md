@@ -2,6 +2,7 @@
 title: FinOps Maturity Model - Crawl Walk Run
 description: FinOps maturity model explained: Crawl, Walk, and Run stages, why many orgs stall in Walk, and how to answer this in a DevOps interview.
 date: 2026-10-22
+updated: 2026-11-20
 keywords: finops, devops interview questions, finops maturity model, finops interview questions, cloud cost optimization interview, finops crawl walk run
 category: finops
 youtube: y8R-TTaiQFU
@@ -20,6 +21,29 @@ The FinOps maturity model has three stages: Crawl, Walk, and Run. You rate each 
 **Run** is where every team follows the capability, the hard edge cases get worked, and automation is the preferred approach. For optimization that can mean automated rightsizing, but the stage is defined by adoption and automation, not by a particular tool.
 
 The detail that actually matters in an interview: Walk is a fine place to stop for some capabilities, but a lot of organizations stall there on the ones that need more. They have the dashboards, they have budgets and alerts configured, but nothing moves when the alerts fire. The reason isn't technical. They skip the cultural change. Alerts firing into a channel nobody acts on isn't FinOps maturity, it's just a louder version of Crawl. Getting to Run requires engineering teams to actually own their cost numbers the way they own uptime or latency, and that's an organizational shift, not a dashboard you buy.
+
+## What each stage looks like in practice
+
+Maturity is rated per capability, so it helps to show a few in detail:
+
+| Capability | Crawl | Walk | Run |
+|---|---|---|---|
+| Cost allocation | Some resources tagged, the bill split by account at month end | Most spend tagged to an owning team, with monthly showback reports | Nearly all spend allocated, including shared costs such as a Kubernetes cluster split by namespace usage |
+| Anomaly management | Someone notices the invoice | Daily anomaly alerts routed to the owning team | Alerts open a ticket with an owner, and each resolution tunes the next alert |
+| Commitments (RIs, Savings Plans, CUDs) | Bought ad hoc, or not at all | Coverage reviewed every quarter | Coverage and utilization targets tracked, purchases made in small regular steps |
+
+Put a number on at least one of them, such as the share of spend allocated to a known owner. It turns "we were at Walk" into something the interviewer can check.
+
+## Moving one team from Walk to Run
+
+For one team, it could look like this:
+
+1. Give every cost center a named owner, and put the team's weekly cost next to its error rate in the review it already holds.
+2. Pick a unit cost the team understands, such as cost per 1,000 requests or per active customer, so growth and waste stop looking the same.
+3. Automate the boring fixes: shut down non-production environments outside working hours, and open rightsizing pull requests from usage data for a human to approve.
+4. Route anomaly alerts into the team's normal ticket queue with a due date, and look at what got closed at the next review.
+
+[What is FinOps](/questions/what-is-finops-cloud-cost-management-explained) covers the basics, [a tagging strategy that works](/questions/cloud-cost-tagging-strategy-that-actually-works) is the foundation for allocation, and the [200-node cluster cost walkthrough](/blog/kubernetes-cost-optimization-200-node-cluster) shows the optimization side through a worked 200-node scenario.
 
 ## Why interviewers ask this
 

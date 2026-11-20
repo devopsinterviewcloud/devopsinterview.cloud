@@ -2,6 +2,7 @@
 title: mTLS vs TLS vs IPSec - Encryption in Transit
 description: mTLS vs TLS vs IPSec compared for DevOps interviews: how each encrypts traffic, where to use them, and the cert management catch.
 date: 2026-10-22
+updated: 2026-11-20
 keywords: networking, devops interview questions, mtls vs tls vs ipsec, encryption in transit interview, network security protocols
 category: networking
 youtube: scrol7F7hDQ
@@ -26,6 +27,46 @@ That maps to three distinct use cases:
 - **IPSec** for site-to-site VPNs, where you're encrypting traffic between networks rather than individual application connections.
 
 The detail most candidates skip: mTLS requires certificate management on both sides of the connection, not just the server. That means issuing, rotating, and revoking client certificates at scale, which is why service meshes (Istio, Linkerd) usually bundle a certificate authority to automate it. Without that automation, mTLS becomes an operational burden fast.
+
+## Side by side
+
+| | TLS | mTLS | IPSec |
+|---|---|---|---|
+| Layer | Usually on top of TCP (QUIC builds TLS 1.3 into UDP), below the application | Same as TLS | Network layer, on IP packets |
+| Who proves identity with a certificate | The server | Both sides | Both ends of the tunnel, with certificates or a pre-shared key |
+| What's protected | One connection for one application | One connection for one application | IP traffic between two hosts or networks that matches its policies, whatever the application protocol |
+| Typical use | Browsers and API clients calling a public endpoint | Service-to-service traffic in a mesh, partner and banking APIs | Site-to-site VPNs, cloud VPN gateways |
+| The hard part | Renewing server certificates on time | Issuing and rotating a certificate for every client | Matching config on both ends, MTU and NAT traversal |
+
+## Seeing the difference
+
+`openssl s_client` shows it in one command each:
+
+```bash
+# TLS: only the server presents a certificate
+openssl s_client -connect api.example.com:443 -servername api.example.com </dev/null
+
+# mTLS: the client presents one too
+openssl s_client -connect partner-api.example.com:443 -servername partner-api.example.com \
+  -cert client.crt -key client.key </dev/null
+```
+
+Leave out `-cert` and `-key` against a server that requires a client certificate and the handshake fails; with TLS 1.3 you'll usually see a `certificate required` alert. `curl` takes the same files with `--cert` and `--key`.
+
+In a mesh nobody runs this by hand. In Istio, one resource makes mTLS mandatory for a namespace:
+
+```yaml
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: payments
+spec:
+  mtls:
+    mode: STRICT
+```
+
+Roll it out in `PERMISSIVE` mode first, which accepts both plain text and mTLS, and switch to `STRICT` once every client is in the mesh. Istio and Linkerd both issue short-lived workload certificates, valid for 24 hours by default, and rotate them automatically. That takes care of workload certificates. The root and intermediate certificates the mesh signs with still expire, and they need their own rotation plan. Whether a mesh is worth running just for this is its own question: [do you actually need Istio?](/questions/service-mesh-explained-do-you-actually-need-istio)
 
 ## Why interviewers ask this
 
