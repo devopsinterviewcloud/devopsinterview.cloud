@@ -98,23 +98,6 @@ const nextConfig = {
     ];
   },
 
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          default: false,
-          vendors: false,
-          // posthog-js stays out of the shared vendor chunk: it's loaded on demand
-          // after the page (src/instrumentation-client.ts), not on first load.
-          vendor: { name: 'vendor', chunks: 'all', test: /node_modules[\\/](?!posthog-js[\\/])/, priority: 20 },
-          common: { name: 'common', minChunks: 2, chunks: 'all', priority: 10, reuseExistingChunk: true, enforce: true, test: /^(?!.*node_modules[\\/]posthog-js[\\/])/ },
-        },
-      };
-    }
-    return config;
-  },
-
   env: {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
