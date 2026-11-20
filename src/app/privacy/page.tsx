@@ -13,7 +13,7 @@ export default function PrivacyPolicy() {
       <div className="mx-auto w-[min(680px,100%_-_32px)] pt-10 pb-16 sm:pt-14 sm:pb-20">
         <div className="mb-10">
           <h1 className="display-2 text-[40px] sm:text-[56px]">Privacy Policy</h1>
-          <p className="meta mt-5 text-subtle">Last updated: November 13, 2026</p>
+          <p className="meta mt-5 text-subtle">Last updated: November 20, 2026</p>
         </div>
 
         <div className="prose-article">
@@ -83,9 +83,21 @@ export default function PrivacyPolicy() {
           <section>
             <h2>Cookies and Tracking</h2>
             <p>
-              We use cookieless Vercel Web Analytics to understand aggregate site traffic and
-              conversion events. These events do not include the email address or payment details
-              you enter at checkout. Your currency preference is stored locally in your browser.
+              We use two analytics services, Vercel Web Analytics and PostHog (on its US servers), to
+              understand aggregate site traffic and conversion events. Neither sets cookies. Vercel
+              records an approximate location (such as country and city) along with each page view.
+              PostHog runs in its cookieless mode: it doesn&apos;t keep analytics data in cookies or your
+              browser&apos;s storage, and it counts visitors with a one-way hash calculated on its own
+              servers. It receives your IP address with each event but removes it before the event is
+              stored. Each PostHog event notes the page, the site that referred you, any campaign tags,
+              and basic details of your browser and device (type, operating system, screen size,
+              language and time zone). We
+              don&apos;t record sessions, scrolling or your clicks, only page views and a few named steps
+              such as opening checkout. Before anything is sent, web addresses are cut down to the page
+              and any campaign tags, advertising click IDs are masked and search terms are removed, so
+              the tokens in our email links and payment references stay private. These events
+              do not include the email address or payment details you enter at checkout. Your currency
+              preference is stored locally in your browser.
               So we know which channels work, your browser also keeps a note of how you first and most
               recently reached the site (the referring website, any campaign tags in the link, and the
               page you landed on). It is sent to us only if you place an order or sign up for the free
