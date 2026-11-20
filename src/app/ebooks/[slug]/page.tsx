@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ebooksData from "@/data/ebooks.json";
@@ -232,12 +233,13 @@ export default async function EbookPage({
       <section className={style.fill}>
         <div className="wrap grid grid-cols-1 items-center gap-x-6 gap-y-8 py-10 lg:min-h-[560px] lg:grid-cols-12">
           <div className="w-44 sm:w-60 lg:col-span-5 lg:w-80 lg:justify-self-end">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={ebook.coverUrl}
               alt={`Cover of ${ebook.title}`}
-              width={320}
-              height={480}
+              width={1024}
+              height={1536}
+              sizes="(min-width: 1024px) 320px, (min-width: 640px) 240px, 176px"
+              priority
               className={`aspect-[2/3] w-full object-cover outline-2 ${style.onInk ? "outline-ink-rule" : "outline-ink"}`}
             />
           </div>

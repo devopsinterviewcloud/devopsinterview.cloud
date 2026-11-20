@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import EbookPrice from '@/components/EbookPrice'
 import ebooksData from '@/data/ebooks.json'
@@ -77,7 +78,7 @@ export default function EbooksPage() {
         </header>
 
         <ol>
-          {ebooks.map((ebook) => {
+          {ebooks.map((ebook, i) => {
             const style = bookStyle(ebook.id)
             const contents = getContents(ebook.slug)
             const { name } = splitTitle(ebook.title)
@@ -92,12 +93,13 @@ export default function EbooksPage() {
                   aria-label={`View ${ebook.title}`}
                   className="self-start sm:row-span-3 lg:row-span-2"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={ebook.coverUrl}
                     alt={`Cover of ${ebook.title}`}
-                    width={200}
-                    height={300}
+                    width={1024}
+                    height={1536}
+                    sizes="(min-width: 1024px) 200px, (min-width: 640px) 180px, 112px"
+                    priority={i === 0}
                     className="aspect-[2/3] w-full object-cover"
                   />
                 </Link>
