@@ -8,7 +8,12 @@ import { redactPostHogEvent, setPostHogClient, trackPageview } from '@/lib/analy
 // it on. The library is fetched once the page has loaded, so it neither adds
 // to first-load JavaScript nor holds up the load event; until then, page views
 // and events wait in src/lib/analytics.ts.
-const key = process.env.NEXT_PUBLIC_POSTHOG_KEY
+//
+// The project key is public by design (every page sends it), so it lives here
+// rather than in Vercel. Only the live domain reports; previews and local
+// builds stay out of the numbers.
+const POSTHOG_KEY = 'phc_y9WvrkDdURsWoj4uLGwxUCmiusz9gP99H5X94fEx4G2Q'
+const key = window.location.hostname === 'devopsinterview.cloud' ? POSTHOG_KEY : undefined
 
 function start(token: string) {
   import('posthog-js')
