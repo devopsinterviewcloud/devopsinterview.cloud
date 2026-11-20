@@ -120,7 +120,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       : []),
     ...questions.map((q) => ({
       url: `${baseUrl}/questions/${q.slug}`,
-      lastModified: new Date(q.date),
+      lastModified: new Date(q.updated),
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     })),
