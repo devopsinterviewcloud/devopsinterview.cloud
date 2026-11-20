@@ -34,7 +34,7 @@ On EKS, the Amazon VPC CNI gives every pod a private IP from the VPC, so two lim
 
 The Service gets a virtual IP, and the EndpointSlice controller tracks the pods matching its selector, with each endpoint's readiness. kube-proxy on every node watches Services and EndpointSlices and programs the kernel to rewrite traffic for the ClusterIP and port to one backend pod. In iptables and nftables modes the backend is picked at random by default, or by session affinity if set, and no interface holds the ClusterIP: the packet is rewritten on the client's node before it leaves.
 
-The backend is picked per connection, not per request. Connection tracking carries every later packet of that connection to the same pod, so long-lived HTTP/2 or gRPC connections stay pinned to whichever pods they first reached, and pods added by a scale-up get none of that traffic until clients reconnect. Balancing those needs client-side load balancing or a proxy that understands requests.
+The backend is picked per connection, not per request. Connection tracking carries every later packet of that connection to the same pod, so long-lived HTTP/2 or gRPC connections stay pinned to whichever pods they first reached, and pods added by a scale-up get none of that traffic until clients reconnect. Balancing those needs client-side load balancing or a proxy that understands requests. The [gRPC interview questions](/questions/grpc-vs-rest-when-to-use-which) page walks through both fixes.
 
 To check which mode kube-proxy runs in, ask it on the node:
 

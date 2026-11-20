@@ -2,6 +2,7 @@
 title: Thanos vs Cortex vs Mimir - Long-Term Prometheus Storage
 description: Thanos vs Cortex vs Mimir explained for DevOps interviews: when to pick each for long-term Prometheus storage and multi-tenancy.
 date: 2026-10-22
+updated: 2026-11-20
 keywords: observability, devops interview questions, prometheus long term storage, thanos vs cortex vs mimir, prometheus interview questions, observability interview questions advanced
 category: observability
 youtube: 2Za7VKWIhKE
@@ -18,6 +19,52 @@ Cortex excels at multi-tenancy. If you're running a SaaS platform and need to is
 Mimir is Grafana Labs' fork of Cortex, and it has noticeably better query performance. It's built on the same multi-tenant architecture Cortex pioneered, and it's the one Grafana actively develops and runs Grafana Cloud on.
 
 So the short version: Thanos for federating existing Prometheus instances with long retention, Cortex/Mimir for multi-tenant, horizontally scalable metrics backends, and Mimir specifically when you want that Cortex-style architecture with better query performance out of the box.
+
+## Side by side
+
+| | Thanos | Cortex | Mimir |
+|---|---|---|---|
+| How data gets in | A sidecar uploads Prometheus blocks to object storage, or Thanos Receive takes remote write | Remote write | Remote write |
+| Multi-tenancy | Possible with Receive, not the main design | Built in, per tenant via `X-Scope-OrgID` | Built in, same header |
+| Downsampling | Yes, the compactor keeps 5-minute and 1-hour versions for long ranges | No | No |
+| Prometheus HA pairs | Deduplicated at query time using a replica label | Deduplicated at ingest by the HA tracker | Deduplicated at ingest by the HA tracker |
+| License | Apache 2.0 | Apache 2.0 | AGPLv3 |
+| Backed by | CNCF incubating project | CNCF incubating project | Grafana Labs |
+
+Check the license row early. Running Mimir unmodified is usually fine, but some legal teams ban AGPL software outright, and that alone can rule it out.
+
+## What each looks like from Prometheus
+
+The two models show up in the config. With Thanos in sidecar mode, Prometheus changes little. Each instance needs a unique set of external labels, which Thanos uses to tell instances apart and to deduplicate HA pairs:
+
+```yaml
+global:
+  external_labels:
+    cluster: prod-eu-1
+    replica: prometheus-0
+```
+
+The sidecar runs next to Prometheus and uploads each finished block:
+
+```bash
+thanos sidecar \
+  --tsdb.path=/prometheus \
+  --prometheus.url=http://localhost:9090 \
+  --objstore.config-file=/etc/thanos/bucket.yaml
+```
+
+Prometheus needs `--storage.tsdb.min-block-duration=2h` and `--storage.tsdb.max-block-duration=2h` so it doesn't compact blocks locally before the sidecar uploads them. With Mimir or Cortex, Prometheus pushes instead:
+
+```yaml
+remote_write:
+  - url: http://mimir-gateway/api/v1/push
+    headers:
+      X-Scope-OrgID: team-payments
+```
+
+In that model Prometheus can run in agent mode (`--agent`), which only scrapes and forwards, so local storage stays small. Setting the tenant header from Prometheus like this is fine in a trusted internal setup. For customers, an authenticating proxy sets it, as above.
+
+[PromQL queries you must know](/questions/prometheus-promql-5-queries-you-must-know) and [RED vs USE](/questions/red-vs-use-method-which-metrics-to-track) cover what you'd actually query once the data is stored.
 
 ## Why interviewers ask this
 

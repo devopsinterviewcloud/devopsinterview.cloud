@@ -196,7 +196,7 @@ kubectl get vulnerabilityreports -n production -o wide
 
 **Secrets that never touch the repository.** The secrets and SAST jobs above only see what is in the repository. A database password in a Helm values file kept outside the repo, or pasted into a ConfigMap, is invisible to them. That needs a different control: keep secrets in Vault or a cloud secrets manager, sync them into Kubernetes Secrets with the External Secrets Operator, and enable encryption at rest for Secrets in etcd.
 
-**Gates nobody has tested.** Make each gate fail at least once on purpose: open a pull request containing a dummy credential that matches a gitleaks rule, push an unsigned image and try to run it. A gate you have never seen block anything may still be in Audit mode.
+**Gates nobody has tested.** Make each gate fail at least once on purpose: open a pull request containing a dummy credential that matches a gitleaks rule, push an unsigned image and try to run it. A gate you have never seen block anything may still be in Audit mode. Once a gate does block, keep its run logs: they're the evidence an auditor asks for, and [ISO 27001 for DevOps](/questions/iso-27001-for-devops-5-controls-you-need) shows which controls they map to.
 
 ## Why generate an SBOM for every image?
 

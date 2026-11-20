@@ -61,7 +61,7 @@ Details interviewers probe on:
 
 - **`npm ci`, not `npm install`.** It installs exactly what the lockfile says, fails loudly on drift, and is faster in CI. `npm install` can silently mutate the lockfile.
 - **`COPY package*.json ./` before `COPY . .`** so the dependency layer is cached and only rebuilds when the lockfile changes, not on every source edit.
-- **A non-root user.** Root containers are among the first things any security review flags; creating a dedicated user costs three lines.
+- **A non-root user.** Root containers are among the first things any security review flags; creating a dedicated user costs three lines. Taking root away from the Docker daemon itself is a separate step, covered in [rootless Docker](/questions/rootless-docker-run-containers-without-root).
 - **Pinned base versions.** `node:22-alpine` beats `node:latest`, but be precise in interviews: a version tag is still mutable and will pick up new patch builds. Only pinning by digest (`node@sha256:...`) makes the base truly immutable.
 
 Two supporting pieces do a surprising amount of work. A `.dockerignore` excluding `node_modules`, `.git`, tests and docs keeps the build context small and stops `COPY . .` from dragging junk into layers. And `docker history <image>` (or the excellent [dive](https://github.com/wagoodman/dive) tool) shows you exactly which instruction created which megabytes, which is how you find the accidental 400MB layer.
@@ -85,7 +85,7 @@ A Node.js image bottoms out around 150MB because the runtime itself weighs that 
 - **Distroless** (Google's images): your language runtime, CA certificates, tzdata, and nothing else. No shell, no package manager, dramatically reduced attack surface, and noticeably quieter CVE scans. The debugging story needs a plan: use `kubectl debug` with ephemeral containers, or the `:debug` image variants which include busybox.
 - **Scratch**: literally empty. Only works for static binaries, and you must copy in CA certificates yourself if the app makes TLS calls. The leanest and most secure option when it fits.
 
-A defensible production default: Alpine for interpreted languages where the debugging ergonomics matter, distroless where security posture is the priority, scratch for static binaries.
+A defensible production default: Alpine for interpreted languages where the debugging ergonomics matter, distroless where security posture is the priority, scratch for static binaries. The interview version of this comparison, including the musl libc problems that catch teams out on Alpine, is in [Alpine vs Distroless vs Scratch](/questions/alpine-vs-distroless-vs-scratch-base-image-showdown).
 
 ## What this buys you beyond disk
 

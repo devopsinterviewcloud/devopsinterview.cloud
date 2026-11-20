@@ -2,6 +2,7 @@
 title: Rootless Docker - Run Containers Without Root
 description: How to run Docker rootless so the daemon never needs root, including setup commands and the privileged-port limitation interviewers probe for.
 date: 2026-10-22
+updated: 2026-11-20
 keywords: docker, devops interview questions, rootless docker, docker rootless mode tutorial, docker without root privileges, docker security best practices
 category: docker
 youtube: XYmt03WB5m4
@@ -19,6 +20,38 @@ The detail most people miss: because the daemon has no root privileges, it can't
 
 With that constraint accounted for, rootless Docker gives you a daemon and container runtime that no longer need root to operate, which closes off one of the most common container escape paths.
 
+## Rootful vs rootless at a glance
+
+| | Rootful (default) | Rootless |
+|---|---|---|
+| Daemon runs as | root | Your user |
+| Root inside a container is | UID 0 on the host, limited by dropped capabilities and seccomp | Your unprivileged user, through a user namespace |
+| API socket | `/var/run/docker.sock` | `$XDG_RUNTIME_DIR/docker.sock` |
+| Ports below 1024 | Work | Blocked unless you change the defaults |
+| CPU and memory limits | Work | Need cgroup v2 with systemd |
+| Not supported | Nothing extra | AppArmor, checkpoint, overlay networks, SCTP ports |
+| Whoever gets the socket | Effectively has root on the host | Has your user account |
+
+That last row is the whole point: [an exposed Docker socket](/questions/docker-socket-exposed-why-that-s-dangerous) on a rootful host is a full host takeover.
+
+## Setting it up
+
+These commands assume Docker Engine and the CLI are already installed from Docker's apt repository. If a rootful daemon is running, stop it with `sudo systemctl disable --now docker.service docker.socket` and remove its leftover socket with `sudo rm -f /var/run/docker.sock`, or the setup tool refuses to continue.
+
+```bash
+# Once, as an admin: install the helpers and check the subordinate ID ranges
+sudo apt-get install -y uidmap docker-ce-rootless-extras
+grep "^$USER:" /etc/subuid /etc/subgid   # each needs at least 65,536 IDs
+
+# As your normal user
+dockerd-rootless-setuptool.sh install
+systemctl --user enable --now docker
+sudo loginctl enable-linger "$USER"      # keep the daemon running after logout
+docker info --format '{{.SecurityOptions}}'   # should include name=rootless
+```
+
+One thing trips people up after setup: with the default port driver, your app doesn't see the real client IP on published ports, which breaks IP allow-lists and means access logs no longer show who connected. Switching RootlessKit to the `slirp4netns` port driver keeps the source IP, at some cost in throughput.
+
 ## Why interviewers ask this
 
 This question separates people who've memorized "run containers as a non-root user" from people who understand the daemon itself is the real privilege-escalation risk. They want to know if you can reason about attack surface, not just recite a Dockerfile `USER` directive. It also tests whether you've actually operated rootless mode and hit its real-world limitations, like the port restriction.
@@ -27,6 +60,7 @@ This question separates people who've memorized "run containers as a non-root us
 
 - **How do you expose a rootless container on port 443 then?** You map to a high unprivileged port on the host and put a reverse proxy, load balancer, or `iptables`/`systemd` socket activation in front of it to forward traffic from 443.
 - **Does rootless Docker change anything inside the container itself?** Mostly no, but root inside the container maps to your unprivileged host user, so anything that needs real host privileges fails, and networking and resource limits (cgroup v2 with systemd) behave differently. Test workloads under rootless mode first.
+- **Is rootless mode the same as `userns-remap`?** No. With `userns-remap` the daemon still runs as root and only the containers are mapped to a range of unprivileged IDs. Rootless takes root away from the daemon too. Podman goes further and has no daemon at all; see [Docker vs Podman vs containerd](/questions/docker-vs-podman-vs-containerd-container-runtimes).
 - **What's the actual security benefit here?** If the daemon or a container escapes, the blast radius is limited to a regular user's permissions instead of root, since the daemon was never running as root to begin with.
 
 ## The common wrong answer

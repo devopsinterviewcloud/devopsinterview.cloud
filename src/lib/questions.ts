@@ -15,6 +15,7 @@ export type Question = {
   title: string
   description: string
   date: string // ISO yyyy-mm-dd
+  updated: string // last real content change, defaults to date
   keywords: string[]
   category: string
   youtubeId: string | null
@@ -106,6 +107,7 @@ function loadQuestion(file: string): Question {
     title: fm.title ?? slug,
     description: fm.description ?? '',
     date: fm.date ?? '2026-01-01',
+    updated: fm.updated ?? fm.date ?? '2026-01-01',
     keywords: (fm.keywords ?? '').split(',').map((k) => k.trim()).filter(Boolean),
     category: fm.category ?? 'scenario',
     youtubeId: fm.youtube ?? null,

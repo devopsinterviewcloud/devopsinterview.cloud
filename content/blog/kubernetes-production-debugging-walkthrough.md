@@ -110,7 +110,7 @@ Checking what the running process actually sees, rather than what the manifest s
 
 ## Ephemeral containers: debugging images that have no shell
 
-Production images are increasingly distroless or heavily slimmed: no shell, no curl, nothing to `kubectl exec` into. The old workaround was rebuilding the image with debug tools and redeploying, and hoping the bug still reproduced. Ephemeral containers (stable since Kubernetes 1.25) end that:
+Production images are increasingly [distroless](/questions/alpine-vs-distroless-vs-scratch-base-image-showdown) or heavily slimmed: no shell, no curl, nothing to `kubectl exec` into. The old workaround was rebuilding the image with debug tools and redeploying, and hoping the bug still reproduced. Ephemeral containers (stable since Kubernetes 1.25) end that:
 
 ```
 $ kubectl debug -it payment-7d9f8b6c4-xk2lp -n prod --image=busybox --target=payment

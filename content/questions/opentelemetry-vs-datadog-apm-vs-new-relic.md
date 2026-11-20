@@ -2,6 +2,7 @@
 title: OpenTelemetry vs Datadog APM vs New Relic
 description: How to compare OpenTelemetry, Datadog, and New Relic in a DevOps interview, and why vendor lock-in is the real question underneath.
 date: 2026-10-22
+updated: 2026-11-20
 keywords: observability, devops interview questions, opentelemetry vs datadog, opentelemetry vs new relic apm, observability tools comparison, apm tools comparison 2026
 category: observability
 youtube: ncBbEgwTW_I
@@ -18,6 +19,48 @@ Datadog and New Relic are full-stack observability platforms. They give you adva
 The smart pattern most mature teams land on: use OpenTelemetry to instrument and collect telemetry, then decide on a backend later. You can send that data to Datadog, New Relic, an open-source stack, or anything that speaks OTLP. The instrumentation layer stays yours. The backend becomes a swappable component instead of a foundational commitment.
 
 The key point to make explicit in an interview: avoid the vendor trap from day one. If you instrument directly against a proprietary SDK, switching vendors later means replacing the agent and reworking custom instrumentation in every service. If you instrument with OpenTelemetry first, switching where the data goes is a configuration change in your collector. You still rebuild dashboards and alerts, but you don't touch application code.
+
+## Side by side
+
+| | OpenTelemetry | Datadog | New Relic |
+|---|---|---|---|
+| What it is | An open standard: APIs, SDKs, the Collector and the OTLP protocol | A hosted observability platform | A hosted observability platform |
+| Stores and shows your data | No, you choose a backend | Yes | Yes |
+| Instrumentation | Vendor-neutral SDKs and auto-instrumentation | Datadog's agent and tracing libraries, or OpenTelemetry SDKs | New Relic's agents, or OpenTelemetry SDKs |
+| Accepts OTLP | It defines it | Yes, directly, through the Datadog Agent, or through the Collector | Yes, through a native OTLP endpoint |
+| How you pay | Free software; you pay for the backend and for running Collectors | Mostly per host, plus usage such as logs ingested and indexed | Per GB of data ingested, plus either users or compute used, depending on the plan |
+| Main risk | More setup and operations on your side | A fast-growing bill, and lock-in if you use its own libraries | The same as Datadog |
+
+## What switching backends actually looks like
+
+With a Collector in the middle, moving from one vendor to the other is an exporter change. Both can sit in the same config while you compare:
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+exporters:
+  datadog:
+    api:
+      key: ${env:DD_API_KEY}
+  otlp_http/newrelic:
+    endpoint: https://otlp.nr-data.net
+    headers:
+      api-key: ${env:NEW_RELIC_LICENSE_KEY}
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [datadog]    # switch to otlp_http/newrelic to move
+```
+
+The `datadog` exporter ships in the Collector's contrib distribution, and Datadog's docs add its connector to the pipeline so APM gets trace metrics. Older Collector versions call the New Relic exporter `otlphttp`.
+
+Be honest about what doesn't move. Dashboards, monitors, SLOs and anything built on vendor-only features have to be rebuilt, and some vendor features work best, or only, with the vendor's own agent. Check which of those your team relies on before you promise a painless switch.
+
+[The OpenTelemetry Collector](/questions/opentelemetry-collector-unified-telemetry-pipeline) explains the pipeline itself, and [Jaeger vs Zipkin vs Tempo](/questions/jaeger-vs-zipkin-vs-tempo-tracing-tools-compared) covers open-source backends you could send the same data to.
 
 ## Why interviewers ask this
 

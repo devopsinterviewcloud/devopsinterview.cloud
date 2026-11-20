@@ -8,6 +8,8 @@ describe('questions', () => {
       expect(q.title).toBeTruthy()
       expect(q.description.length).toBeGreaterThan(50)
       expect(q.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+      expect(q.updated).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+      expect(q.updated >= q.date).toBe(true)
       expect(q.html).toContain('The answer interviewers want')
     }
   })
